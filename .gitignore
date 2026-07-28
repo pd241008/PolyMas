@@ -65,6 +65,10 @@ proto/gen/
 .metals/
 .scala-build/
 
+# === Proprietary / NDA-protected ===
+docs/
+results/
+
 # === OS ===
 *.pid
 *.seed
