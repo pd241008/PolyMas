@@ -1,0 +1,118 @@
+syntax = "proto3";
+
+package polymas.v1;
+
+option go_package = "github.com/polymas/proto/gen/go/polymas/v1;polymasv1";
+option java_package = "com.polymas.proto.v1";
+option java_multiple_files = true;
+option python_package = "polymas.proto.v1";
+
+import "google/protobuf/timestamp.proto";
+
+// Sex enum for patient biological sex.
+enum Sex {
+  SEX_UNSPECIFIED = 0;
+  SEX_MALE = 1;
+  SEX_FEMALE = 2;
+  SEX_INTERSEX = 3;
+}
+
+// Ethnicity follows WHO classification groups.
+enum Ethnicity {
+  ETHNICITY_UNSPECIFIED = 0;
+  ETHNICITY_EUROPEAN = 1;
+  ETHNICITY_AFRICAN = 2;
+  ETHNICITY_EAST_ASIAN = 3;
+  ETHNICITY_SOUTH_ASIAN = 4;
+  ETHNICITY_MIXED = 5;
+  ETHNICITY_OTHER = 6;
+}
+
+// A single polygenic risk score for a specific disease/trait.
+message PolygenicRiskScore {
+  string locus_id = 1;
+  string gene_symbol = 2;
+  float continuous_score = 3;
+  float z_score = 4;
+  float p_value = 5;
+  string source_cohort = 6;
+  map<string, string> metadata = 7;
+}
+
+// Clinical feature captured from patient records.
+message ClinicalFeature {
+  string feature_id = 1;
+  string feature_name = 2;
+  oneof value {
+    bool bool_value = 3;
+    float float_value = 4;
+    string categorical_value = 5;
+  }
+}
+
+// Complete patient genotypic + clinical profile.
+message PatientProfile {
+  string patient_id = 1;
+  Sex sex = 2;
+  Ethnicity ethnicity = 3;
+  uint32 age_at_diagnosis_days = 4;
+  repeated PolygenicRiskScore risk_scores = 5;
+  repeated ClinicalFeature clinical_features = 6;
+  map<string, string> annotations = 7;
+  google.protobuf.Timestamp created_at = 8;
+}
+
+// Disease labels for multi-label prediction.
+enum DiseaseLabel {
+  DISEASE_LABEL_UNSPECIFIED = 0;
+  DISEASE_LABEL_T1D = 1;
+  DISEASE_LABEL_T2D = 2;
+  DISEASE_LABEL_LADA = 3;
+  DISEASE_LABEL_GESTATIONAL_DM = 4;
+  DISEASE_LABEL_MONOGENIC_DIABETES = 5;
+}
+
+// Individual disease prediction with probability.
+message DiseasePrediction {
+  DiseaseLabel label = 1;
+  float probability = 2;
+  float confidence_lower = 3;
+  float confidence_upper = 4;
+  string model_version = 5;
+}
+
+// Feature importance explanation for a single prediction.
+message FeatureAttribution {
+  string feature_id = 1;
+  string feature_name = 2;
+  float attribution_value = 3;
+  string method = 4;
+}
+
+// Cluster assignment from hierarchical clustering.
+message ClusterAssignment {
+  string cluster_id = 1;
+  float distance_to_centroid = 2;
+  repeated string member_patient_ids = 3;
+  float silhouette_score = 4;
+}
+
+// Orchestrator run manifest.
+message RunManifest {
+  string run_id = 1;
+  string pipeline_version = 2;
+  google.protobuf.Timestamp started_at = 3;
+  google.protobuf.Timestamp completed_at = 4;
+  map<string, string> input_checksums = 5;
+  map<string, string> output_checksums = 6;
+  RunStatus status = 7;
+  string error_message = 8;
+}
+
+enum RunStatus {
+  RUN_STATUS_UNSPECIFIED = 0;
+  RUN_STATUS_QUEUED = 1;
+  RUN_STATUS_RUNNING = 2;
+  RUN_STATUS_COMPLETED = 3;
+  RUN_STATUS_FAILED = 4;
+}

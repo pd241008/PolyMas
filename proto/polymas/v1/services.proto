@@ -1,0 +1,211 @@
+syntax = "proto3";
+
+package polymas.v1;
+
+option go_package = "github.com/polymas/proto/gen/go/polymas/v1;polymasv1";
+option java_package = "com.polymas.proto.v1";
+option java_multiple_files = true;
+option python_package = "polymas.proto.v1";
+
+import "google/protobuf/timestamp.proto";
+import "polymas/v1/patient.proto";
+
+// ---------- Ingestion Service ----------
+
+service IngestionService {
+  // Pull raw GWAS catalog data for specified loci.
+  rpc PullGwasCatalog(PullGwasRequest) returns (stream RawGwasPayload);
+
+  // Pull raw ImmPort immunology data.
+  rpc PullImmPort(PullImmPortRequest) returns (stream RawImmPortPayload);
+
+  // Health check.
+  rpc HealthCheck(HealthCheckRequest) returns (HealthCheckResponse);
+}
+
+message PullGwasRequest {
+  repeated string locus_ids = 1;
+  repeated string efo_trait_ids = 2;
+  float min_p_value = 3;
+}
+
+message PullImmPortRequest {
+  repeated string study_ids = 1;
+  repeated string assay_types = 2;
+}
+
+message RawGwasPayload {
+  string source = 1;
+  bytes raw_json = 2;
+  google.protobuf.Timestamp fetched_at = 3;
+  string etag = 4;
+}
+
+message RawImmPortPayload {
+  string source = 1;
+  bytes raw_json = 2;
+  google.protobuf.Timestamp fetched_at = 3;
+}
+
+// ---------- Normalization Service ----------
+
+service NormalizationService {
+  // Clean and normalize raw payloads into canonical PatientProfile.
+  rpc NormalizeBatch(NormalizeBatchRequest) returns (NormalizeBatchResponse);
+
+  // Validate a single profile against schema rules.
+  rpc ValidateProfile(ValidateProfileRequest) returns (ValidateProfileResponse);
+
+  rpc HealthCheck(HealthCheckRequest) returns (HealthCheckResponse);
+}
+
+message NormalizeBatchRequest {
+  string batch_id = 1;
+  repeated bytes raw_payloads = 2;
+  SourceFormat source_format = 3;
+}
+
+enum SourceFormat {
+  SOURCE_FORMAT_UNSPECIFIED = 0;
+  SOURCE_FORMAT_GWAS = 1;
+  SOURCE_FORMAT_IMMPORT = 2;
+}
+
+message NormalizeBatchResponse {
+  string batch_id = 1;
+  repeated PatientProfile profiles = 2;
+  repeated string validation_errors = 3;
+  uint32 profiles_accepted = 4;
+  uint32 profiles_rejected = 5;
+}
+
+message ValidateProfileRequest {
+  PatientProfile profile = 1;
+}
+
+message ValidateProfileResponse {
+  bool is_valid = 1;
+  repeated string errors = 2;
+  repeated string warnings = 3;
+}
+
+// ---------- ML Engine Service ----------
+
+service MLEngineService {
+  // Score a batch of patient profiles.
+  rpc ScoreBatch(ScoreBatchRequest) returns (ScoreBatchResponse);
+
+  // Get explanations for a scored patient.
+  rpc ExplainPatient(ExplainPatientRequest) returns (ExplainPatientResponse);
+
+  // Run hierarchical clustering on a set of predictions.
+  rpc ClusterPredictions(ClusterPredictionsRequest) returns (ClusterPredictionsResponse);
+
+  rpc HealthCheck(HealthCheckRequest) returns (HealthCheckResponse);
+}
+
+message ScoreBatchRequest {
+  repeated PatientProfile profiles = 1;
+  string model_version = 2;
+  bool include_confidence = 3;
+}
+
+message ScoreBatchResponse {
+  repeated ScoredPatient scored_patients = 1;
+  string model_version = 2;
+  google.protobuf.Timestamp scored_at = 3;
+}
+
+message ScoredPatient {
+  string patient_id = 1;
+  repeated DiseasePrediction predictions = 2;
+}
+
+message ExplainPatientRequest {
+  string patient_id = 1;
+  PatientProfile profile = 2;
+  ExplainMethod method = 3;
+  DiseaseLabel target_disease = 4;
+}
+
+enum ExplainMethod {
+  EXPLAIN_METHOD_UNSPECIFIED = 0;
+  EXPLAIN_METHOD_SHAP = 1;
+  EXPLAIN_METHOD_LIME = 2;
+}
+
+message ExplainPatientResponse {
+  string patient_id = 1;
+  DiseaseLabel target_disease = 2;
+  repeated FeatureAttribution attributions = 3;
+  string explanation_json = 4;
+}
+
+message ClusterPredictionsRequest {
+  repeated ScoredPatient scored_patients = 1;
+  uint32 num_clusters = 2;
+  string linkage_method = 3;
+}
+
+message ClusterPredictionsResponse {
+  repeated ClusterAssignment clusters = 1;
+  string dendrogram_json = 2;
+  float silhouette_score = 3;
+}
+
+// ---------- Control Plane (Orchestrator) Service ----------
+
+service ControlPlaneService {
+  // Trigger a full pipeline run.
+  rpc StartRun(StartRunRequest) returns (RunManifest);
+
+  // Get status of a running/completed run.
+  rpc GetRunStatus(GetRunStatusRequest) returns (RunManifest);
+
+  // List recent runs.
+  rpc ListRuns(ListRunsRequest) returns (ListRunsResponse);
+
+  // Cancel a running pipeline.
+  rpc CancelRun(CancelRunRequest) returns (CancelRunResponse);
+
+  rpc HealthCheck(HealthCheckRequest) returns (HealthCheckResponse);
+}
+
+message StartRunRequest {
+  repeated string locus_ids = 1;
+  string model_version = 2;
+  map<string, string> parameters = 3;
+}
+
+message GetRunStatusRequest {
+  string run_id = 1;
+}
+
+message ListRunsRequest {
+  uint32 page_size = 1;
+  string page_token = 2;
+}
+
+message ListRunsResponse {
+  repeated RunManifest runs = 1;
+  string next_page_token = 2;
+}
+
+message CancelRunRequest {
+  string run_id = 1;
+}
+
+message CancelRunResponse {
+  bool cancelled = 1;
+  string message = 2;
+}
+
+// ---------- Common ----------
+
+message HealthCheckRequest {}
+
+message HealthCheckResponse {
+  bool healthy = 1;
+  string service_name = 2;
+  string version = 3;
+}
