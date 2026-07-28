@@ -1,0 +1,22 @@
+server:
+  grpc_port: 50054
+  workers: 4
+
+model:
+  version: "0.1.0"
+  base_learners:
+    - xgboost
+    - catboost
+    - lightgbm
+  voting: weighted_soft
+  Platt scaling: true
+
+explainability:
+  shap_method: tree
+  lime_samples: 1000
+
+clustering:
+  linkage: ward
+  distance_metric: euclidean
+  min_clusters: 3
+  max_clusters: 10
