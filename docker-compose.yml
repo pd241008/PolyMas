@@ -1,0 +1,96 @@
+version: "3.9"
+
+services:
+  # ---------- Protobuf codegen (build-only) ----------
+  protobuf-gen:
+    build:
+      context: .
+      dockerfile: scripts/Dockerfile.proto
+    volumes:
+      - ./proto:/proto
+      - ./proto/gen:/proto/gen
+    profiles: ["codegen"]
+
+  # ---------- Scala Ingestion Service ----------
+  ingestion-scala:
+    build:
+      context: ./services/ingestion-scala
+      dockerfile: Dockerfile
+    ports:
+      - "50051:50051"
+    environment:
+      - RUST_LOG=info
+      - GWAS_API_BASE_URL=${GWAS_API_BASE_URL:-https://www.ebi.ac.uk/gwas/rest/api}
+      - IMMPORT_API_BASE_URL=${IMMPORT_API_BASE_URL:-https://immport.org/immport/api}
+    depends_on:
+      - normalization-go
+    networks:
+      - polymas-net
+
+  # ---------- Go Normalization Service ----------
+  normalization-go:
+    build:
+      context: ./services/normalization-go
+      dockerfile: Dockerfile
+    ports:
+      - "50052:50052"
+    environment:
+      - GIN_MODE=release
+      - GRPC_PORT=50052
+    networks:
+      - polymas-net
+
+  # ---------- Rust Control Plane ----------
+  control-plane:
+    build:
+      context: ./services/control-plane-rust
+      dockerfile: Dockerfile
+    ports:
+      - "50053:50053"
+    environment:
+      - RUST_LOG=info,polymas_control_plane=debug
+      - GRPC_PORT=50053
+    depends_on:
+      - ingestion-scala
+      - normalization-go
+      - ml-engine
+    networks:
+      - polymas-net
+
+  # ---------- Python ML Engine ----------
+  ml-engine:
+    build:
+      context: ./services/ml-engine-python
+      dockerfile: Dockerfile
+    ports:
+      - "50054:50054"
+    environment:
+      - GRPC_PORT=50054
+      - MODEL_DIR=/app/models
+      - LOG_LEVEL=INFO
+    volumes:
+      - ml-models:/app/models
+    networks:
+      - polymas-net
+
+  # ---------- Next.js Dashboard ----------
+  dashboard:
+    build:
+      context: ./apps/dashboard-nextjs
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_GRPC_GATEWAY=http://control-plane:50053
+    depends_on:
+      - control-plane
+    networks:
+      - polymas-net
+
+volumes:
+  ml-models:
+    driver: local
+
+networks:
+  polymas-net:
+    driver: bridge

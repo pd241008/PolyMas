@@ -1,0 +1,74 @@
+# === General ===
+*.log
+*.tmp
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+.env
+.env.local
+.env.*.local
+
+# === Rust ===
+services/control-plane-rust/target/
+services/control-plane-rust/**/*.pdb
+
+# === Go ===
+services/normalization-go/bin/
+services/normalization-go/vendor/
+services/normalization-go/*.exe
+services/normalization-go/*.test
+services/normalization-go/*.out
+
+# === Scala/JVM ===
+services/ingestion-scala/target/
+services/ingestion-scala/project/target/
+services/ingestion-scala/project/project/
+services/ingestion-scala/.bsp/
+services/ingestion-scala/metals.sbt
+
+# === Python ===
+services/ml-engine-python/__pycache__/
+services/ml-engine-python/**/__pycache__/
+services/ml-engine-python/.venv/
+services/ml-engine-python/*.egg-info/
+services/ml-engine-python/dist/
+services/ml-engine-python/.mypy_cache/
+services/ml-engine-python/.pytest_cache/
+services/ml-engine-python/.ruff_cache/
+
+# === Next.js ===
+apps/dashboard-nextjs/node_modules/
+apps/dashboard-nextjs/.next/
+apps/dashboard-nextjs/out/
+apps/dashboard-nextjs/.env*.local
+
+# === Protobuf generated ===
+proto/gen/
+**/*.pb.go
+**/*_grpc.pb.go
+**/*_pb2.py
+**/*_grpc.py
+**/*.pb.rs
+
+# === Docker ===
+.docker/
+
+# === IDE ===
+.vscode/
+.idea/
+*.iml
+
+# === Scala build tools ===
+.bsp/
+.metals/
+.scala-build/
+
+# === OS ===
+*.pid
+*.seed
+*.pid.lock
+.bsp/
+.metals/
+.scala-build/
