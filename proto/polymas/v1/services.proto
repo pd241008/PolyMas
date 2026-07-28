@@ -5,7 +5,6 @@ package polymas.v1;
 option go_package = "github.com/polymas/proto/gen/go/polymas/v1;polymasv1";
 option java_package = "com.polymas.proto.v1";
 option java_multiple_files = true;
-option python_package = "polymas.proto.v1";
 
 import "google/protobuf/timestamp.proto";
 import "polymas/v1/patient.proto";
