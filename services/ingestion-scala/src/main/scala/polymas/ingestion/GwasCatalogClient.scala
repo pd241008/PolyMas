@@ -1,5 +1,6 @@
 package polymas.ingestion
 
+import com.polymas.proto.v1.*
 import io.grpc.stub.StreamObserver
 
 class GwasCatalogClient:
