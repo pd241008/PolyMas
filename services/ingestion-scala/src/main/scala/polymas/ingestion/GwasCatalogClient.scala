@@ -13,16 +13,8 @@ import sttp.client3.circe.*
 import java.time.Instant
 import scala.jdk.CollectionConverters.*
 
-class GwasCatalogClient extends StrictLogging:
-
-  private val baseUrl = sys.env.getOrElse(
-    "GWAS_API_BASE_URL",
-    "https://www.ebi.ac.uk/gwas/rest/api",
-  )
-
-  private val backend = HttpClientSyncBackend()
-
-  private case class Association(
+object GwasCatalogClient:
+  case class Association(
     rsId: Option[String],
     pvalue: Option[Double],
     pvalueText: Option[String],
@@ -35,10 +27,20 @@ class GwasCatalogClient extends StrictLogging:
     range: Option[String],
   )
 
-  private case class Embedded(associations: List[Association])
-  private case class Link(href: String)
-  private case class Links(self: Option[Link], next: Option[Link])
-  private case class GwasResponse(_embedded: Embedded, _links: Links)
+  case class Embedded(associations: List[Association])
+  case class Link(href: String)
+  case class Links(self: Option[Link], next: Option[Link])
+  case class GwasResponse(_embedded: Embedded, _links: Links)
+
+class GwasCatalogClient extends StrictLogging:
+  import GwasCatalogClient.*
+
+  private val baseUrl = sys.env.getOrElse(
+    "GWAS_API_BASE_URL",
+    "https://www.ebi.ac.uk/gwas/rest/api",
+  )
+
+  private val backend = HttpClientSyncBackend()
 
   def streamResults(
       request: PullGwasRequest,
@@ -76,7 +78,7 @@ class GwasCatalogClient extends StrictLogging:
 
     observer.onCompleted()
 
-  private def passesFilter(
+  private[ingestion] def passesFilter(
       a: Association,
       efoFilter: Set[String],
       minPVal: Float,
