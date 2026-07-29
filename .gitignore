@@ -45,9 +45,7 @@ apps/dashboard-nextjs/out/
 apps/dashboard-nextjs/.env*.local
 
 # === Protobuf generated ===
-# Generated files are tracked to resolve IDE squiggly errors before codegen
-# Only exclude Rust gen (not yet wired) and build artifacts
-proto/gen/rust/
+proto/gen/
 **/*.pb.rs
 
 # === Docker ===
@@ -66,6 +64,8 @@ proto/gen/rust/
 # === Proprietary / NDA-protected ===
 docs/
 results/
+
+
 
 # === OS ===
 *.pid
