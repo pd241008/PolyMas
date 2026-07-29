@@ -12,14 +12,13 @@ import sttp.client3.*
 import java.time.Instant
 import scala.jdk.CollectionConverters.*
 
-class ImmPortClient extends StrictLogging:
-
-  private val baseUrl = sys.env.getOrElse(
-    "IMMPORT_API_BASE_URL",
-    "https://www.immport.org/data/query",
-  )
-
-  private val apiKey = sys.env.getOrElse("IMMPORT_API_KEY", "")
+class ImmPortClient(
+    baseUrl: String = sys.env.getOrElse(
+      "IMMPORT_API_BASE_URL",
+      "https://www.immport.org/data/query",
+    ),
+    apiKey: String = sys.env.getOrElse("IMMPORT_API_KEY", ""),
+) extends StrictLogging:
 
   private val backend = HttpClientSyncBackend()
 
@@ -62,7 +61,7 @@ class ImmPortClient extends StrictLogging:
 
     observer.onCompleted()
 
-  private def authHeaders: Map[String, String] =
+  private[ingestion] def authHeaders: Map[String, String] =
     if apiKey.nonEmpty then Map("Authorization" -> s"Bearer $apiKey")
     else
       logger.warn("IMMPORT_API_KEY not set — requests may be rejected")
