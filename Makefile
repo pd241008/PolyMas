@@ -17,14 +17,15 @@ PROTO_DIR    := proto
 proto:
 	@echo "==> Generating protobuf code..."
 	@mkdir -p $(PROTO_OUT)/go $(PROTO_OUT)/python $(PROTO_OUT)/java
-	protoc --proto_path=$(PROTO_DIR) \
+	PROTOC := protoc-25
+	$$PROTOC --proto_path=$(PROTO_DIR) \
 		--go_out=$(PROTO_OUT)/go --go_opt=paths=source_relative \
 		--go-grpc_out=$(PROTO_OUT)/go --go-grpc_opt=paths=source_relative \
 		--python_out=$(PROTO_OUT)/python \
 		--grpc_python_out=$(PROTO_OUT)/python \
 		--java_out=$(PROTO_OUT)/java \
 		$(PROTO_DIR)/polymas/v1/*.proto
-	protoc --proto_path=$(PROTO_DIR) \
+	$$PROTOC --proto_path=$(PROTO_DIR) \
 		--grpc-java_out=$(PROTO_OUT)/java \
 		$(PROTO_DIR)/polymas/v1/services.proto
 	@echo "==> Protobuf generation complete."
