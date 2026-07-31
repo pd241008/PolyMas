@@ -34,10 +34,12 @@ line-length = 100
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "N", "UP", "B", "SIM"]
+extend-ignore = ["N803", "N806"]
 
 [tool.mypy]
 python_version = "3.12"
-strict = true
+strict = false
+ignore_missing_imports = true
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

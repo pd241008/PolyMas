@@ -7,7 +7,7 @@ from typing import Any
 
 import numpy as np
 import pandas as pd
-from scipy.cluster.hierarchy import linkage, fcluster, dendrogram, to_tree
+from scipy.cluster.hierarchy import fcluster, linkage, to_tree
 from scipy.spatial.distance import pdist
 
 
@@ -62,7 +62,9 @@ class DiseaseRiskClusterer:
             if node.is_leaf():
                 return {
                     "id": f"leaf_{node.id}",
-                    "patient_id": patient_ids[node.id] if node.id < len(patient_ids) else str(node.id),
+                    "patient_id": patient_ids[node.id]
+                    if node.id < len(patient_ids)
+                    else str(node.id),
                     "distance": 0.0,
                 }
             return {
@@ -82,7 +84,9 @@ class DiseaseRiskClusterer:
         if self._labels is None:
             raise ValueError("Must call fit_predict before silhouette_score")
 
-        return float(silhouette_score(risk_matrix.values, self._labels, metric=self._distance_metric))
+        return float(
+            silhouette_score(risk_matrix.values, self._labels, metric=self._distance_metric)
+        )
 
     def _select_k(self, X: np.ndarray) -> int:
         """Select number of clusters using a simple gap-like heuristic."""

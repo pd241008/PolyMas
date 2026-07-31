@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-from typing import Any
-
 import numpy as np
 import pandas as pd
 
@@ -36,7 +34,10 @@ class MultiLabelEnsemble:
         platt_scaling: bool = True,
     ) -> None:
         self._learner_names = learner_names or ["xgboost", "catboost", "lightgbm"]
-        self._learner_weights = learner_weights or [1.0 / len(self._learner_names)] * len(self._learner_names)
+        self._learner_weights = (
+            learner_weights
+            or [1.0 / len(self._learner_names)] * len(self._learner_names)
+        )
         self._platt_scaling = platt_scaling
         self._models: dict[str, list[BaseLearner]] = {}  # label -> list of base learners
         self._platt_params: dict[str, tuple[float, float]] = {}  # label -> (a, b)
@@ -103,15 +104,18 @@ class MultiLabelEnsemble:
     def _score_label(self, X: pd.DataFrame, label: str) -> np.ndarray:
         """Weighted soft vote of base learners for a single label."""
         scores = np.zeros(X.shape[0])
-        for learner, weight in zip(self._models[label], self._learner_weights):
+        for learner, weight in zip(
+            self._models[label], self._learner_weights, strict=True
+        ):
             scores += weight * learner.predict_proba(X)
         return scores
 
     @staticmethod
-    def _fit_platt(scores: np.ndarray, y: np.ndarray, lr: float = 0.01, epochs: int = 100) -> tuple[float, float]:
+    def _fit_platt(
+        scores: np.ndarray, y: np.ndarray, lr: float = 0.01, epochs: int = 100
+    ) -> tuple[float, float]:
         """Fit Platt scaling parameters (a, b) via gradient descent."""
         a, b = 0.0, 0.0
-        n = len(scores)
         for _ in range(epochs):
             z = a * scores + b
             p = 1.0 / (1.0 + np.exp(-z))

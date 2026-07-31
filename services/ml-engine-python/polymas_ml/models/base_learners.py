@@ -12,6 +12,9 @@ import pandas as pd
 class BaseLearner(ABC):
     """Abstract base class for ensemble base learners."""
 
+    def __init__(self, params: dict[str, Any] | None = None) -> None:
+        self._params = params or {}
+
     @abstractmethod
     def fit(self, X: pd.DataFrame, y: pd.DataFrame) -> None: ...
 
@@ -27,7 +30,7 @@ class XGBoostLearner(BaseLearner):
 
     def __init__(self, params: dict[str, Any] | None = None) -> None:
         self._params = params or {"n_estimators": 500, "max_depth": 6, "learning_rate": 0.05}
-        self._model = None
+        self._model: Any = None
 
     def fit(self, X: pd.DataFrame, y: pd.DataFrame) -> None:
         import xgboost as xgb
@@ -41,15 +44,23 @@ class XGBoostLearner(BaseLearner):
 
     def get_feature_importances(self) -> dict[str, float]:
         assert self._model is not None, "Model not fitted"
-        return dict(zip(self._model.feature_names_in_, self._model.feature_importances_))
+        return dict(
+            zip(
+                self._model.feature_names_in_,
+                self._model.feature_importances_,
+                strict=True,
+            )
+        )
 
 
 class CatBoostLearner(BaseLearner):
     """CatBoost binary relevance base learner with native categorical support."""
 
     def __init__(self, params: dict[str, Any] | None = None) -> None:
-        self._params = params or {"iterations": 500, "depth": 6, "learning_rate": 0.05, "verbose": 0}
-        self._model = None
+        self._params = (
+            params or {"iterations": 500, "depth": 6, "learning_rate": 0.05, "verbose": 0}
+        )
+        self._model: Any = None
 
     def fit(self, X: pd.DataFrame, y: pd.DataFrame) -> None:
         from catboost import CatBoostClassifier
@@ -63,15 +74,23 @@ class CatBoostLearner(BaseLearner):
 
     def get_feature_importances(self) -> dict[str, float]:
         assert self._model is not None, "Model not fitted"
-        return dict(zip(self._model.feature_names_, self._model.feature_importances_))
+        return dict(
+            zip(
+                self._model.feature_names_,
+                self._model.feature_importances_,
+                strict=True,
+            )
+        )
 
 
 class LightGBMLearner(BaseLearner):
     """LightGBM binary relevance base learner."""
 
     def __init__(self, params: dict[str, Any] | None = None) -> None:
-        self._params = params or {"n_estimators": 500, "max_depth": 6, "learning_rate": 0.05, "verbose": -1}
-        self._model = None
+        self._params = (
+            params or {"n_estimators": 500, "max_depth": 6, "learning_rate": 0.05, "verbose": -1}
+        )
+        self._model: Any = None
 
     def fit(self, X: pd.DataFrame, y: pd.DataFrame) -> None:
         import lightgbm as lgb
@@ -85,7 +104,13 @@ class LightGBMLearner(BaseLearner):
 
     def get_feature_importances(self) -> dict[str, float]:
         assert self._model is not None, "Model not fitted"
-        return dict(zip(self._model.feature_names_in_, self._model.feature_importances_))
+        return dict(
+            zip(
+                self._model.feature_names_in_,
+                self._model.feature_importances_,
+                strict=True,
+            )
+        )
 
 
 LEARNER_REGISTRY: dict[str, type[BaseLearner]] = {

@@ -24,7 +24,11 @@ class TreeExplainerWrapper:
         if isinstance(shap_values, list):
             shap_values = shap_values[1]  # Positive class
 
-        return pd.DataFrame(shap_values, columns=self._feature_names or list(X.columns), index=X.index)
+        return pd.DataFrame(
+            shap_values,
+            columns=self._feature_names or list(X.columns),
+            index=X.index,
+        )
 
     def feature_importance(self, X: pd.DataFrame, top_k: int = 10) -> pd.DataFrame:
         shap_df = self.explain(X)
@@ -35,18 +39,31 @@ class TreeExplainerWrapper:
 class LIMEExplainerWrapper:
     """LIME explanations for ensemble output."""
 
-    def __init__(self, predict_fn: Any, feature_names: list[str], num_samples: int = 1000) -> None:
+    def __init__(
+        self,
+        predict_fn: Any,
+        feature_names: list[str],
+        training_data: np.ndarray | None = None,
+        num_samples: int = 1000,
+        mode: str = "classification",
+    ) -> None:
         self._predict_fn = predict_fn
         self._feature_names = feature_names
+        self._training_data = training_data
         self._num_samples = num_samples
+        self._mode = mode
 
     def explain(self, X_row: pd.DataFrame, label_idx: int = 0) -> pd.DataFrame:
         from lime.lime_tabular import LimeTabularExplainer
 
+        training_data = self._training_data
+        if training_data is None:
+            training_data = np.zeros((1, len(self._feature_names)))
+
         explainer = LimeTabularExplainer(
-            training_data=np.zeros((1, len(self._feature_names))),
+            training_data=training_data,
             feature_names=self._feature_names,
-            mode="classification",
+            mode=self._mode,
         )
 
         explanation = explainer.explain_instance(

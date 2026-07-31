@@ -29,7 +29,7 @@ def main() -> None:
     # server.start()
     # server.wait_for_termination()
 
-    servicer = MLEngineServicer()
+    MLEngineServicer()
     logger.info("ML Engine servicer initialized. gRPC server pending protobuf codegen.")
 
     # Placeholder: keep alive
