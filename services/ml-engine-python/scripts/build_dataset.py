@@ -21,23 +21,27 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 DISEASE_LABELS = [
+    "RA",
+    "SLE",
+    "SJOGRENS",
+    "AITD",
     "T1D",
-    "T2D",
-    "LADA",
-    "GESTATIONAL_DM",
-    "MONOGENIC_DIABETES",
+    "VITILIGO",
+    "MS",
 ]
 
 ALL_LOCI = list(SHARED_LOCI.keys()) + [f"rs{random.randint(100000, 999999)}" for _ in range(40)]
 
 
-def _generate_prs(patient_id: str, n_loci: int = 25) -> pd.DataFrame:
+def _generate_prs(patient_id: str, n_loci: int = 25, base_scores: dict[str, float] | None = None) -> pd.DataFrame:
     rows = []
     for _ in range(n_loci):
         locus_id = random.choice(ALL_LOCI)
         gene = SHARED_LOCI.get(locus_id, {}).get("gene", locus_id)
-        continuous_score = round(random.betavariate(2, 5), 4)
-        z_score = round(random.gauss(0, 1), 4)
+        base = base_scores.get(locus_id, 0.3) if base_scores else 0.3
+        noise = random.gauss(0, 0.25)
+        continuous_score = round(min(1.0, max(0.0, base + noise)), 4)
+        z_score = round(random.gauss(continuous_score * 2 - 1, 0.5), 4)
         rows.append({
             "patient_id": patient_id,
             "locus_id": locus_id,
@@ -48,34 +52,42 @@ def _generate_prs(patient_id: str, n_loci: int = 25) -> pd.DataFrame:
     return pd.DataFrame(rows)
 
 
-def _generate_clinical(patient_id: str) -> dict:
+def _generate_clinical(patient_id: str, risk_factor: float) -> dict:
+    has_any = abs(risk_factor) > 0.15
+    sex = "F" if random.random() < (0.55 + 0.1 * has_any) else "M"
+    age_base = 35 + 15 * risk_factor
+    age_at_diagnosis_days = int(max(365, min(80 * 365, age_base * 365.25 + random.gauss(0, 4 * 365))))
+    bmi = round(max(16, min(42, 22 + 2 * risk_factor + random.gauss(0, 3))), 1)
+    family_history = int(random.random() < (0.15 + 0.2 * risk_factor + 0.2 * has_any))
     return {
         "patient_id": patient_id,
-        "sex": random.choice(["M", "F"]),
+        "sex": sex,
         "ethnicity": random.choice(["EUR", "AFR", "EAS", "SAS"]),
-        "age_at_diagnosis_days": random.randint(365, 365 * 80),
-        "hla_type": random.choice(["DR3", "DR4", "DQ2", "DQ8", "None"]),
-        "bmi": round(random.uniform(18, 40), 1),
-        "family_history": random.choice([0, 1]),
+        "age_at_diagnosis_days": age_at_diagnosis_days,
+        "bmi": bmi,
+        "family_history": family_history,
     }
 
 
-def _generate_labels(patient_id: str) -> dict:
+def _generate_labels(patient_id: str, risk_factor: float) -> dict:
     labels = {"patient_id": patient_id}
     for disease in DISEASE_LABELS:
-        prevalence = {
+        base = {
+            "RA": 0.20,
+            "SLE": 0.10,
+            "SJOGRENS": 0.08,
+            "AITD": 0.15,
             "T1D": 0.08,
-            "T2D": 0.25,
-            "LADA": 0.04,
-            "GESTATIONAL_DM": 0.10,
-            "MONOGENIC_DIABETES": 0.02,
+            "VITILIGO": 0.06,
+            "MS": 0.12,
         }[disease]
+        prevalence = min(0.95, max(0.01, base + risk_factor))
         labels[disease] = int(random.random() < prevalence)
     return labels
 
 
 def build_dataset(
-    n_patients: int = 500,
+    n_patients: int = 400,
     n_loci: int = 25,
     seed: int = 42,
 ) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
@@ -86,11 +98,13 @@ def build_dataset(
     clinical_rows = []
     label_rows = []
 
+    base_scores = {locus: random.betavariate(2, 5) for locus in ALL_LOCI}
     for i in range(n_patients):
         patient_id = f"P{i:04d}"
-        prs_frames.append(_generate_prs(patient_id, n_loci))
-        clinical_rows.append(_generate_clinical(patient_id))
-        label_rows.append(_generate_labels(patient_id))
+        risk_factor = random.gauss(0, 0.15)
+        prs_frames.append(_generate_prs(patient_id, n_loci, base_scores))
+        clinical_rows.append(_generate_clinical(patient_id, risk_factor))
+        label_rows.append(_generate_labels(patient_id, risk_factor))
 
     prs_df = pd.concat(prs_frames, ignore_index=True)
     clinical_df = pd.DataFrame(clinical_rows)
@@ -101,7 +115,7 @@ def build_dataset(
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Build semi-synthetic PolyMas dataset")
-    parser.add_argument("--n-patients", type=int, default=500)
+    parser.add_argument("--n-patients", type=int, default=400)
     parser.add_argument("--n-loci", type=int, default=25)
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--output-dir", type=str, default="data/raw")

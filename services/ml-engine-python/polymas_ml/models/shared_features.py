@@ -6,18 +6,14 @@ import pandas as pd
 
 # Loci known to be shared across autoimmune diseases (HLA region, etc.)
 SHARED_LOCI = {
-    "HLA_DR3": {"gene": "HLA-DRB1", "region": "6p21.3", "diseases": ["T1D", "LADA"]},
-    "HLA_DR4": {"gene": "HLA-DRB1", "region": "6p21.3", "diseases": ["T1D", "LADA"]},
-    "HLA_DQ2": {"gene": "HLA-DQB1", "region": "6p21.3", "diseases": ["T1D", "T2D", "LADA"]},
-    "HLA_DQ8": {"gene": "HLA-DQB1", "region": "6p21.3", "diseases": ["T1D", "LADA"]},
-    "CTLA4": {"gene": "CTLA4", "region": "2q33.2", "diseases": ["T1D", "LADA", "T2D"]},
-    "PTPN22": {"gene": "PTPN22", "region": "1p13.2", "diseases": ["T1D", "LADA"]},
-    "IL2RA": {"gene": "IL2RA", "region": "10p15.1", "diseases": ["T1D", "LADA"]},
-    "INS_VNTR": {"gene": "INS", "region": "11p15.5", "diseases": ["T1D"]},
-    "IFIH1": {"gene": "IFIH1", "region": "2q24.2", "diseases": ["T1D", "LADA"]},
-    "TCF7L2": {"gene": "TCF7L2", "region": "10q25.2", "diseases": ["T2D", "GESTATIONAL_DM"]},
-    "KCNJ11": {"gene": "KCNJ11", "region": "11p15.1", "diseases": ["T2D", "MONOGENIC_DIABETES"]},
-    "PPARG": {"gene": "PPARG", "region": "3p25.2", "diseases": ["T2D"]},
+    "rs2187668": {"gene": "HLA-DRB1", "region": "6p21.3", "diseases": ["RA", "SLE", "T1D", "AITD"]},
+    "rs9272346": {"gene": "HLA-DQB1", "region": "6p21.3", "diseases": ["RA", "SLE", "T1D", "AITD"]},
+    "rs2476601": {"gene": "PTPN22", "region": "1p13.2", "diseases": ["RA", "SLE", "T1D", "AITD"]},
+    "rs3087243": {"gene": "CTLA4", "region": "2q33.2", "diseases": ["RA", "T1D", "AITD", "VITILIGO"]},
+    "rs2292239": {"gene": "ERBB3", "region": "12q13", "diseases": ["T1D"]},
+    "rs11209026": {"gene": "IL23R", "region": "1p31.3", "diseases": ["RA", "SLE", "SJOGRENS"]},
+    "rs2104286": {"gene": "IL2RA", "region": "10p15.1", "diseases": ["RA", "SLE", "T1D"]},
+    "rs7574865": {"gene": "STAT4", "region": "2q32.2", "diseases": ["SLE", "RA", "SJOGRENS"]},
 }
 
 

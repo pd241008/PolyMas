@@ -52,7 +52,7 @@ class MLEngineServicer:
         return results
 
     def explain_patient(
-        self, profile: dict, method: str = "shap", target_disease: str = "T1D"
+        self, profile: dict, method: str = "shap", target_disease: str = "RA"
     ) -> dict:
         """Generate feature attributions for a single patient."""
 
@@ -71,7 +71,7 @@ class MLEngineServicer:
         from polymas_ml.clustering.hierarchical import DiseaseRiskClusterer
 
         patient_ids = [sp["patient_id"] for sp in scored_patients]
-        disease_labels = ["T1D", "T2D", "LADA", "GESTATIONAL_DM", "MONOGENIC_DIABETES"]
+        disease_labels = ["RA", "SLE", "SJOGRENS", "AITD", "T1D", "VITILIGO", "MS"]
 
         risk_matrix = np.zeros((len(scored_patients), len(disease_labels)))
         for i, sp in enumerate(scored_patients):

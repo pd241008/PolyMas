@@ -46,18 +46,18 @@ for d in dirs:
 GWAS_BASE_URL = "https://www.ebi.ac.uk/gwas/rest/api"
 IMMPORT_BASE_URL = "https://www.immport.org/data/query"
 
-DIABETES_LOCI = {
+AUTOIMMUNE_LOCI = {
     "rs2187668": "HLA-DRB1",
     "rs9272346": "HLA-DQB1",
-    "rs3087243": "CTLA4",
     "rs2476601": "PTPN22",
-    "rs7903146": "TCF7L2",
-    "rs689": "INS",
-    "rs1800623": "LTA",
+    "rs3087243": "CTLA4",
     "rs2292239": "ERBB3",
+    "rs11209026": "IL23R",
+    "rs2104286": "IL2RA",
+    "rs7574865": "STAT4",
 }
 
-DISEASE_LABELS = ["T1D", "T2D", "LADA", "GESTATIONAL_DM", "MONOGENIC_DIABETES"]
+DISEASE_LABELS = ["RA", "SLE", "SJOGRENS", "AITD", "T1D", "VITILIGO", "MS"]
 
 
 def fetch_gwas_associations(rs_id: str, max_retries: int = 3) -> list[dict[str, Any]]:
@@ -71,7 +71,7 @@ def fetch_gwas_associations(rs_id: str, max_retries: int = 3) -> list[dict[str, 
             for assoc in data.get("_embedded", {}).get("associations", []):
                 associations.append({
                     "rs_id": rs_id,
-                    "gene": DIABETES_LOCI.get(rs_id, rs_id),
+                    "gene": AUTOIMMUNE_LOCI.get(rs_id, rs_id),
                     "pvalue": assoc.get("pvalue"),
                     "pvalueText": assoc.get("pvalueText"),
                     "efoTrait": assoc.get("mappedLabel", assoc.get("efoTrait")),
@@ -106,8 +106,8 @@ def fetch_immport_study(study_id: str, max_retries: int = 3) -> dict[str, Any] |
 
 def build_real_dataset() -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     all_associations = []
-    for rs_id in DIABETES_LOCI:
-        logger.info("Fetching GWAS data for %s (%s)", rs_id, DIABETES_LOCI[rs_id])
+    for rs_id in AUTOIMMUNE_LOCI:
+        logger.info("Fetching GWAS data for %s (%s)", rs_id, AUTOIMMUNE_LOCI[rs_id])
         assocs = fetch_gwas_associations(rs_id)
         all_associations.extend(assocs)
         time.sleep(0.5)
@@ -128,25 +128,28 @@ def build_real_dataset() -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
                 json.dump(study, f, indent=2)
         time.sleep(0.5)
 
-    n_patients = 50
+    n_patients = 400
     np.random.seed(42)
 
     prs_rows = []
     for i in range(n_patients):
         patient_id = f"P{i:04d}"
-        for rs_id, gene in DIABETES_LOCI.items():
+        for rs_id, gene in AUTOIMMUNE_LOCI.items():
             locus_df = gwas_df[gwas_df["rs_id"] == rs_id]
             if not locus_df.empty and locus_df["pvalue"].notna().any():
                 pval = locus_df["pvalue"].dropna().mean()
-                score = min(1.0, max(0.0, -np.log10(max(pval, 1e-300)) / 300))
+                base_score = min(1.0, max(0.0, -np.log10(max(pval, 1e-300)) / 300))
+                noise = np.random.normal(0, 0.25)
+                score = min(1.0, max(0.0, base_score + noise))
             else:
                 score = np.random.beta(2, 5)
+            z_score = round(float(np.random.normal(score * 2 - 1, 0.5)), 4)
             prs_rows.append({
                 "patient_id": patient_id,
                 "locus_id": rs_id,
                 "gene_symbol": gene,
                 "continuous_score": round(float(score), 4),
-                "z_score": round(float(np.random.normal(0, 1)), 4),
+                "z_score": z_score,
                 "pvalue": pval if not locus_df.empty else None,
             })
 
@@ -154,35 +157,48 @@ def build_real_dataset() -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     prs_df.to_csv(FEATURES_DIR / "prs_features.csv", index=False)
     prs_df.to_parquet(FEATURES_DIR / "prs_features.parquet", index=False)
 
-    clinical_rows = []
-    for i in range(n_patients):
-        patient_id = f"P{i:04d}"
-        clinical_rows.append({
-            "patient_id": patient_id,
-            "sex": np.random.choice(["M", "F"]),
-            "ethnicity": np.random.choice(["EUR", "AFR", "EAS", "SAS"]),
-            "age_at_diagnosis_days": int(np.random.randint(365, 365 * 80)),
-            "bmi": round(float(np.random.uniform(18, 40)), 1),
-            "family_history": int(np.random.choice([0, 1])),
-        })
-    clinical_df = pd.DataFrame(clinical_rows)
-    clinical_df.to_csv(FEATURES_DIR / "clinical_features.csv", index=False)
-    clinical_df.to_parquet(FEATURES_DIR / "clinical_features.parquet", index=False)
+    base_prevalences = {
+        "RA": 0.20,
+        "SLE": 0.10,
+        "SJOGRENS": 0.08,
+        "AITD": 0.15,
+        "T1D": 0.08,
+        "VITILIGO": 0.06,
+        "MS": 0.12,
+    }
 
+    clinical_rows = []
     label_rows = []
     for i in range(n_patients):
         patient_id = f"P{i:04d}"
+        patient_risk_factor = np.random.normal(0, 0.25)
+
         labels = {"patient_id": patient_id}
         for disease in DISEASE_LABELS:
-            prevalence = {
-                "T1D": 0.08,
-                "T2D": 0.25,
-                "LADA": 0.04,
-                "GESTATIONAL_DM": 0.10,
-                "MONOGENIC_DIABETES": 0.02,
-            }[disease]
+            base = base_prevalences[disease]
+            prevalence = min(0.95, max(0.01, base + patient_risk_factor))
             labels[disease] = int(np.random.random() < prevalence)
         label_rows.append(labels)
+
+        has_any_autoimmune = any(labels[d] for d in DISEASE_LABELS)
+        sex = "F" if np.random.random() < (0.55 + 0.1 * labels.get("SLE", 0) + 0.08 * labels.get("AITD", 0) + 0.05 * labels.get("RA", 0)) else "M"
+        age_factor = (35 + 15 * patient_risk_factor + 10 * labels.get("AITD", 0) + 8 * labels.get("RA", 0))
+        age_at_diagnosis_days = int(np.clip(age_factor * 365.25 + np.random.normal(0, 4 * 365), 365, 80 * 365))
+        bmi = round(float(np.clip(22 + 2 * patient_risk_factor + np.random.normal(0, 3), 16, 42)), 1)
+        family_history = int(np.random.random() < (0.15 + 0.2 * patient_risk_factor + 0.2 * has_any_autoimmune))
+
+        clinical_rows.append({
+            "patient_id": patient_id,
+            "sex": sex,
+            "ethnicity": np.random.choice(["EUR", "AFR", "EAS", "SAS"]),
+            "age_at_diagnosis_days": age_at_diagnosis_days,
+            "bmi": bmi,
+            "family_history": family_history,
+        })
+
+    clinical_df = pd.DataFrame(clinical_rows)
+    clinical_df.to_csv(FEATURES_DIR / "clinical_features.csv", index=False)
+    clinical_df.to_parquet(FEATURES_DIR / "clinical_features.parquet", index=False)
     labels_df = pd.DataFrame(label_rows)
     labels_df.to_csv(FEATURES_DIR / "labels.csv", index=False)
     labels_df.to_parquet(FEATURES_DIR / "labels.parquet", index=False)
@@ -320,12 +336,12 @@ def generate_reports(prs_df: pd.DataFrame, clinical_df: pd.DataFrame, labels_df:
     report = {
         "dataset_summary": {
             "n_patients": len(clinical_df),
-            "n_loci": len(DIABETES_LOCI),
+            "n_loci": len(AUTOIMMUNE_LOCI),
             "n_features": len(X.columns),
             "n_diseases": len(DISEASE_LABELS),
             "gwas_associations_fetched": len(prs_df),
         },
-        "gwas_loci": list(DIABETES_LOCI.keys()),
+        "gwas_loci": list(AUTOIMMUNE_LOCI.keys()),
         "disease_labels": DISEASE_LABELS,
         "model_config": {
             "learners": ensemble._learner_names,

@@ -30,7 +30,7 @@ def test_output_schemas(dataset):
     assert "sex" in clinical_df.columns
     assert "ethnicity" in clinical_df.columns
 
-    for col in ["T1D", "T2D", "LADA", "GESTATIONAL_DM", "MONOGENIC_DIABETES"]:
+    for col in ["RA", "SLE", "SJOGRENS", "AITD", "T1D", "VITILIGO", "MS"]:
         assert col in labels_df.columns
 
 

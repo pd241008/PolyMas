@@ -11,8 +11,8 @@ from polymas_ml.clustering.hierarchical import DiseaseRiskClusterer
 def risk_matrix():
     np.random.seed(42)
     return pd.DataFrame(
-        np.random.rand(50, 5),
-        columns=["T1D", "T2D", "LADA", "GESTATIONAL_DM", "MONOGENIC_DIABETES"],
+        np.random.rand(50, 7),
+        columns=["RA", "SLE", "SJOGRENS", "AITD", "T1D", "VITILIGO", "MS"],
     )
 
 

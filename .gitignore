@@ -68,8 +68,7 @@ proto/gen/
 # === Proprietary / NDA-protected ===
 docs/
 results/
-
-
+results.pdf
 
 # === OS ===
 *.pid
