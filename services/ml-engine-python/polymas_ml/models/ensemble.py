@@ -103,6 +103,41 @@ class MultiLabelEnsemble:
 
         return pd.DataFrame(results)
 
+    def predict_proba_with_diagnostics(self, X: pd.DataFrame) -> dict[str, dict[str, np.ndarray]]:
+        """
+        Predict probabilities and return per-learner raw scores and final calibrated scores
+        for diagnostic logging.
+        """
+        diagnostics: dict[str, dict[str, np.ndarray]] = {}
+        for label in self.DISEASE_LABELS:
+            if label not in self._models:
+                diagnostics[label] = {
+                    "raw": np.zeros(X.shape[0]),
+                    "calibrated": np.zeros(X.shape[0]),
+                    "learners": {name: np.zeros(X.shape[0]) for name in self._learner_names},
+                }
+                continue
+
+            raw_scores = self._score_label(X, label)
+            learner_scores = {
+                name: learner.predict_proba(X)
+                for name, learner in zip(self._learner_names, self._models[label])
+            }
+
+            if self._platt_scaling and label in self._platt_params:
+                a, b = self._platt_params[label]
+                calibrated_scores = 1.0 / (1.0 + np.exp(-(a * raw_scores + b)))
+            else:
+                calibrated_scores = raw_scores
+
+            diagnostics[label] = {
+                "raw": raw_scores,
+                "calibrated": calibrated_scores,
+                "learners": learner_scores,
+            }
+
+        return diagnostics
+
     def _score_label(self, X: pd.DataFrame, label: str) -> np.ndarray:
         """Weighted soft vote of base learners for a single label."""
         scores = np.zeros(X.shape[0])

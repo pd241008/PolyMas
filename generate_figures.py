@@ -83,8 +83,11 @@ def plot_feature_correlation():
 
 def plot_prediction_distributions():
     preds = pd.read_csv(MODELS_DIR / "predictions.csv")
+    n_cols = len(preds.columns)
+    n_rows = 2
+    n_cols_grid = max(3, (n_cols + 1) // 2)
 
-    fig, axes = plt.subplots(2, 3, figsize=(14, 8))
+    fig, axes = plt.subplots(n_rows, n_cols_grid, figsize=(6 * n_cols_grid, 8))
     axes = axes.flatten()
 
     for i, col in enumerate(preds.columns):
@@ -96,7 +99,8 @@ def plot_prediction_distributions():
         ax.axvline(preds[col].mean(), color="red", linestyle="--", label=f"Mean={preds[col].mean():.3f}")
         ax.legend()
 
-    axes[5].axis("off")
+    for j in range(i + 1, len(axes)):
+        axes[j].axis("off")
     plt.tight_layout()
     out = FIGURES_DIR / "prediction_distributions.png"
     fig.savefig(out)

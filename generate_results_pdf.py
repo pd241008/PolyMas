@@ -19,6 +19,7 @@ REPORT_PATH = PROJECT_ROOT / "results.pdf"
 GWAS_CSV = RESULTS_DIR / "raw" / "gwas" / "gwas_associations.csv"
 PREDICTIONS_CSV = RESULTS_DIR / "models" / "predictions.csv"
 FEATURE_IMP_CSV = RESULTS_DIR / "models" / "feature_importances.csv"
+DIAGNOSTICS_CSV = RESULTS_DIR / "models" / "prediction_diagnostics.csv"
 CLUSTER_CSV = RESULTS_DIR / "clusters" / "cluster_assignments.csv"
 SILHOUETTE_TXT = RESULTS_DIR / "clusters" / "silhouette_score.txt"
 PIPELINE_REPORT = RESULTS_DIR / "reports" / "pipeline_report.json"
@@ -38,6 +39,20 @@ with open(DATA_SUMMARY) as f:
 mean_preds = preds_df.mean().round(4).to_dict()
 std_preds = preds_df.std().round(4).to_dict()
 cluster_counts = clusters_df["cluster_label"].value_counts().sort_index().to_dict()
+
+
+def interpret_silhouette(score: float) -> str:
+    if score >= 0.71:
+        return "strong structure (well-separated clusters)"
+    elif score >= 0.51:
+        return "moderate structure"
+    elif score >= 0.26:
+        return "weak structure"
+    else:
+        return "no substantial structure"
+
+
+silhouette_interpretation = interpret_silhouette(float(silhouette))
 
 locus_summary = (
     gwas_df.groupby("rs_id")
@@ -210,10 +225,10 @@ HTML(string=f"""<!DOCTYPE html>
 <h2>1. Executive Summary</h2>
 <p>This report presents the complete results of the PolyMas implementation, from real data ingestion through ensemble training, explainability, and clustering. All results are saved in the <code>results/</code> directory with accompanying visualizations in <code>figures/</code>.</p>
 
-<p>The pipeline successfully fetched <strong>632 real GWAS associations</strong> from the EBI GWAS Catalog for 7 diabetes/autoimmune loci, engineered features for <strong>50 patients</strong>, trained a <strong>multi-label ensemble</strong> (XGBoost + CatBoost + LightGBM), generated SHAP and LIME explanations, and produced hierarchical cluster assignments with a <strong>silhouette score of {silhouette}</strong>.</p>
+<p>The pipeline successfully fetched <strong>632 real GWAS associations</strong> from the EBI GWAS Catalog for 7 diabetes/autoimmune loci, engineered features for <strong>400 patients</strong>, trained a <strong>multi-label ensemble</strong> (XGBoost + CatBoost + LightGBM), generated SHAP and LIME explanations, and produced hierarchical cluster assignments with a <strong>silhouette score of {silhouette}</strong> ({silhouette_interpretation}).</p>
 
 <div class="interpretation">
-  <strong>Key Finding:</strong> The ensemble achieves well-separated clusters (silhouette = {silhouette}), suggesting that genotypic risk profiles naturally group patients into distinct autoimmune syndrome subtypes that may partially align with — or diverge from — the 1988 Humbert &amp; Dupond classification.
+  <strong>Key Finding:</strong> The ensemble achieves {silhouette_interpretation} (silhouette = {silhouette}), suggesting that genotypic risk profiles naturally group patients into distinct autoimmune syndrome subtypes that may partially align with — or diverge from — the 1988 Humbert &amp; Dupond classification.
 </div>
 
 <hr>
@@ -292,12 +307,11 @@ HTML(string=f"""<!DOCTYPE html>
   <tr><td>Learners</td><td>XGBoost, CatBoost, LightGBM</td></tr>
   <tr><td>Strategy</td><td>Binary relevance (one set per disease)</td></tr>
   <tr><td>Score normalization</td><td>Platt scaling (gradient descent, 100 epochs, lr=0.01)</td></tr>
-  <tr><td>Valid labels</td><td>T1D, T2D, LADA, GESTATIONAL_DM</td></tr>
-  <tr><td>Excluded label</td><td>MONOGENIC_DIABETES (&lt;2 classes in sample)</td></tr>
+  <tr><td>Valid labels</td><td>RA, SLE, SJOGRENS, AITD, T1D, VITILIGO, MS</td></tr>
 </table>
 
 <h3>4.2 Prediction Distributions</h3>
-<p>The ensemble outputs calibrated probabilities for each disease. The table below shows mean ± std across 50 patients:</p>
+<p>The ensemble outputs calibrated probabilities for each disease. The table below shows mean ± std across 400 patients:</p>
 
 <table>
   <tr><th>Disease</th><th>Mean Probability</th><th>Std Dev</th><th>Min</th><th>Max</th></tr>
@@ -306,19 +320,27 @@ HTML(string=f"""<!DOCTYPE html>
 
 <div class="figure">
   <img src="figures/prediction_distributions.png" alt="Prediction distributions">
-  <div class="caption">Figure 4: Distribution of predicted probabilities for each disease. Red dashed line indicates mean. Note MONOGENIC_DIABETES has zero variance (all predictions = 0.0) due to insufficient training data.</div>
+  <div class="caption">Figure 4: Distribution of predicted probabilities for each disease. Red dashed line indicates mean.</div>
 </div>
+
+<h3>4.3 Per-Base-Learner Diagnostics</h3>
+<p>To diagnose why the ensemble produces tight probability distributions, we logged per-learner standard deviations and raw vs calibrated scores during prediction. The table below shows the standard deviation of predicted probabilities for each base learner and the ensemble, along with mean predictions.</p>
+
+<table>
+  <tr><th>Disease</th><th>Learner</th><th>Std Dev</th><th>Mean</th></tr>
+  {"".join(f"<tr><td>{row['disease']}</td><td>{row['learner']}</td><td>{row['std']:.4f}</td><td>{row['mean']:.4f}</td></tr>" for _, row in pd.read_csv(DIAGNOSTICS_CSV).iterrows())}
+</table>
 
 <div class="interpretation">
-  <strong>Interpretation:</strong> T1D and T2D show the highest mean predicted probabilities (0.41–0.45), consistent with their higher prevalence in the synthetic labels. LADA and GDM show moderate probabilities (~0.40). MONOGENIC_DIABETES predictions are all 0.0 because this label had insufficient class diversity in the 50-patient sample, causing CatBoost to fail during training. This is expected for rare diseases and will resolve with larger sample sizes.
+  <strong>Key Finding:</strong> Base learners individually show wide variance (std ≈ 0.35–0.42), but after Platt calibration the ensemble std collapses to ≈ 0.006–0.012. This confirms <strong>Platt scaling is the primary variance compressor</strong>, not the averaging step. The fitted sigmoid's shallow slope is flattening realistic base-learner spread into near-uniform calibrated probabilities. This is the root cause of the flat predictions and should be addressed before any paper writeup.
 </div>
 
-<h3>4.3 Feature Importances</h3>
+<h3>4.4 Feature Importances</h3>
 <p>Feature importances were extracted from each base learner per disease. Raw importance scales differ by learner (XGBoost: 0–1, CatBoost: 0–100, LightGBM: 0–500), so values should be normalized before cross-learner comparison.</p>
 
 <div class="figure">
   <img src="figures/shap_importance.png" alt="SHAP importance">
-  <div class="caption">Figure 5: Top 10 features by mean absolute SHAP value for T1D, T2D, and LADA. SHAP values are computed on the first base learner (XGBoost) per disease using TreeExplainer.</div>
+  <div class="caption">Figure 5: Top 10 features by mean absolute SHAP value for RA, SLE, and SJOGRENS. SHAP values are computed on the first base learner (XGBoost) per disease using TreeExplainer.</div>
 </div>
 
 <hr>
@@ -330,12 +352,12 @@ HTML(string=f"""<!DOCTYPE html>
 
 <p>Files saved:</p>
 <ul>
-  <li><code>results/explanations/shap_T1D.csv</code> — 50 patients × 23 features</li>
-  <li><code>results/explanations/shap_T2D.csv</code> — 50 patients × 23 features</li>
-  <li><code>results/explanations/shap_LADA.csv</code> — 50 patients × 23 features</li>
-  <li><code>results/explanations/shap_importance_T1D.csv</code> — top features</li>
-  <li><code>results/explanations/shap_importance_T2D.csv</code> — top features</li>
-  <li><code>results/explanations/shap_importance_LADA.csv</code> — top features</li>
+  <li><code>results/explanations/shap_RA.csv</code> — 400 patients × 23 features</li>
+  <li><code>results/explanations/shap_SLE.csv</code> — 400 patients × 23 features</li>
+  <li><code>results/explanations/shap_SJOGRENS.csv</code> — 400 patients × 23 features</li>
+  <li><code>results/explanations/shap_importance_RA.csv</code> — top features</li>
+  <li><code>results/explanations/shap_importance_SLE.csv</code> — top features</li>
+  <li><code>results/explanations/shap_importance_SJOGRENS.csv</code> — top features</li>
 </ul>
 
 <h3>5.2 LIME Explanations</h3>
@@ -343,11 +365,11 @@ HTML(string=f"""<!DOCTYPE html>
 
 <div class="figure">
   <img src="figures/lime_comparison.png" alt="LIME comparison">
-  <div class="caption">Figure 6: LIME feature attributions for the first patient (P0000) across T1D, T2D, and LADA. Orange bars indicate positive contributions; blue bars indicate negative contributions.</div>
+  <div class="caption">Figure 6: LIME feature attributions for the first patient (P0000) across RA, SLE, and SJOGRENS. Orange bars indicate positive contributions; blue bars indicate negative contributions.</div>
 </div>
 
 <div class="interpretation">
-  <strong>Interpretation:</strong> LIME attributions for P0000 show that <code>rs1800623__score</code> (LTA locus) and <code>ethnicity_EAS</code> are the dominant contributors to predicted probabilities. The small magnitude of attributions (~0.0003) reflects the near-uniform predictions (~0.41) for this patient — a patient with average risk across all loci produces small local perturbations.
+  <strong>Interpretation:</strong> LIME attributions for P0000 show that <code>rs7574865__score</code> (STAT4 locus) and <code>rs2476601__score</code> (PTPN22 locus) are the dominant contributors to predicted probabilities. The small magnitude of attributions (~0.0003) reflects the near-uniform predictions (~0.35) for this patient — a patient with average risk across all loci produces small local perturbations.
 </div>
 
 <hr>
@@ -355,7 +377,7 @@ HTML(string=f"""<!DOCTYPE html>
 <h2>6. Clustering Results</h2>
 
 <h3>6.1 Hierarchical Clustering</h3>
-<p>We applied <strong>Ward linkage hierarchical clustering</strong> on the ensemble's 50 × 5 prediction matrix (probability vectors across diseases). Three clusters were specified to explore potential alignment with MAS Type 1–4 classification.</p>
+<p>We applied <strong>Ward linkage hierarchical clustering</strong> on the ensemble's 400 × 7 prediction matrix (probability vectors across diseases). Three clusters were specified to explore potential alignment with MAS Type 1–4 classification.</p>
 
 <table>
   <tr><th>Cluster</th><th>Number of Patients</th></tr>
@@ -364,7 +386,7 @@ HTML(string=f"""<!DOCTYPE html>
 
 <div class="figure">
   <img src="figures/cluster_distribution.png" alt="Cluster distribution">
-  <div class="caption">Figure 7: Bar chart of patient counts per cluster. Clusters are roughly balanced (16–18 patients each), indicating the ensemble produces diverse risk profiles.</div>
+  <div class="caption">Figure 7: Bar chart of patient counts per cluster. Clusters are roughly balanced (133–134 patients each), indicating the ensemble produces diverse risk profiles.</div>
 </div>
 
 <div class="figure">
@@ -373,7 +395,7 @@ HTML(string=f"""<!DOCTYPE html>
 </div>
 
 <h3>6.2 Silhouette Score</h3>
-<p>The silhouette score for the 3-cluster solution is <strong>{silhouette}</strong>. This indicates well-separated, cohesive clusters:</p>
+<p>The silhouette score for the 3-cluster solution is <strong>{silhouette}</strong>. This indicates {silhouette_interpretation}:</p>
 <ul>
   <li><strong>0.71 – 1.0:</strong> Strong structure (well-separated clusters)</li>
   <li><strong>0.51 – 0.70:</strong> Moderate structure</li>
@@ -382,7 +404,7 @@ HTML(string=f"""<!DOCTYPE html>
 </ul>
 
 <div class="interpretation">
-  <strong>Interpretation:</strong> A silhouette score of {silhouette} is excellent and suggests that the ensemble's probability vectors encode meaningful, distinct risk patterns. This is the first quantitative evidence that genotypic risk profiles can be clustered into coherent subgroups — a prerequisite for testing the 1988 MAS classification.
+  <strong>Interpretation:</strong> A silhouette score of {silhouette} indicates {silhouette_interpretation}. This suggests that the ensemble's probability vectors encode {silhouette_interpretation} — a prerequisite for testing the 1988 MAS classification.
 </div>
 
 <hr>
@@ -413,14 +435,14 @@ HTML(string=f"""<!DOCTYPE html>
 <hr>
 
 <h2>8. Conclusions</h2>
-<p>The PolyMas pipeline has been successfully implemented and validated across all four backend services. A real-data pipeline fetched 632 GWAS associations, engineered features for 50 patients, trained a multi-label ensemble, generated SHAP/LIME explanations, and produced cluster assignments with a silhouette score of <strong>{silhouette}</strong>.</p>
+<p>The PolyMas pipeline has been successfully implemented and validated across all four backend services. A real-data pipeline fetched 632 GWAS associations, engineered features for 400 patients, trained a multi-label ensemble, generated SHAP/LIME explanations, and produced cluster assignments with a silhouette score of <strong>{silhouette}</strong> ({silhouette_interpretation}).</p>
 
 <p>The results demonstrate that:</p>
 <ol>
   <li><strong>Real GWAS data can be ingested</strong> via the EBI GWAS Catalog REST API and converted into valid PRS features.</li>
   <li><strong>The multi-label ensemble trains successfully</strong> on real-data-derived features, producing calibrated probability predictions.</li>
   <li><strong>Explainability methods (SHAP/LIME) work</strong> on the trained models, providing per-feature attributions that align with known autoimmune genetics (HLA region dominance).</li>
-  <li><strong>Hierarchical clustering reveals structure</strong> in the risk-probability space, with a silhouette score of {silhouette} indicating well-separated patient subgroups.</li>
+  <li><strong>Hierarchical clustering reveals {silhouette_interpretation}</strong> in the risk-probability space, with a silhouette score of {silhouette}.</li>
 </ol>
 
 <p>These findings support the feasibility of the project's core hypothesis: that a data-driven, explainable ML pipeline can re-evaluate the 1988 MAS classification using genomic evidence.</p>

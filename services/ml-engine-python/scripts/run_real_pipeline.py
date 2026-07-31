@@ -272,6 +272,42 @@ def train_ensemble(X: pd.DataFrame, y: pd.DataFrame) -> MultiLabelEnsemble:
     predictions.to_csv(MODELS_DIR / "predictions.csv", index=False)
     predictions.to_parquet(MODELS_DIR / "predictions.parquet", index=False)
 
+    diag = ensemble.predict_proba_with_diagnostics(X)
+    diag_rows = []
+    for disease, vals in diag.items():
+        raw_std = float(np.std(vals["raw"]))
+        cal_std = float(np.std(vals["calibrated"]))
+        for learner_name, learner_probs in vals["learners"].items():
+            diag_rows.append({
+                "disease": disease,
+                "learner": learner_name,
+                "std": float(np.std(learner_probs)),
+                "mean": float(np.mean(learner_probs)),
+            })
+        diag_rows.append({
+            "disease": disease,
+            "learner": "raw",
+            "std": raw_std,
+            "mean": float(np.mean(vals["raw"])),
+        })
+        diag_rows.append({
+            "disease": disease,
+            "learner": "calibrated",
+            "std": cal_std,
+            "mean": float(np.mean(vals["calibrated"])),
+        })
+        logger.info(
+            "%s — XGB std: %.4f, CatBoost std: %.4f, LightGBM std: %.4f, Raw std: %.4f, Calibrated std: %.4f",
+            disease,
+            float(np.std(vals["learners"].get("xgboost", np.zeros(X.shape[0])))),
+            float(np.std(vals["learners"].get("catboost", np.zeros(X.shape[0])))),
+            float(np.std(vals["learners"].get("lightgbm", np.zeros(X.shape[0])))),
+            raw_std,
+            cal_std,
+        )
+    diag_df = pd.DataFrame(diag_rows)
+    diag_df.to_csv(MODELS_DIR / "prediction_diagnostics.csv", index=False)
+
     logger.info("Ensemble trained. Predictions shape: %s", predictions.shape)
     return ensemble
 
