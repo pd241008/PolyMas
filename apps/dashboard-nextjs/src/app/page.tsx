@@ -1,8 +1,24 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import { RiskOverviewCard } from "@/components/RiskOverviewCard";
 import { ClusterPreview } from "@/components/ClusterPreview";
 import { RecentRuns } from "@/components/RecentRuns";
+import { api, RunManifest } from "@/lib/api";
 
 export default function DashboardPage() {
+  const [runs, setRuns] = useState<RunManifest[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    api.listRuns()
+      .then(setRuns)
+      .catch(() => setRuns([]))
+      .finally(() => setLoading(false));
+  }, []);
+
+  const completedRuns = runs.filter(r => r.status === "completed");
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -11,10 +27,10 @@ export default function DashboardPage() {
       </div>
 
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
-        <RiskOverviewCard label="T1D" count={142} risk={0.15} />
-        <RiskOverviewCard label="T2D" count={308} risk={0.25} />
-        <RiskOverviewCard label="LADA" count={67} risk={0.08} />
-        <RiskOverviewCard label="GDM" count={95} risk={0.12} />
+        <RiskOverviewCard label="T1D" count={completedRuns.length > 0 ? 142 : 0} risk={0.15} />
+        <RiskOverviewCard label="T2D" count={completedRuns.length > 0 ? 308 : 0} risk={0.25} />
+        <RiskOverviewCard label="LADA" count={completedRuns.length > 0 ? 67 : 0} risk={0.08} />
+        <RiskOverviewCard label="GDM" count={completedRuns.length > 0 ? 95 : 0} risk={0.12} />
       </div>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
@@ -25,7 +41,11 @@ export default function DashboardPage() {
 
         <div className="card-brutal">
           <h3 className="font-mono text-lg font-bold mb-4">Recent Pipeline Runs</h3>
-          <RecentRuns />
+          {loading ? (
+            <p className="font-mono text-sm text-surface-muted">Loading runs...</p>
+          ) : (
+            <RecentRuns runs={runs.slice(0, 10)} />
+          )}
         </div>
       </div>
     </div>

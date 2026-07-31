@@ -10,6 +10,7 @@ pub mod polymas {
 
 mod grpc;
 mod orchestrator;
+mod rest_gateway;
 
 #[cfg(test)]
 mod tests;
@@ -43,17 +44,30 @@ async fn main() -> Result<()> {
         .init();
 
     let grpc_port = std::env::var("GRPC_PORT").unwrap_or_else(|_| "50053".to_string());
-    let addr: std::net::SocketAddr = format!("0.0.0.0:{}", grpc_port).parse()?;
+    let rest_port = std::env::var("REST_PORT").unwrap_or_else(|_| "50055".to_string());
+    let grpc_addr: std::net::SocketAddr = format!("0.0.0.0:{}", grpc_port).parse()?;
+    let rest_addr: std::net::SocketAddr = format!("0.0.0.0:{}", rest_port).parse()?;
 
-    info!("Polymas Control Plane starting on {}", addr);
+    info!("Polymas Control Plane starting on gRPC {}, REST {}", grpc_addr, rest_addr);
 
     let orchestrator = PipelineOrchestrator::new();
-    let handler = ControlPlaneServiceHandler::new(orchestrator);
+    let handler = ControlPlaneServiceHandler::new(orchestrator.clone());
 
-    tonic::transport::Server::builder()
+    let grpc_server = tonic::transport::Server::builder()
         .add_service(polymas::v1::control_plane_service_server::ControlPlaneServiceServer::new(handler))
-        .serve(addr)
-        .await?;
+        .serve(grpc_addr);
+
+    let rest_router = rest_gateway::build_rest_router(orchestrator.into());
+    let listener = tokio::net::TcpListener::bind(rest_addr).await?;
+    let rest_server = axum::serve(listener, rest_router);
+
+    tokio::spawn(async move {
+        if let Err(e) = rest_server.await {
+            tracing::error!("REST server error: {}", e);
+        }
+    });
+
+    grpc_server.await?;
 
     Ok(())
 }

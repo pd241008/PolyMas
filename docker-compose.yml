@@ -47,9 +47,11 @@ services:
       dockerfile: Dockerfile
     ports:
       - "50053:50053"
+      - "50055:50055"
     environment:
       - RUST_LOG=info,polymas_control_plane=debug
       - GRPC_PORT=50053
+      - REST_PORT=50055
     depends_on:
       - ingestion-scala
       - normalization-go
@@ -81,7 +83,7 @@ services:
     ports:
       - "3000:3000"
     environment:
-      - NEXT_PUBLIC_GRPC_GATEWAY=http://control-plane:50053
+      - NEXT_PUBLIC_GRPC_GATEWAY=http://control-plane:50055
     depends_on:
       - control-plane
     networks:
