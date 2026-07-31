@@ -21,11 +21,13 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 DISEASE_LABELS = [
+    "RA",
+    "SLE",
+    "SJOGRENS",
+    "AITD",
     "T1D",
-    "T2D",
-    "LADA",
-    "GESTATIONAL_DM",
-    "MONOGENIC_DIABETES",
+    "VITILIGO",
+    "MS",
 ]
 
 ALL_LOCI = list(SHARED_LOCI.keys()) + [f"rs{random.randint(100000, 999999)}" for _ in range(40)]
@@ -64,11 +66,13 @@ def _generate_labels(patient_id: str) -> dict:
     labels = {"patient_id": patient_id}
     for disease in DISEASE_LABELS:
         prevalence = {
+            "RA": 0.20,
+            "SLE": 0.10,
+            "SJOGRENS": 0.08,
+            "AITD": 0.15,
             "T1D": 0.08,
-            "T2D": 0.25,
-            "LADA": 0.04,
-            "GESTATIONAL_DM": 0.10,
-            "MONOGENIC_DIABETES": 0.02,
+            "VITILIGO": 0.06,
+            "MS": 0.12,
         }[disease]
         labels[disease] = int(random.random() < prevalence)
     return labels

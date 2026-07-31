@@ -46,18 +46,18 @@ for d in dirs:
 GWAS_BASE_URL = "https://www.ebi.ac.uk/gwas/rest/api"
 IMMPORT_BASE_URL = "https://www.immport.org/data/query"
 
-DIABETES_LOCI = {
+AUTOIMMUNE_LOCI = {
     "rs2187668": "HLA-DRB1",
     "rs9272346": "HLA-DQB1",
-    "rs3087243": "CTLA4",
     "rs2476601": "PTPN22",
-    "rs7903146": "TCF7L2",
-    "rs689": "INS",
-    "rs1800623": "LTA",
+    "rs3087243": "CTLA4",
     "rs2292239": "ERBB3",
+    "rs11209026": "IL23R",
+    "rs2104286": "IL2RA",
+    "rs7574865": "STAT4",
 }
 
-DISEASE_LABELS = ["T1D", "T2D", "LADA", "GESTATIONAL_DM", "MONOGENIC_DIABETES"]
+DISEASE_LABELS = ["RA", "SLE", "SJOGRENS", "AITD", "T1D", "VITILIGO", "MS"]
 
 
 def fetch_gwas_associations(rs_id: str, max_retries: int = 3) -> list[dict[str, Any]]:
@@ -71,7 +71,7 @@ def fetch_gwas_associations(rs_id: str, max_retries: int = 3) -> list[dict[str, 
             for assoc in data.get("_embedded", {}).get("associations", []):
                 associations.append({
                     "rs_id": rs_id,
-                    "gene": DIABETES_LOCI.get(rs_id, rs_id),
+                    "gene": AUTOIMMUNE_LOCI.get(rs_id, rs_id),
                     "pvalue": assoc.get("pvalue"),
                     "pvalueText": assoc.get("pvalueText"),
                     "efoTrait": assoc.get("mappedLabel", assoc.get("efoTrait")),
@@ -106,8 +106,8 @@ def fetch_immport_study(study_id: str, max_retries: int = 3) -> dict[str, Any] |
 
 def build_real_dataset() -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     all_associations = []
-    for rs_id in DIABETES_LOCI:
-        logger.info("Fetching GWAS data for %s (%s)", rs_id, DIABETES_LOCI[rs_id])
+    for rs_id in AUTOIMMUNE_LOCI:
+        logger.info("Fetching GWAS data for %s (%s)", rs_id, AUTOIMMUNE_LOCI[rs_id])
         assocs = fetch_gwas_associations(rs_id)
         all_associations.extend(assocs)
         time.sleep(0.5)
@@ -134,7 +134,7 @@ def build_real_dataset() -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     prs_rows = []
     for i in range(n_patients):
         patient_id = f"P{i:04d}"
-        for rs_id, gene in DIABETES_LOCI.items():
+        for rs_id, gene in AUTOIMMUNE_LOCI.items():
             locus_df = gwas_df[gwas_df["rs_id"] == rs_id]
             if not locus_df.empty and locus_df["pvalue"].notna().any():
                 pval = locus_df["pvalue"].dropna().mean()
@@ -175,11 +175,13 @@ def build_real_dataset() -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
         labels = {"patient_id": patient_id}
         for disease in DISEASE_LABELS:
             prevalence = {
+                "RA": 0.20,
+                "SLE": 0.10,
+                "SJOGRENS": 0.08,
+                "AITD": 0.15,
                 "T1D": 0.08,
-                "T2D": 0.25,
-                "LADA": 0.04,
-                "GESTATIONAL_DM": 0.10,
-                "MONOGENIC_DIABETES": 0.02,
+                "VITILIGO": 0.06,
+                "MS": 0.12,
             }[disease]
             labels[disease] = int(np.random.random() < prevalence)
         label_rows.append(labels)
@@ -320,12 +322,12 @@ def generate_reports(prs_df: pd.DataFrame, clinical_df: pd.DataFrame, labels_df:
     report = {
         "dataset_summary": {
             "n_patients": len(clinical_df),
-            "n_loci": len(DIABETES_LOCI),
+            "n_loci": len(AUTOIMMUNE_LOCI),
             "n_features": len(X.columns),
             "n_diseases": len(DISEASE_LABELS),
             "gwas_associations_fetched": len(prs_df),
         },
-        "gwas_loci": list(DIABETES_LOCI.keys()),
+        "gwas_loci": list(AUTOIMMUNE_LOCI.keys()),
         "disease_labels": DISEASE_LABELS,
         "model_config": {
             "learners": ensemble._learner_names,
