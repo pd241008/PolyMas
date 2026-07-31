@@ -15,11 +15,15 @@ import (
 	"github.com/polymas/normalization-go/internal/handler"
 )
 
-func main() {
-	port := os.Getenv("GRPC_PORT")
-	if port == "" {
-		port = "50052"
+func getEnvOrDefault(key, fallback string) string {
+	if v := os.Getenv(key); v != "" {
+		return v
 	}
+	return fallback
+}
+
+func main() {
+	port := getEnvOrDefault("GRPC_PORT", "50052")
 
 	addr := fmt.Sprintf(":%s", port)
 	lis, err := net.Listen("tcp", addr)
