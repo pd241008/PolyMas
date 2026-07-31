@@ -3,9 +3,8 @@
 from __future__ import annotations
 
 import logging
-from concurrent import futures
+from typing import Any
 
-import grpc
 import numpy as np
 import pandas as pd
 
@@ -20,8 +19,8 @@ class MLEngineServicer:
     """
 
     def __init__(self) -> None:
-        self._ensemble = None  # Lazy init after model loading
-        self._clusterer = None
+        self._ensemble: Any = None  # Lazy init after model loading
+        self._clusterer: Any = None
 
     def score_batch(self, profiles: list[dict]) -> list[dict]:
         """Score a batch of patient profiles across all disease labels."""
@@ -52,9 +51,10 @@ class MLEngineServicer:
 
         return results
 
-    def explain_patient(self, profile: dict, method: str = "shap", target_disease: str = "T1D") -> dict:
+    def explain_patient(
+        self, profile: dict, method: str = "shap", target_disease: str = "T1D"
+    ) -> dict:
         """Generate feature attributions for a single patient."""
-        from polymas_ml.explainability.explainers import TreeExplainerWrapper
 
         # TODO: Extract actual features and use the trained base learner
         return {
@@ -64,7 +64,9 @@ class MLEngineServicer:
             "explanation_json": "{}",
         }
 
-    def cluster_predictions(self, scored_patients: list[dict], n_clusters: int | None = None) -> dict:
+    def cluster_predictions(
+        self, scored_patients: list[dict], n_clusters: int | None = None
+    ) -> dict:
         """Run hierarchical clustering on scored prediction vectors."""
         from polymas_ml.clustering.hierarchical import DiseaseRiskClusterer
 

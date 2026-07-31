@@ -1,4 +1,4 @@
-const GRPC_GATEWAY = process.env.NEXT_PUBLIC_GRPC_GATEWAY || "http://localhost:50053";
+const GRPC_GATEWAY = process.env.NEXT_PUBLIC_GRPC_GATEWAY || "http://localhost:50055";
 
 export interface RunManifest {
   run_id: string;
@@ -36,18 +36,12 @@ export interface FeatureAttribution {
   method: string;
 }
 
-/**
- * API client for the Polymas control plane.
- *
- * In production, this would use a gRPC-web proxy or connect
- * directly via a Next.js API route proxying to gRPC.
- */
 export const api = {
   async listRuns(): Promise<RunManifest[]> {
-    // TODO: Replace with gRPC-web fetch
     const res = await fetch(`${GRPC_GATEWAY}/api/runs`);
     if (!res.ok) throw new Error("Failed to list runs");
-    return res.json();
+    const data: { runs: RunManifest[] } = await res.json();
+    return data.runs;
   },
 
   async getRunStatus(runId: string): Promise<RunManifest> {

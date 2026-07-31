@@ -72,13 +72,18 @@ lint-rust:
 .PHONY: setup-python
 setup-python:
 	@echo "==> Setting up Python ML engine venv..."
-	cd services/ml-engine-python && python3.12 -m venv .venv && \
+	cd services/ml-engine-python && python3 -m venv .venv && \
 		.venv/bin/pip install --upgrade pip && \
-		.venv/bin/pip install -r requirements.txt
+		.venv/bin/pip install -r requirements.txt && \
+		.venv/bin/pip install pytest
 
 .PHONY: test-python
 test-python:
 	cd services/ml-engine-python && .venv/bin/pytest tests/ -v
+
+.PHONY: build-dataset
+build-dataset:
+	cd services/ml-engine-python && PYTHONPATH=. .venv/bin/python scripts/build_dataset.py
 
 .PHONY: lint-python
 lint-python:
