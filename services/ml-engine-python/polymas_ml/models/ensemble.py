@@ -20,11 +20,13 @@ class MultiLabelEnsemble:
     """
 
     DISEASE_LABELS = [
+        "RA",
+        "SLE",
+        "SJOGRENS",
+        "AITD",
         "T1D",
-        "T2D",
-        "LADA",
-        "GESTATIONAL_DM",
-        "MONOGENIC_DIABETES",
+        "VITILIGO",
+        "MS",
     ]
 
     def __init__(
