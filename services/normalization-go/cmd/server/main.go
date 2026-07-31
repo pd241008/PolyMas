@@ -30,8 +30,8 @@ func main() {
 	s := grpc.NewServer()
 
 	// Register normalization service
-	normalizationSvc := handler.NewNormalizationService()
-	// TODO: pb.RegisterNormalizationServiceServer(s, normalizationSvc)
+	// TODO: pb.RegisterNormalizationServiceServer(s, normalizationSvc) once proto stubs are generated
+	_ = handler.NewNormalizationService()
 
 	// Register health check
 	healthSrv := health.NewServer()
