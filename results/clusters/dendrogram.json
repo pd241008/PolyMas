@@ -1,0 +1,495 @@
+{
+  "id": "node_98",
+  "distance": 0.06751995193666722,
+  "count": 50,
+  "left": {
+    "id": "node_95",
+    "distance": 0.007701423038002203,
+    "count": 12,
+    "left": {
+      "id": "node_93",
+      "distance": 0.003893119504800969,
+      "count": 7,
+      "left": {
+        "id": "node_79",
+        "distance": 0.00039116445122631873,
+        "count": 3,
+        "left": {
+          "id": "leaf_0",
+          "patient_id": "P0000",
+          "distance": 0.0
+        },
+        "right": {
+          "id": "node_72",
+          "distance": 0.00022802297225154263,
+          "count": 2,
+          "left": {
+            "id": "leaf_7",
+            "patient_id": "P0007",
+            "distance": 0.0
+          },
+          "right": {
+            "id": "leaf_9",
+            "patient_id": "P0009",
+            "distance": 0.0
+          }
+        }
+      },
+      "right": {
+        "id": "node_88",
+        "distance": 0.0010385173695023708,
+        "count": 4,
+        "left": {
+          "id": "node_65",
+          "distance": 0.00014622304422520755,
+          "count": 2,
+          "left": {
+            "id": "leaf_23",
+            "patient_id": "P0023",
+            "distance": 0.0
+          },
+          "right": {
+            "id": "leaf_36",
+            "patient_id": "P0036",
+            "distance": 0.0
+          }
+        },
+        "right": {
+          "id": "node_69",
+          "distance": 0.00019739124570132506,
+          "count": 2,
+          "left": {
+            "id": "leaf_42",
+            "patient_id": "P0042",
+            "distance": 0.0
+          },
+          "right": {
+            "id": "leaf_45",
+            "patient_id": "P0045",
+            "distance": 0.0
+          }
+        }
+      }
+    },
+    "right": {
+      "id": "node_94",
+      "distance": 0.006258186728663063,
+      "count": 5,
+      "left": {
+        "id": "leaf_34",
+        "patient_id": "P0034",
+        "distance": 0.0
+      },
+      "right": {
+        "id": "node_90",
+        "distance": 0.0016637021395393093,
+        "count": 4,
+        "left": {
+          "id": "leaf_39",
+          "patient_id": "P0039",
+          "distance": 0.0
+        },
+        "right": {
+          "id": "node_86",
+          "distance": 0.0008815332870203046,
+          "count": 3,
+          "left": {
+            "id": "leaf_29",
+            "patient_id": "P0029",
+            "distance": 0.0
+          },
+          "right": {
+            "id": "node_74",
+            "distance": 0.00025638233614689573,
+            "count": 2,
+            "left": {
+              "id": "leaf_33",
+              "patient_id": "P0033",
+              "distance": 0.0
+            },
+            "right": {
+              "id": "leaf_43",
+              "patient_id": "P0043",
+              "distance": 0.0
+            }
+          }
+        }
+      }
+    }
+  },
+  "right": {
+    "id": "node_97",
+    "distance": 0.011082065081941867,
+    "count": 38,
+    "left": {
+      "id": "node_87",
+      "distance": 0.0009075744312663195,
+      "count": 3,
+      "left": {
+        "id": "leaf_16",
+        "patient_id": "P0016",
+        "distance": 0.0
+      },
+      "right": {
+        "id": "node_81",
+        "distance": 0.0004990707530314614,
+        "count": 2,
+        "left": {
+          "id": "leaf_22",
+          "patient_id": "P0022",
+          "distance": 0.0
+        },
+        "right": {
+          "id": "leaf_27",
+          "patient_id": "P0027",
+          "distance": 0.0
+        }
+      }
+    },
+    "right": {
+      "id": "node_96",
+      "distance": 0.00855931672477101,
+      "count": 35,
+      "left": {
+        "id": "node_91",
+        "distance": 0.0022086067525484898,
+        "count": 7,
+        "left": {
+          "id": "node_77",
+          "distance": 0.0003186107649891742,
+          "count": 3,
+          "left": {
+            "id": "leaf_21",
+            "patient_id": "P0021",
+            "distance": 0.0
+          },
+          "right": {
+            "id": "node_64",
+            "distance": 0.00014065064090772162,
+            "count": 2,
+            "left": {
+              "id": "leaf_1",
+              "patient_id": "P0001",
+              "distance": 0.0
+            },
+            "right": {
+              "id": "leaf_48",
+              "patient_id": "P0048",
+              "distance": 0.0
+            }
+          }
+        },
+        "right": {
+          "id": "node_82",
+          "distance": 0.0005035566539703538,
+          "count": 4,
+          "left": {
+            "id": "leaf_15",
+            "patient_id": "P0015",
+            "distance": 0.0
+          },
+          "right": {
+            "id": "node_70",
+            "distance": 0.00020002263162559417,
+            "count": 3,
+            "left": {
+              "id": "leaf_26",
+              "patient_id": "P0026",
+              "distance": 0.0
+            },
+            "right": {
+              "id": "node_52",
+              "distance": 2.9031720434873288e-05,
+              "count": 2,
+              "left": {
+                "id": "leaf_3",
+                "patient_id": "P0003",
+                "distance": 0.0
+              },
+              "right": {
+                "id": "leaf_12",
+                "patient_id": "P0012",
+                "distance": 0.0
+              }
+            }
+          }
+        }
+      },
+      "right": {
+        "id": "node_92",
+        "distance": 0.0030040505678058504,
+        "count": 28,
+        "left": {
+          "id": "node_83",
+          "distance": 0.0006657326557496809,
+          "count": 8,
+          "left": {
+            "id": "node_75",
+            "distance": 0.0003015386143499564,
+            "count": 4,
+            "left": {
+              "id": "leaf_32",
+              "patient_id": "P0032",
+              "distance": 0.0
+            },
+            "right": {
+              "id": "node_60",
+              "distance": 0.00011911260095090237,
+              "count": 3,
+              "left": {
+                "id": "leaf_35",
+                "patient_id": "P0035",
+                "distance": 0.0
+              },
+              "right": {
+                "id": "node_54",
+                "distance": 5.0492174153421295e-05,
+                "count": 2,
+                "left": {
+                  "id": "leaf_11",
+                  "patient_id": "P0011",
+                  "distance": 0.0
+                },
+                "right": {
+                  "id": "leaf_18",
+                  "patient_id": "P0018",
+                  "distance": 0.0
+                }
+              }
+            }
+          },
+          "right": {
+            "id": "node_80",
+            "distance": 0.0004174154632934415,
+            "count": 4,
+            "left": {
+              "id": "leaf_37",
+              "patient_id": "P0037",
+              "distance": 0.0
+            },
+            "right": {
+              "id": "node_67",
+              "distance": 0.00016118053944103397,
+              "count": 3,
+              "left": {
+                "id": "leaf_46",
+                "patient_id": "P0046",
+                "distance": 0.0
+              },
+              "right": {
+                "id": "node_62",
+                "distance": 0.00012879180633238943,
+                "count": 2,
+                "left": {
+                  "id": "leaf_14",
+                  "patient_id": "P0014",
+                  "distance": 0.0
+                },
+                "right": {
+                  "id": "leaf_40",
+                  "patient_id": "P0040",
+                  "distance": 0.0
+                }
+              }
+            }
+          }
+        },
+        "right": {
+          "id": "node_89",
+          "distance": 0.0014740734867948236,
+          "count": 20,
+          "left": {
+            "id": "node_76",
+            "distance": 0.0003086007665711074,
+            "count": 7,
+            "left": {
+              "id": "node_55",
+              "distance": 5.242125229102173e-05,
+              "count": 3,
+              "left": {
+                "id": "leaf_10",
+                "patient_id": "P0010",
+                "distance": 0.0
+              },
+              "right": {
+                "id": "node_51",
+                "distance": 1.671886044985115e-05,
+                "count": 2,
+                "left": {
+                  "id": "leaf_24",
+                  "patient_id": "P0024",
+                  "distance": 0.0
+                },
+                "right": {
+                  "id": "leaf_25",
+                  "patient_id": "P0025",
+                  "distance": 0.0
+                }
+              }
+            },
+            "right": {
+              "id": "node_71",
+              "distance": 0.00021074365050444664,
+              "count": 4,
+              "left": {
+                "id": "leaf_20",
+                "patient_id": "P0020",
+                "distance": 0.0
+              },
+              "right": {
+                "id": "node_61",
+                "distance": 0.0001228010831556936,
+                "count": 3,
+                "left": {
+                  "id": "leaf_38",
+                  "patient_id": "P0038",
+                  "distance": 0.0
+                },
+                "right": {
+                  "id": "node_56",
+                  "distance": 6.550295755622959e-05,
+                  "count": 2,
+                  "left": {
+                    "id": "leaf_4",
+                    "patient_id": "P0004",
+                    "distance": 0.0
+                  },
+                  "right": {
+                    "id": "leaf_28",
+                    "patient_id": "P0028",
+                    "distance": 0.0
+                  }
+                }
+              }
+            }
+          },
+          "right": {
+            "id": "node_85",
+            "distance": 0.0007976518548786019,
+            "count": 13,
+            "left": {
+              "id": "node_68",
+              "distance": 0.0001840093124945592,
+              "count": 4,
+              "left": {
+                "id": "node_53",
+                "distance": 3.016656168729458e-05,
+                "count": 2,
+                "left": {
+                  "id": "leaf_31",
+                  "patient_id": "P0031",
+                  "distance": 0.0
+                },
+                "right": {
+                  "id": "leaf_47",
+                  "patient_id": "P0047",
+                  "distance": 0.0
+                }
+              },
+              "right": {
+                "id": "node_59",
+                "distance": 0.00010421956289220066,
+                "count": 2,
+                "left": {
+                  "id": "leaf_6",
+                  "patient_id": "P0006",
+                  "distance": 0.0
+                },
+                "right": {
+                  "id": "leaf_19",
+                  "patient_id": "P0019",
+                  "distance": 0.0
+                }
+              }
+            },
+            "right": {
+              "id": "node_84",
+              "distance": 0.000670831565116553,
+              "count": 9,
+              "left": {
+                "id": "node_58",
+                "distance": 9.742594972646472e-05,
+                "count": 2,
+                "left": {
+                  "id": "leaf_2",
+                  "patient_id": "P0002",
+                  "distance": 0.0
+                },
+                "right": {
+                  "id": "leaf_41",
+                  "patient_id": "P0041",
+                  "distance": 0.0
+                }
+              },
+              "right": {
+                "id": "node_78",
+                "distance": 0.00034557958596272777,
+                "count": 7,
+                "left": {
+                  "id": "node_66",
+                  "distance": 0.00015587908925602183,
+                  "count": 3,
+                  "left": {
+                    "id": "leaf_13",
+                    "patient_id": "P0013",
+                    "distance": 0.0
+                  },
+                  "right": {
+                    "id": "node_57",
+                    "distance": 7.41189962112288e-05,
+                    "count": 2,
+                    "left": {
+                      "id": "leaf_8",
+                      "patient_id": "P0008",
+                      "distance": 0.0
+                    },
+                    "right": {
+                      "id": "leaf_30",
+                      "patient_id": "P0030",
+                      "distance": 0.0
+                    }
+                  }
+                },
+                "right": {
+                  "id": "node_73",
+                  "distance": 0.0002562770347411407,
+                  "count": 4,
+                  "left": {
+                    "id": "node_50",
+                    "distance": 7.84620668363731e-06,
+                    "count": 2,
+                    "left": {
+                      "id": "leaf_17",
+                      "patient_id": "P0017",
+                      "distance": 0.0
+                    },
+                    "right": {
+                      "id": "leaf_49",
+                      "patient_id": "P0049",
+                      "distance": 0.0
+                    }
+                  },
+                  "right": {
+                    "id": "node_63",
+                    "distance": 0.00013729196169688293,
+                    "count": 2,
+                    "left": {
+                      "id": "leaf_5",
+                      "patient_id": "P0005",
+                      "distance": 0.0
+                    },
+                    "right": {
+                      "id": "leaf_44",
+                      "patient_id": "P0044",
+                      "distance": 0.0
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

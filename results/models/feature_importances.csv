@@ -1,0 +1,13 @@
+disease,learner,importance
+T1D,xgboost,1.0
+T1D,catboost,100.00000000000001
+T1D,lightgbm,500.0
+T2D,xgboost,0.9999999403953552
+T2D,catboost,99.99999999999999
+T2D,lightgbm,500.0
+LADA,xgboost,0.0
+LADA,catboost,100.00000000000001
+LADA,lightgbm,305.0
+GESTATIONAL_DM,xgboost,1.0
+GESTATIONAL_DM,catboost,100.0
+GESTATIONAL_DM,lightgbm,541.0

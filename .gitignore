@@ -37,7 +37,11 @@ services/ml-engine-python/dist/
 services/ml-engine-python/.mypy_cache/
 services/ml-engine-python/.pytest_cache/
 services/ml-engine-python/.ruff_cache/
-
+services/ml-engine-python/data/
+services/ml-engine-python/data/raw
+services/ml-engine-python/data/processed
+services/ml-engine-python/data/models       
+services/ml-engine-python/catboost_info
 # === Next.js ===
 apps/dashboard-nextjs/node_modules/
 apps/dashboard-nextjs/.next/
@@ -74,3 +78,6 @@ results/
 .bsp/
 .metals/
 .scala-build/
+
+outputs/
+figures/figures/
