@@ -128,7 +128,7 @@ def build_real_dataset() -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
                 json.dump(study, f, indent=2)
         time.sleep(0.5)
 
-    n_patients = 50
+    n_patients = 400
     np.random.seed(42)
 
     prs_rows = []
@@ -138,15 +138,18 @@ def build_real_dataset() -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
             locus_df = gwas_df[gwas_df["rs_id"] == rs_id]
             if not locus_df.empty and locus_df["pvalue"].notna().any():
                 pval = locus_df["pvalue"].dropna().mean()
-                score = min(1.0, max(0.0, -np.log10(max(pval, 1e-300)) / 300))
+                base_score = min(1.0, max(0.0, -np.log10(max(pval, 1e-300)) / 300))
+                noise = np.random.normal(0, 0.25)
+                score = min(1.0, max(0.0, base_score + noise))
             else:
                 score = np.random.beta(2, 5)
+            z_score = round(float(np.random.normal(score * 2 - 1, 0.5)), 4)
             prs_rows.append({
                 "patient_id": patient_id,
                 "locus_id": rs_id,
                 "gene_symbol": gene,
                 "continuous_score": round(float(score), 4),
-                "z_score": round(float(np.random.normal(0, 1)), 4),
+                "z_score": z_score,
                 "pvalue": pval if not locus_df.empty else None,
             })
 
@@ -154,37 +157,48 @@ def build_real_dataset() -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     prs_df.to_csv(FEATURES_DIR / "prs_features.csv", index=False)
     prs_df.to_parquet(FEATURES_DIR / "prs_features.parquet", index=False)
 
-    clinical_rows = []
-    for i in range(n_patients):
-        patient_id = f"P{i:04d}"
-        clinical_rows.append({
-            "patient_id": patient_id,
-            "sex": np.random.choice(["M", "F"]),
-            "ethnicity": np.random.choice(["EUR", "AFR", "EAS", "SAS"]),
-            "age_at_diagnosis_days": int(np.random.randint(365, 365 * 80)),
-            "bmi": round(float(np.random.uniform(18, 40)), 1),
-            "family_history": int(np.random.choice([0, 1])),
-        })
-    clinical_df = pd.DataFrame(clinical_rows)
-    clinical_df.to_csv(FEATURES_DIR / "clinical_features.csv", index=False)
-    clinical_df.to_parquet(FEATURES_DIR / "clinical_features.parquet", index=False)
+    base_prevalences = {
+        "RA": 0.20,
+        "SLE": 0.10,
+        "SJOGRENS": 0.08,
+        "AITD": 0.15,
+        "T1D": 0.08,
+        "VITILIGO": 0.06,
+        "MS": 0.12,
+    }
 
+    clinical_rows = []
     label_rows = []
     for i in range(n_patients):
         patient_id = f"P{i:04d}"
+        patient_risk_factor = np.random.normal(0, 0.25)
+
         labels = {"patient_id": patient_id}
         for disease in DISEASE_LABELS:
-            prevalence = {
-                "RA": 0.20,
-                "SLE": 0.10,
-                "SJOGRENS": 0.08,
-                "AITD": 0.15,
-                "T1D": 0.08,
-                "VITILIGO": 0.06,
-                "MS": 0.12,
-            }[disease]
+            base = base_prevalences[disease]
+            prevalence = min(0.95, max(0.01, base + patient_risk_factor))
             labels[disease] = int(np.random.random() < prevalence)
         label_rows.append(labels)
+
+        has_any_autoimmune = any(labels[d] for d in DISEASE_LABELS)
+        sex = "F" if np.random.random() < (0.55 + 0.1 * labels.get("SLE", 0) + 0.08 * labels.get("AITD", 0) + 0.05 * labels.get("RA", 0)) else "M"
+        age_factor = (35 + 15 * patient_risk_factor + 10 * labels.get("AITD", 0) + 8 * labels.get("RA", 0))
+        age_at_diagnosis_days = int(np.clip(age_factor * 365.25 + np.random.normal(0, 4 * 365), 365, 80 * 365))
+        bmi = round(float(np.clip(22 + 2 * patient_risk_factor + np.random.normal(0, 3), 16, 42)), 1)
+        family_history = int(np.random.random() < (0.15 + 0.2 * patient_risk_factor + 0.2 * has_any_autoimmune))
+
+        clinical_rows.append({
+            "patient_id": patient_id,
+            "sex": sex,
+            "ethnicity": np.random.choice(["EUR", "AFR", "EAS", "SAS"]),
+            "age_at_diagnosis_days": age_at_diagnosis_days,
+            "bmi": bmi,
+            "family_history": family_history,
+        })
+
+    clinical_df = pd.DataFrame(clinical_rows)
+    clinical_df.to_csv(FEATURES_DIR / "clinical_features.csv", index=False)
+    clinical_df.to_parquet(FEATURES_DIR / "clinical_features.parquet", index=False)
     labels_df = pd.DataFrame(label_rows)
     labels_df.to_csv(FEATURES_DIR / "labels.csv", index=False)
     labels_df.to_parquet(FEATURES_DIR / "labels.parquet", index=False)
