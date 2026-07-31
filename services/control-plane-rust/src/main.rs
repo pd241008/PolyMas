@@ -1,7 +1,7 @@
 use anyhow::Result;
 use sha2::{Digest, Sha256};
 use std::collections::HashMap;
-use tracing::{info, warn};
+use tracing::info;
 
 mod orchestrator;
 mod manifest;
@@ -18,7 +18,7 @@ async fn main() -> Result<()> {
         .init();
 
     let grpc_port = std::env::var("GRPC_PORT").unwrap_or_else(|_| "50053".to_string());
-    let addr = format!("0.0.0.0:{}", grpc_port).parse()?;
+    let addr: std::net::SocketAddr = format!("0.0.0.0:{}", grpc_port).parse()?;
 
     info!("Polymas Control Plane starting on {}", addr);
 

@@ -18,7 +18,7 @@ impl PipelineOrchestrator {
         &self,
         locus_ids: &[&str],
         model_version: &str,
-        parameters: &HashMap<String, String>,
+        _parameters: &HashMap<String, String>,
     ) -> Result<RunManifest> {
         let run_id = Uuid::new_v4().to_string();
         info!("Starting pipeline run {} for {} loci", run_id, locus_ids.len());
@@ -57,6 +57,7 @@ impl PipelineOrchestrator {
         Ok(manifest)
     }
 
+    #[allow(dead_code)]
     pub async fn get_run_status(&self, run_id: &str) -> Result<Option<RunManifest>> {
         // TODO: Lookup run in state store (SQLite or in-memory)
         info!("Status check for run: {}", run_id);

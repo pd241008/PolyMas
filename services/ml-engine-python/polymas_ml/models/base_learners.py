@@ -37,7 +37,7 @@ class XGBoostLearner(BaseLearner):
 
     def predict_proba(self, X: pd.DataFrame) -> np.ndarray:
         assert self._model is not None, "Model not fitted"
-        return self._model.predict_proba(X)[:, :, 1] if X.shape[0] > 1 else self._model.predict_proba(X)[:, 1]
+        return self._model.predict_proba(X)[:, 1]
 
     def get_feature_importances(self) -> dict[str, float]:
         assert self._model is not None, "Model not fitted"
@@ -59,7 +59,7 @@ class CatBoostLearner(BaseLearner):
 
     def predict_proba(self, X: pd.DataFrame) -> np.ndarray:
         assert self._model is not None, "Model not fitted"
-        return self._model.predict_proba(X)[:, :, 1] if X.shape[0] > 1 else self._model.predict_proba(X)[:, 1]
+        return self._model.predict_proba(X)[:, 1]
 
     def get_feature_importances(self) -> dict[str, float]:
         assert self._model is not None, "Model not fitted"
@@ -81,7 +81,7 @@ class LightGBMLearner(BaseLearner):
 
     def predict_proba(self, X: pd.DataFrame) -> np.ndarray:
         assert self._model is not None, "Model not fitted"
-        return self._model.predict_proba(X)[:, :, 1] if X.shape[0] > 1 else self._model.predict_proba(X)[:, 1]
+        return self._model.predict_proba(X)[:, 1]
 
     def get_feature_importances(self) -> dict[str, float]:
         assert self._model is not None, "Model not fitted"

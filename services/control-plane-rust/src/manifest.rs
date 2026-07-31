@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 
 #[derive(Debug, Clone)]
+#[allow(dead_code)]
 pub struct RunManifest {
     pub run_id: String,
     pub pipeline_version: String,
@@ -11,6 +12,7 @@ pub struct RunManifest {
 }
 
 #[derive(Debug, Clone, PartialEq)]
+#[allow(dead_code)]
 pub enum RunStatus {
     Queued,
     Running,
