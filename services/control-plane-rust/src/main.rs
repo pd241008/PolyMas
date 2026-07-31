@@ -1,12 +1,37 @@
 use anyhow::Result;
 use sha2::{Digest, Sha256};
-use std::collections::HashMap;
 use tracing::info;
 
-mod orchestrator;
-mod manifest;
+pub mod polymas {
+    pub mod v1 {
+        tonic::include_proto!("polymas.v1");
+    }
+}
 
+mod grpc;
+mod orchestrator;
+
+#[cfg(test)]
+mod tests;
+
+use grpc::ControlPlaneServiceHandler;
 use orchestrator::PipelineOrchestrator;
+
+pub fn checksum(data: &[u8]) -> String {
+    let mut hasher = Sha256::new();
+    hasher.update(data);
+    hex::encode(hasher.finalize())
+}
+
+fn now_timestamp() -> Option<prost_types::Timestamp> {
+    let now = std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .ok()?;
+    Some(prost_types::Timestamp {
+        seconds: now.as_secs() as i64,
+        nanos: now.subsec_nanos() as i32,
+    })
+}
 
 #[tokio::main]
 async fn main() -> Result<()> {
@@ -23,31 +48,12 @@ async fn main() -> Result<()> {
     info!("Polymas Control Plane starting on {}", addr);
 
     let orchestrator = PipelineOrchestrator::new();
+    let handler = ControlPlaneServiceHandler::new(orchestrator);
 
-    // TODO: Build tonic gRPC server with ControlPlaneService
-    // let svc = control_plane_server::ControlPlaneServer::new(orchestrator);
-    // Server::builder()
-    //     .add_service(svc)
-    //     .serve(addr)
-    //     .await?;
-
-    // Placeholder: run orchestrator in demo mode
-    let manifest = orchestrator.start_run(
-        &["rs12345", "rs67890"],
-        "0.1.0",
-        &HashMap::from([("mode".to_string(), "full_pipeline".to_string())]),
-    ).await?;
-
-    info!("Pipeline run completed: {:?}", manifest.run_id);
-    info!("Input checksums:  {:?}", manifest.input_checksums);
-    info!("Output checksums: {:?}", manifest.output_checksums);
+    tonic::transport::Server::builder()
+        .add_service(polymas::v1::control_plane_service_server::ControlPlaneServiceServer::new(handler))
+        .serve(addr)
+        .await?;
 
     Ok(())
-}
-
-/// Compute SHA-256 checksum of arbitrary bytes.
-pub fn checksum(data: &[u8]) -> String {
-    let mut hasher = Sha256::new();
-    hasher.update(data);
-    hex::encode(hasher.finalize())
 }
