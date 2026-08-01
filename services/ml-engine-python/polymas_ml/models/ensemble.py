@@ -3,10 +3,12 @@
 from __future__ import annotations
 
 import logging
+from typing import Any
 
 import numpy as np
 import pandas as pd
 from sklearn.linear_model import LogisticRegression
+from sklearn.model_selection import train_test_split
 
 from .base_learners import BaseLearner, get_learner
 
@@ -39,6 +41,7 @@ class MultiLabelEnsemble:
         learner_names: list[str] | None = None,
         learner_weights: list[float] | None = None,
         platt_scaling: bool = True,
+        calibration_size: float = 0.2,
     ) -> None:
         self._learner_names = learner_names or ["xgboost", "catboost", "lightgbm"]
         self._learner_weights = (
@@ -46,12 +49,17 @@ class MultiLabelEnsemble:
             or [1.0 / len(self._learner_names)] * len(self._learner_names)
         )
         self._platt_scaling = platt_scaling
+        self._calibration_size = calibration_size
         self._models: dict[str, list[BaseLearner]] = {}  # label -> list of base learners
         self._platt_params: dict[str, LogisticRegression] = {}  # label -> fitted model
+        self._calibration_indices: dict[str, np.ndarray] = {}  # label -> indices used for calibration
 
     def fit(self, X: pd.DataFrame, y: pd.DataFrame) -> dict[str, dict[str, float]]:
         """
         Fit one set of base learners per disease label.
+
+        Uses a held-out calibration split to fit Platt scaling, avoiding
+        calibration leakage from training-set raw scores.
 
         Args:
             X: Feature matrix (n_patients x n_features).
@@ -71,18 +79,38 @@ class MultiLabelEnsemble:
 
             y_binary = y[label].values
 
+            if self._calibration_size > 0 and self._platt_scaling:
+                X_train, X_cal, y_train, y_cal = train_test_split(
+                    X, y_binary, test_size=self._calibration_size, stratify=y_binary, random_state=42
+                )
+                self._calibration_indices[label] = X_cal.index.values
+            else:
+                X_train, y_train = X, y_binary
+                self._calibration_indices[label] = np.array([], dtype=int)
+
             for learner_name in self._learner_names:
                 learner = get_learner(learner_name)
-                learner.fit(X, pd.Series(y_binary))
+                learner.fit(X_train, pd.Series(y_train))
                 self._models[label].append(learner)
                 label_importances[learner_name] = sum(learner.get_feature_importances().values())
 
-            if self._platt_scaling:
+            if self._platt_scaling and self._calibration_size > 0:
+                raw_scores = self._score_label(X_cal, label)
+                self._platt_params[label] = self._fit_platt(raw_scores, y_cal)
+                lr_model = self._platt_params[label]
+                logger.debug(
+                    "Platt scaling fitted for %s on %d held-out samples: A=%.4f, B=%.4f",
+                    label,
+                    len(y_cal),
+                    lr_model.coef_[0][0],
+                    lr_model.intercept_[0],
+                )
+            elif self._platt_scaling:
                 raw_scores = self._score_label(X, label)
                 self._platt_params[label] = self._fit_platt(raw_scores, y_binary)
                 lr_model = self._platt_params[label]
                 logger.debug(
-                    "Platt scaling fitted for %s: A=%.4f, B=%.4f",
+                    "Platt scaling fitted for %s on training data (no split): A=%.4f, B=%.4f",
                     label,
                     lr_model.coef_[0][0],
                     lr_model.intercept_[0],

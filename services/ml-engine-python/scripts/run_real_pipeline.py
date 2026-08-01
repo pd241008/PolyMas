@@ -261,12 +261,16 @@ def train_ensemble(X: pd.DataFrame, y: pd.DataFrame) -> MultiLabelEnsemble:
     importances = ensemble.fit(X, y_valid)
 
     platt_coeffs = []
+    cal_split_info = []
     for label, model in ensemble._platt_params.items():
         coef = float(model.coef_[0][0])
         intercept = float(model.intercept_[0])
         platt_coeffs.append({"disease": label, "A": coef, "B": intercept})
-        logger.info("Platt scaling for %s: A=%.4f, B=%.4f", label, coef, intercept)
+        n_cal = len(ensemble._calibration_indices.get(label, []))
+        cal_split_info.append({"disease": label, "calibration_samples": n_cal})
+        logger.info("Platt scaling for %s (n_cal=%d): A=%.4f, B=%.4f", label, n_cal, coef, intercept)
     pd.DataFrame(platt_coeffs).to_csv(MODELS_DIR / "platt_coefficients.csv", index=False)
+    pd.DataFrame(cal_split_info).to_csv(MODELS_DIR / "calibration_split_info.csv", index=False)
 
     importance_rows = []
     for label, imps in importances.items():
