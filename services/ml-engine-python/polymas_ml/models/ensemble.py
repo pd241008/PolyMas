@@ -2,10 +2,15 @@
 
 from __future__ import annotations
 
+import logging
+
 import numpy as np
 import pandas as pd
+from sklearn.linear_model import LogisticRegression
 
 from .base_learners import BaseLearner, get_learner
+
+logger = logging.getLogger(__name__)
 
 
 class MultiLabelEnsemble:
@@ -42,7 +47,7 @@ class MultiLabelEnsemble:
         )
         self._platt_scaling = platt_scaling
         self._models: dict[str, list[BaseLearner]] = {}  # label -> list of base learners
-        self._platt_params: dict[str, tuple[float, float]] = {}  # label -> (a, b)
+        self._platt_params: dict[str, LogisticRegression] = {}  # label -> fitted model
 
     def fit(self, X: pd.DataFrame, y: pd.DataFrame) -> dict[str, dict[str, float]]:
         """
@@ -75,6 +80,13 @@ class MultiLabelEnsemble:
             if self._platt_scaling:
                 raw_scores = self._score_label(X, label)
                 self._platt_params[label] = self._fit_platt(raw_scores, y_binary)
+                lr_model = self._platt_params[label]
+                logger.debug(
+                    "Platt scaling fitted for %s: A=%.4f, B=%.4f",
+                    label,
+                    lr_model.coef_[0][0],
+                    lr_model.intercept_[0],
+                )
 
             importances[label] = label_importances
 
@@ -96,8 +108,8 @@ class MultiLabelEnsemble:
             scores = self._score_label(X, label)
 
             if self._platt_scaling and label in self._platt_params:
-                a, b = self._platt_params[label]
-                scores = 1.0 / (1.0 + np.exp(-(a * scores + b)))
+                lr_model = self._platt_params[label]
+                scores = lr_model.predict_proba(scores.reshape(-1, 1))[:, 1]
 
             results[label] = scores
 
@@ -125,8 +137,8 @@ class MultiLabelEnsemble:
             }
 
             if self._platt_scaling and label in self._platt_params:
-                a, b = self._platt_params[label]
-                calibrated_scores = 1.0 / (1.0 + np.exp(-(a * raw_scores + b)))
+                lr_model = self._platt_params[label]
+                calibrated_scores = lr_model.predict_proba(raw_scores.reshape(-1, 1))[:, 1]
             else:
                 calibrated_scores = raw_scores
 
@@ -150,14 +162,8 @@ class MultiLabelEnsemble:
     @staticmethod
     def _fit_platt(
         scores: np.ndarray, y: np.ndarray, lr: float = 0.01, epochs: int = 100
-    ) -> tuple[float, float]:
-        """Fit Platt scaling parameters (a, b) via gradient descent."""
-        a, b = 0.0, 0.0
-        for _ in range(epochs):
-            z = a * scores + b
-            p = 1.0 / (1.0 + np.exp(-z))
-            grad_a = np.mean((p - y) * scores)
-            grad_b = np.mean(p - y)
-            a -= lr * grad_a
-            b -= lr * grad_b
-        return a, b
+    ) -> LogisticRegression:
+        """Fit Platt scaling via scikit-learn LogisticRegression (no regularization)."""
+        model = LogisticRegression(C=1e10, solver="lbfgs", max_iter=1000)
+        model.fit(scores.reshape(-1, 1), y)
+        return model
