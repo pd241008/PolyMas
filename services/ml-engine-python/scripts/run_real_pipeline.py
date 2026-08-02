@@ -281,7 +281,7 @@ def train_ensemble(X: pd.DataFrame, y: pd.DataFrame) -> MultiLabelEnsemble:
 
     predictions = ensemble.predict_proba(X)
     predictions.index = y_valid.index
-    predictions.to_csv(MODELS_DIR / "predictions.csv", index=False)
+    predictions.to_csv(MODELS_DIR / "predictions.csv", index_label="patient_id")
     predictions.to_parquet(MODELS_DIR / "predictions.parquet", index=False)
 
     diag = ensemble.predict_proba_with_diagnostics(X)
