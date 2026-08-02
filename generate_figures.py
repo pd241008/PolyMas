@@ -82,7 +82,7 @@ def plot_feature_correlation():
 
 
 def plot_prediction_distributions():
-    preds = pd.read_csv(MODELS_DIR / "predictions.csv")
+    preds = pd.read_csv(MODELS_DIR / "predictions.csv", index_col=0)
     n_cols = len(preds.columns)
     n_rows = 2
     n_cols_grid = max(3, (n_cols + 1) // 2)
@@ -157,7 +157,7 @@ def plot_cluster_dendrogram():
     from scipy.spatial.distance import pdist
     from scipy.cluster.hierarchy import linkage
 
-    X = pd.read_csv(MODELS_DIR / "predictions.csv").values[:50]
+    X = pd.read_csv(MODELS_DIR / "predictions.csv", index_col=0).values[:50]
     dists = pdist(X, metric="euclidean")
     Z = linkage(dists, method="ward")
     dn = dendrogram(Z, no_labels=True, color_threshold=0.7 * max(Z[:, 2]), ax=ax)
