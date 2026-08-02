@@ -260,6 +260,18 @@ def train_ensemble(X: pd.DataFrame, y: pd.DataFrame) -> MultiLabelEnsemble:
     ensemble = MultiLabelEnsemble(learner_names=learner_names, platt_scaling=True)
     importances = ensemble.fit(X, y_valid)
 
+    platt_coeffs = []
+    cal_split_info = []
+    for label, model in ensemble._platt_params.items():
+        coef = float(model.coef_[0][0])
+        intercept = float(model.intercept_[0])
+        platt_coeffs.append({"disease": label, "A": coef, "B": intercept})
+        n_cal = len(ensemble._calibration_indices.get(label, []))
+        cal_split_info.append({"disease": label, "calibration_samples": n_cal})
+        logger.info("Platt scaling for %s (n_cal=%d): A=%.4f, B=%.4f", label, n_cal, coef, intercept)
+    pd.DataFrame(platt_coeffs).to_csv(MODELS_DIR / "platt_coefficients.csv", index=False)
+    pd.DataFrame(cal_split_info).to_csv(MODELS_DIR / "calibration_split_info.csv", index=False)
+
     importance_rows = []
     for label, imps in importances.items():
         for learner, imp in imps.items():
@@ -269,8 +281,44 @@ def train_ensemble(X: pd.DataFrame, y: pd.DataFrame) -> MultiLabelEnsemble:
 
     predictions = ensemble.predict_proba(X)
     predictions.index = y_valid.index
-    predictions.to_csv(MODELS_DIR / "predictions.csv", index=False)
+    predictions.to_csv(MODELS_DIR / "predictions.csv", index_label="patient_id")
     predictions.to_parquet(MODELS_DIR / "predictions.parquet", index=False)
+
+    diag = ensemble.predict_proba_with_diagnostics(X)
+    diag_rows = []
+    for disease, vals in diag.items():
+        raw_std = float(np.std(vals["raw"]))
+        cal_std = float(np.std(vals["calibrated"]))
+        for learner_name, learner_probs in vals["learners"].items():
+            diag_rows.append({
+                "disease": disease,
+                "learner": learner_name,
+                "std": float(np.std(learner_probs)),
+                "mean": float(np.mean(learner_probs)),
+            })
+        diag_rows.append({
+            "disease": disease,
+            "learner": "raw",
+            "std": raw_std,
+            "mean": float(np.mean(vals["raw"])),
+        })
+        diag_rows.append({
+            "disease": disease,
+            "learner": "calibrated",
+            "std": cal_std,
+            "mean": float(np.mean(vals["calibrated"])),
+        })
+        logger.info(
+            "%s — XGB std: %.4f, CatBoost std: %.4f, LightGBM std: %.4f, Raw std: %.4f, Calibrated std: %.4f",
+            disease,
+            float(np.std(vals["learners"].get("xgboost", np.zeros(X.shape[0])))),
+            float(np.std(vals["learners"].get("catboost", np.zeros(X.shape[0])))),
+            float(np.std(vals["learners"].get("lightgbm", np.zeros(X.shape[0])))),
+            raw_std,
+            cal_std,
+        )
+    diag_df = pd.DataFrame(diag_rows)
+    diag_df.to_csv(MODELS_DIR / "prediction_diagnostics.csv", index=False)
 
     logger.info("Ensemble trained. Predictions shape: %s", predictions.shape)
     return ensemble
