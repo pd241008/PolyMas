@@ -111,6 +111,7 @@ def train_smoke(
     grad_clip: float = 1.0,
     seed: int = 0,
     device_str: str | None = None,
+    eval_batch_size: int = 8,
 ) -> dict[str, Any]:
     torch.manual_seed(seed)
     np.random.seed(seed)
@@ -195,13 +196,12 @@ def train_smoke(
                 step_t0 = time.time()
 
         epoch_loss /= len(train_idx)
-        train_metrics_epoch = evaluate(model, tokens_t[train_idx], y_t[train_idx], diseases, device)
-        val_metrics = evaluate(model, tokens_t[val_idx], y_t[val_idx], diseases, device)
+        train_metrics_epoch = evaluate(model, tokens_t[train_idx], y_t[train_idx], diseases, device, batch_size=eval_batch_size)
+        val_metrics = evaluate(model, tokens_t[val_idx], y_t[val_idx], diseases, device, batch_size=eval_batch_size)
         history["train_loss"].append(epoch_loss)
         history["val_metrics"].append(val_metrics)
-        mean_val_auroc = np.mean(
-            [val_metrics[f"{d}_auroc"] for d in diseases if f"{d}_auroc" in val_metrics]
-        )
+        per_disease_val = [val_metrics[f"{d}_auroc"] for d in diseases if f"{d}_auroc" in val_metrics]
+        mean_val_auroc = float(np.nanmean(per_disease_val)) if per_disease_val else float("nan")
         logger.info(
             "epoch %2d loss=%.4f train_auroc=%s val_auroc=%s (%.3f)",
             epoch + 1,
@@ -210,7 +210,7 @@ def train_smoke(
             {d: round(val_metrics.get(f"{d}_auroc", float("nan")), 3) for d in diseases},
             mean_val_auroc,
         )
-        if mean_val_auroc > best_val_auroc:
+        if not np.isnan(mean_val_auroc) and mean_val_auroc > best_val_auroc:
             best_val_auroc = mean_val_auroc
             best_state = {
                 "state_dict": {k: v.cpu().clone() for k, v in model.state_dict().items()},
@@ -232,11 +232,22 @@ def train_smoke(
         )
 
     elapsed = time.time() - t0
+    if not best_state:
+        # No epoch improved over the -inf baseline (e.g. all val AUROCs were
+        # nan due to missing classes in the tiny val split) — fall back to the
+        # final model so the run still produces a report.
+        logger.warning("No valid val AUROC across all epochs — saving final model as best")
+        best_state = {
+            "state_dict": {k: v.cpu().clone() for k, v in model.state_dict().items()},
+            "epoch": n_epochs,
+            "val_metrics": val_metrics,
+        }
+        best_val_auroc = float("nan")
     torch.save(best_state["state_dict"], output_dir / "best_model.pt")
 
     model.load_state_dict(best_state["state_dict"])
     model.to(device)
-    train_metrics = evaluate(model, tokens_t[train_idx], y_t[train_idx], diseases, device)
+    train_metrics = evaluate(model, tokens_t[train_idx], y_t[train_idx], diseases, device, batch_size=eval_batch_size)
     val_metrics = best_state["val_metrics"]
 
     report = {
