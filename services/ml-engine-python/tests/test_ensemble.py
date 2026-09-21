@@ -35,7 +35,7 @@ def synthetic_data():
 
 def test_ensemble_fit_predict(synthetic_data):
     X, y = synthetic_data
-    ensemble = MultiLabelEnsemble(learner_names=["xgboost"], platt_scaling=False)
+    ensemble = MultiLabelEnsemble(learner_names=["lightgbm"], platt_scaling=False)
     importances = ensemble.fit(X, y)
     assert "RA" in importances
 
@@ -47,7 +47,7 @@ def test_ensemble_fit_predict(synthetic_data):
 
 def test_platt_scaling(synthetic_data):
     X, y = synthetic_data
-    ensemble = MultiLabelEnsemble(learner_names=["xgboost"], platt_scaling=True)
+    ensemble = MultiLabelEnsemble(learner_names=["lightgbm"], platt_scaling=True)
     ensemble.fit(X, y)
     predictions = ensemble.predict_proba(X)
     assert predictions.shape == (200, 7)
