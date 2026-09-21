@@ -9,7 +9,7 @@ Thumbs.db
 .env
 .env.local
 .env.*.local
-
+__pycache__
 # === Rust ===
 services/control-plane-rust/target/
 services/control-plane-rust/**/*.pdb
