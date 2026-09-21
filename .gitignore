@@ -10,6 +10,8 @@ Thumbs.db
 .env.local
 .env.*.local
 __pycache__
+catboost_info/
+results_backup_400/
 # === Rust ===
 services/control-plane-rust/target/
 services/control-plane-rust/**/*.pdb

@@ -47,7 +47,9 @@ def _preflight_learner(name: str) -> bool:
         "l.fit(pd.DataFrame(np.random.randn(8, 3)), pd.Series(np.random.randint(0, 2, 8)))\n"
         "print('ok')\n"
     ) % (
-        str(__import__("pathlib").Path(__file__).parent.parent),
+        # Service root (the parent of the polymas_ml package) so the
+        # subprocess can import polymas_ml regardless of its cwd.
+        str(__import__("pathlib").Path(__file__).resolve().parents[2]),
         name,
     )
     try:
@@ -59,7 +61,7 @@ def _preflight_learner(name: str) -> bool:
             capture_output=True,
             text=True,
             timeout=120,
-            env={**os.environ, "PYTHONPATH": str(pathlib.Path(__file__).parent.parent)},
+            env={**os.environ, "PYTHONPATH": str(pathlib.Path(__file__).resolve().parents[2])},
         )
         return result.returncode == 0 and "ok" in result.stdout
     except Exception:
