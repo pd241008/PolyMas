@@ -45,6 +45,33 @@ DISEASE_LABELS = ["RA", "SLE", "SJOGRENS", "AITD", "T1D", "VITILIGO", "MS"]
 # prevalence only, and their cohort-specific clinical signal is modeled.
 MODELED_DISEASES = ["AITD", "VITILIGO"]
 
+# Documented negative search result (checked 2026-09-21, ImmPort Shared Data
+# API): no studies or subjects exist for AITD or Vitiligo. Verified at three
+# levels: /api/search/study?term=... returned 0 hits for Hashimoto, Graves,
+# autoimmune thyroiditis, thyroiditis, vitiligo and depigmentation;
+# /api/search/subject returned 0 hits for conditionOrDisease=vitiligo,
+# conditionOrDisease=Graves' disease and the same free-text terms; while the
+# lkDisease controlled vocabulary DOES contain the ontology terms (vitiligo
+# DOID:12306, Graves' disease DOID:12361) — they are simply not used by any
+# study. Recorded so the "modeled, no real cohort" framing is auditable.
+NEGATIVE_SEARCH_RESULTS = {
+    "checked_on": "2026-09-21",
+    "api": "https://www.immport.org/data/query/api/search",
+    "study_term_queries_zero_hits": [
+        "Hashimoto", "Graves", "autoimmune thyroiditis", "thyroiditis",
+        "vitiligo", "autoimmune thyroid", "depigmentation",
+    ],
+    "subject_queries_zero_hits": [
+        "conditionOrDisease=vitiligo", "conditionOrDisease=Graves' disease",
+        "term=vitiligo", "term=Hashimoto",
+    ],
+    "vocabulary_terms_present_but_unused": {
+        "vitiligo": "DOID:12306",
+        "Graves' disease": "DOID:12361",
+        "hypothyroidism": "DOID:1459",
+    },
+}
+
 _RACE_TO_ANCESTRY = {
     "white": "EUR",
     "black or african american": "AFR",
@@ -156,12 +183,15 @@ def assign_subjects(
     patient_groups: list[str | None],
     rng: np.random.Generator,
 ) -> list[dict[str, Any]]:
-    """Round-robin assign unique real subjects to patients.
+    """Assign real subjects to patients (cohort-internal reuse policy).
 
-    patient_groups[i] is the preferred disease cohort for patient i (or None
-    for background patients). Assignment walks each group's shuffled pool in
-    order and skips already-used subjects; if a group pool is exhausted it
-    falls back to the background (None) pool, then to any unused subject.
+    Policy: each patient draws from its own cohort's pool only. A subject is
+    used at most once while the pool has unused members (preserving the
+    1:1 unique-subject property for small n); once a cohort's pool is
+    exhausted, later patients of that cohort reuse pool members round-robin.
+    Cross-cohort borrowing never happens, so cohort semantics stay clean.
+    The resulting per-cohort reuse is disclosed as reuse_ratio in the
+    provenance report.
     """
     pools: dict[str | None, list[pd.Series]] = {}
     for group in list(COHORT_STUDIES.keys()):
@@ -171,27 +201,28 @@ def assign_subjects(
 
     used: set[str] = set()
     cursors: dict[str | None, int] = {g: 0 for g in pools}
-    fallback_order: list[str | None] = [None] + [g for g in pools if g is not None]
 
-    def _take(group: str | None) -> pd.Series | None:
-        order = [group] + [g for g in fallback_order if g != group] if group is not None else fallback_order
-        for g in order:
-            pool_rows = pools.get(g, [])
-            n = len(pool_rows)
-            start = cursors.get(g, 0)
-            for k in range(n):
-                cand = pool_rows[(start + k) % n] if n else None
-                if cand is not None and cand.subject_accession not in used:
-                    cursors[g] = (start + k + 1) % n if n else 0
-                    used.add(cand.subject_accession)
-                    return cand
-        return None
+    def _take(group: str | None) -> pd.Series:
+        pool_rows = pools.get(group, [])
+        n = len(pool_rows)
+        if n == 0:
+            raise RuntimeError(f"No subjects available for cohort {group!r}")
+        start = cursors.get(group, 0)
+        # Pass 1: prefer unused subjects, cyclic from the cursor.
+        for k in range(n):
+            cand = pool_rows[(start + k) % n]
+            if cand.subject_accession not in used:
+                cursors[group] = (start + k + 1) % n
+                used.add(cand.subject_accession)
+                return cand
+        # Pass 2: pool exhausted — reuse within this cohort (disclosed).
+        cand = pool_rows[start % n]
+        cursors[group] = (start + 1) % n
+        return cand
 
     assignments: list[dict[str, Any]] = []
     for group in patient_groups:
         sub = _take(group)
-        if sub is None:
-            raise RuntimeError("Subject pool exhausted — cannot assign unique subjects")
         assignments.append({
             "subject_accession": sub.subject_accession,
             "study_accession": sub.study_accession,
@@ -204,14 +235,23 @@ def assign_subjects(
     return assignments
 
 
-def draw_patient_groups(n_patients: int, rng: np.random.Generator) -> list[str | None]:
+def draw_patient_groups(
+    pool: pd.DataFrame, n_patients: int, rng: np.random.Generator
+) -> list[str | None]:
     """Draw each patient's cohort membership.
 
     75% of patients are matched to one of the five real autoimmune cohorts
-    (uniformly); the rest are background patients drawn from the
-    non-autoimmune ImmPort pools. AITD/Vitiligo have no real cohort, so they
-    only ever appear in the background arm (handled by the label engine).
+    with probability proportional to each cohort's REAL pool size (so reuse
+    stays balanced across cohorts instead of hammering small pools), and the
+    remaining 25% are background patients drawn from the non-autoimmune
+    ImmPort pools. AITD/Vitiligo have no real cohort, so they only ever
+    appear in the background arm (handled by the label engine).
     """
     real = [g for g in COHORT_STUDIES if g is not None]
-    choices = rng.choice(real + [None], size=n_patients, p=[0.15] * len(real) + [0.25])
+    sizes = {g: int((pool["disease_group"] == g).sum()) for g in real}
+    total_real = sum(sizes.values())
+    if total_real == 0:
+        raise RuntimeError("Subject pool has no disease-cohort members")
+    p_real = [0.75 * sizes[g] / total_real for g in real]
+    choices = rng.choice(real + [None], size=n_patients, p=p_real + [0.25])
     return [None if c is None else str(c) for c in choices]

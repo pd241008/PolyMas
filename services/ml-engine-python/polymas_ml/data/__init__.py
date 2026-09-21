@@ -3,6 +3,7 @@
 from .immport import (
     COHORT_STUDIES,
     MODELED_DISEASES,
+    NEGATIVE_SEARCH_RESULTS,
     assign_subjects,
     build_subject_pool,
     draw_patient_groups,
@@ -12,6 +13,7 @@ from .immport import (
 __all__ = [
     "COHORT_STUDIES",
     "MODELED_DISEASES",
+    "NEGATIVE_SEARCH_RESULTS",
     "assign_subjects",
     "build_subject_pool",
     "draw_patient_groups",
