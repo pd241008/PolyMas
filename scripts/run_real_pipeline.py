@@ -20,7 +20,13 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(PROJECT_ROOT / "services" / "ml-engine-python"))
 
 from polymas_ml.clustering.hierarchical import DiseaseRiskClusterer
-from polymas_ml.data import MODELED_DISEASES, assign_subjects, build_subject_pool, draw_patient_groups
+from polymas_ml.data import (
+    MODELED_DISEASES,
+    NEGATIVE_SEARCH_RESULTS,
+    assign_subjects,
+    build_subject_pool,
+    draw_patient_groups,
+)
 from polymas_ml.data.patients import DISEASE_LABELS, simulate_genotypes_prs, simulate_labels
 from polymas_ml.explainability.explainers import LIMEExplainerWrapper, TreeExplainerWrapper
 from polymas_ml.models.ensemble import MultiLabelEnsemble
@@ -136,7 +142,7 @@ def build_real_dataset(
     subject_pool.to_csv(IMMPORT_DIR / "subject_pool.csv", index=False)
 
     rng = np.random.default_rng(42)
-    patient_groups = draw_patient_groups(n_patients, rng)
+    patient_groups = draw_patient_groups(subject_pool, n_patients, rng)
     assignments = assign_subjects(subject_pool, n_patients, patient_groups, rng)
 
     # ---- Shared patient simulation (genotypes -> PRS -> labels) ----
@@ -182,15 +188,32 @@ def build_real_dataset(
 
     # ---- Provenance manifest ----
     from collections import Counter
+    # Reuse disclosure per cohort: patients drawn from that cohort / unique
+    # real subjects used for it. 1.0 = pure 1:1 mapping, >1 = within-cohort
+    # reuse (each real subject backs that many simulated patients on average).
+    cohort_patient_counts = Counter(a["assigned_group"] if a["assigned_group"] else "BACKGROUND" for a in assignments)
+    cohort_unique_subjects: dict[str, set] = {}
+    for a in assignments:
+        key = a["assigned_group"] if a["assigned_group"] else "BACKGROUND"
+        cohort_unique_subjects.setdefault(key, set())
+        cohort_unique_subjects[key].add(a["subject_accession"])
+    reuse_ratios = {
+        k: round(cohort_patient_counts.get(k, 0) / max(len(v), 1), 3)
+        for k, v in cohort_unique_subjects.items()
+    }
     provenance = {
         "n_patients": n_patients,
         "n_unique_subjects": clinical_df["subject_accession"].nunique(),
         "subject_pool_size": len(subject_pool),
         "n_gwas_associations": len(gwas_df),
+        "reuse_policy": "cohort-internal reuse after pool exhaustion; no cross-cohort borrowing",
         "cohort_counts": dict(Counter(clinical_df["cohort"])),
+        "cohort_unique_subjects": {k: len(v) for k, v in cohort_unique_subjects.items()},
+        "reuse_ratio": reuse_ratios,
         "study_counts": dict(Counter(clinical_df["study_accession"])),
         "modeled_diseases": MODELED_DISEASES,
         "real_cohort_diseases": [d for d in DISEASE_LABELS if d not in MODELED_DISEASES],
+        "aitd_vitiligo_search": NEGATIVE_SEARCH_RESULTS,
         "field_sources": {
             "sex": "real (ImmPort demographic.gender)",
             "age": "real (ImmPort demographic.max_subject_age_in_years)",
@@ -283,22 +306,28 @@ def make_train_test_split(y: pd.DataFrame, test_size: float = 0.2, random_state:
 
 
 def run_metrics(
-    ensemble: MultiLabelEnsemble, X: pd.DataFrame, y: pd.DataFrame, test_indices: np.ndarray
+    ensemble: MultiLabelEnsemble,
+    X: pd.DataFrame,
+    y: pd.DataFrame,
+    test_indices: np.ndarray,
+    tag: str | None = None,
 ) -> pd.DataFrame:
     """Held-out discrimination metrics (AUROC/AUPRC/F1) per disease.
 
     Scores ONLY on the held-out 20% test split (the ensemble was fit on the
     complementary 80%). Labels for the modeled diseases (AITD, VITILIGO)
     are simulated without a real cohort, and their metrics carry a 'modeled'
-    flag in the output.
+    flag in the output. With tag set (e.g. 'genotype_only'), outputs are
+    suffixed so ablation runs never overwrite the full-feature tables.
     """
     from sklearn.metrics import average_precision_score, f1_score, roc_auc_score
 
+    suffix = f"_{tag}" if tag else ""
     X_test = X.iloc[test_indices]
     y_test = y.iloc[test_indices]
     preds = ensemble.predict_proba(X_test)
     preds.index = X_test.index
-    preds.to_csv(MODELS_DIR / "test_predictions.csv", index_label="patient_id")
+    preds.to_csv(MODELS_DIR / f"test_predictions{suffix}.csv", index_label="patient_id")
 
     rows = []
     for disease in DISEASE_LABELS:
@@ -333,7 +362,7 @@ def run_metrics(
             disease, auroc, auprc, f1, best_t, best_f1, int(y_true.sum()),
         )
     metrics_df = pd.DataFrame(rows)
-    metrics_df.to_csv(MODELS_DIR / "per_disease_metrics.csv", index=False)
+    metrics_df.to_csv(MODELS_DIR / f"per_disease_metrics{suffix}.csv", index=False)
     return metrics_df
 
 
