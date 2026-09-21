@@ -129,16 +129,25 @@ This guarantees that any result can be audited back to its exact data and code s
 │   ├── control-plane-rust/           # Rust orchestrator (Tokio + Tonic + SHA-256)
 │   └── ml-engine-python/             # Python ML engine (GBDT ensemble + SHAP/LIME)
 │       ├── polymas_ml/
-│       │   ├── models/               #   XGBoost, CatBoost, LightGBM + MultiLabelEnsemble
-│       │   ├── explainability/       #   TreeExplainer (exact SHAP) + LIME wrappers
-│       │   ├── clustering/           #   Hierarchical clustering + dendrogram JSON gen
-│       │   └── serving/              #   gRPC server entry point
+│       │   ├── data/                #   ImmPort subject client + shared patient simulation
+│       │   ├── models/              #   XGBoost, CatBoost, LightGBM + MultiLabelEnsemble
+│       │   ├── sequence/            #   Mamba (selective SSM) model, k-mer datasets, training
+│       │   ├── explainability/      #   TreeExplainer (exact SHAP) + LIME wrappers
+│       │   ├── clustering/          #   Hierarchical clustering + dendrogram JSON gen
+│       │   └── serving/             #   gRPC server entry point
 │       └── tests/                    #   pytest (ensemble + clustering)
 ├── apps/
 │   └── dashboard-nextjs/             # Next.js dashboard (App Router + Tailwind)
 └── scripts/
     ├── bootstrap.sh                  # One-shot full build
-    └── Dockerfile.proto              # Protobuf codegen container
+    ├── Dockerfile.proto              # Protobuf codegen container
+    ├── run_real_pipeline.py          # System A: real data -> features -> ensemble -> clustering
+    ├── build_dataset.py              # Semi-synthetic dataset builder
+    ├── build_kmer_dataset.py         # System B: k-mer token dataset from System A features
+    ├── train_system_b.py             # System B: Mamba training
+    ├── run_system_b.py               # System B: Ensembl ref/seq/train/sanity modes
+    ├── generate_figures.py           # Publication figures from results/
+    └── generate_results_pdf.py       # results.pdf report generator
 ```
 
 ---

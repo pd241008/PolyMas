@@ -1,11 +1,18 @@
 """Tests for the dataset construction script."""
 
+import importlib.util
 from pathlib import Path
 
 import pandas as pd
 import pytest
 
-from scripts.build_dataset import build_dataset
+# The script lives in the repo-root scripts/ directory (outside this
+# package); load it directly by path.
+_SCRIPT = Path(__file__).resolve().parents[3] / "scripts" / "build_dataset.py"
+_spec = importlib.util.spec_from_file_location("build_dataset", _SCRIPT)
+build_dataset_module = importlib.util.module_from_spec(_spec)
+_spec.loader.exec_module(build_dataset_module)
+build_dataset = build_dataset_module.build_dataset
 
 
 @pytest.fixture

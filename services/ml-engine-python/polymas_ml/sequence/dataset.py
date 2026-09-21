@@ -64,8 +64,16 @@ def build_patient_tokens(
     patient_prs: pd.DataFrame,
     windows: dict[str, str],
     variant_info: dict[str, Any],
+    max_context_per_locus: int | None = None,
 ) -> np.ndarray:
-    """Concatenate per-locus windows with genotype tokens injected at the variant."""
+    """Concatenate per-locus windows with genotype tokens injected at the variant.
+
+    With max_context_per_locus set, the reference k-mer context is strided-
+    subsampled to at most that many tokens per locus (genotype token always
+    kept). The reference context is identical across patients, so this keeps
+    all patient-discriminative signal while shrinking the sequence ~25x for
+    launch-bound (WSL GPU) or CPU-friendly training.
+    """
     pieces: list[np.ndarray] = []
     window_lens = {len(windows[rs_id]) for rs_id in variant_info}
     if len(window_lens) != 1:
@@ -82,7 +90,11 @@ def build_patient_tokens(
 
         left_tokens = tokenize_kmers(seq[:center], K)
         right_tokens = tokenize_kmers(seq[center+1:], K)
-        tokens = np.concatenate([left_tokens, np.array([gen_token], dtype=np.int16), right_tokens])
+        context = np.concatenate([left_tokens, right_tokens])
+        if max_context_per_locus is not None and len(context) > max_context_per_locus:
+            stride = int(np.ceil(len(context) / max_context_per_locus))
+            context = context[::stride][:max_context_per_locus]
+        tokens = np.concatenate([context, np.array([gen_token], dtype=np.int16)])
         pieces.append(tokens)
     return np.concatenate(pieces)
 
@@ -93,6 +105,7 @@ def build_dataset(
     windows: dict[str, str],
     variant_info: dict[str, Any],
     diseases: list[str] | None = None,
+    max_context_per_locus: int | None = None,
 ) -> dict[str, Any]:
     """Build the per-patient token matrix + label matrix, mirroring System A."""
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -106,7 +119,9 @@ def build_dataset(
     for pid in ordered_patients:
         if pid not in prs_by_patient:
             raise ValueError(f"patient {pid} missing from PRS features")
-        token_rows.append(build_patient_tokens(prs_by_patient[pid], windows, variant_info))
+        token_rows.append(
+            build_patient_tokens(prs_by_patient[pid], windows, variant_info, max_context_per_locus=max_context_per_locus)
+        )
 
     tokens = np.stack(token_rows)  # (n_patients, n_tokens)
     y = labels[disease_cols].to_numpy(dtype=np.float32)
@@ -125,6 +140,7 @@ def build_dataset(
         "kmer_size": K,
         "diseases": disease_cols,
         "genotype_mapping": {"0": "hom_ref", "1": "het", "2": "hom_alt"},
+        "max_context_per_locus": max_context_per_locus,
     }
     (output_dir / "manifest.json").write_text(json.dumps(manifest, indent=2))
 

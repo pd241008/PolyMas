@@ -22,6 +22,7 @@ services:
       - RUST_LOG=info
       - GWAS_API_BASE_URL=${GWAS_API_BASE_URL:-https://www.ebi.ac.uk/gwas/rest/api}
       - IMMPORT_API_BASE_URL=${IMMPORT_API_BASE_URL:-https://immport.org/immport/api}
+      - IMMPORT_API_KEY=${IMMPORT_API_KEY:-}
     depends_on:
       - normalization-go
     networks:

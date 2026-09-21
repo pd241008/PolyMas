@@ -6,6 +6,8 @@ from __future__ import annotations
 
 import json
 import logging
+import os
+import sys
 import time
 from pathlib import Path
 from typing import Any
@@ -14,14 +16,18 @@ import numpy as np
 import pandas as pd
 import requests
 
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(PROJECT_ROOT / "services" / "ml-engine-python"))
+
 from polymas_ml.clustering.hierarchical import DiseaseRiskClusterer
+from polymas_ml.data import MODELED_DISEASES, assign_subjects, build_subject_pool, draw_patient_groups
+from polymas_ml.data.patients import DISEASE_LABELS, simulate_genotypes_prs, simulate_labels
 from polymas_ml.explainability.explainers import LIMEExplainerWrapper, TreeExplainerWrapper
 from polymas_ml.models.ensemble import MultiLabelEnsemble
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-PROJECT_ROOT = Path(__file__).resolve().parents[3]
 OUTPUTS_DIR = PROJECT_ROOT / "results"
 GWAS_DIR = OUTPUTS_DIR / "raw" / "gwas"
 IMMPORT_DIR = OUTPUTS_DIR / "raw" / "immport"
@@ -46,6 +52,8 @@ for d in dirs:
 GWAS_BASE_URL = "https://www.ebi.ac.uk/gwas/rest/api"
 IMMPORT_BASE_URL = "https://www.immport.org/data/query"
 
+OUTPUTS_DIR = PROJECT_ROOT / "results"
+
 AUTOIMMUNE_LOCI = {
     "rs2187668": "HLA-DRB1",
     "rs9272346": "HLA-DQB1",
@@ -57,7 +65,7 @@ AUTOIMMUNE_LOCI = {
     "rs7574865": "STAT4",
 }
 
-DISEASE_LABELS = ["RA", "SLE", "SJOGRENS", "AITD", "T1D", "VITILIGO", "MS"]
+# DISEASE_LABELS now imported from polymas_ml.data.patients (shared with System B)
 
 
 def fetch_gwas_associations(rs_id: str, max_retries: int = 3) -> list[dict[str, Any]]:
@@ -87,14 +95,18 @@ def fetch_gwas_associations(rs_id: str, max_retries: int = 3) -> list[dict[str, 
 
 
 def fetch_immport_study(study_id: str, max_retries: int = 3) -> dict[str, Any] | None:
+    api_key = os.environ.get("IMMPORT_API_KEY", "")
+    if not api_key:
+        logger.warning("IMMPORT_API_KEY not set — ImmPort requests will be rejected (401)")
+    headers = {"Authorization": f"Bearer {api_key}"} if api_key else {}
     for attempt in range(max_retries):
         try:
             url = f"{IMMPORT_BASE_URL}/api/study/{study_id}?format=json"
-            resp = requests.get(url, timeout=30)
+            resp = requests.get(url, headers=headers, timeout=30)
             if resp.status_code == 200:
                 return resp.json()
             elif resp.status_code == 401:
-                logger.warning("ImmPort study %s requires authentication (401)", study_id)
+                logger.warning("ImmPort study %s requires authentication (401) — check IMMPORT_API_KEY", study_id)
                 return None
             else:
                 resp.raise_for_status()
@@ -104,7 +116,9 @@ def fetch_immport_study(study_id: str, max_retries: int = 3) -> dict[str, Any] |
     return None
 
 
-def build_real_dataset() -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+def build_real_dataset(
+    n_patients: int = 400,
+) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, int]:
     all_associations = []
     for rs_id in AUTOIMMUNE_LOCI:
         logger.info("Fetching GWAS data for %s (%s)", rs_id, AUTOIMMUNE_LOCI[rs_id])
@@ -117,93 +131,85 @@ def build_real_dataset() -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     gwas_df.to_parquet(GWAS_DIR / "gwas_associations.parquet", index=False)
     logger.info("Saved %d GWAS associations to %s", len(gwas_df), GWAS_DIR)
 
-    immport_studies = ["SDY1", "SDY180"]
-    immport_data = []
-    for study_id in immport_studies:
-        logger.info("Fetching ImmPort study %s", study_id)
-        study = fetch_immport_study(study_id)
-        if study:
-            immport_data.append(study)
-            with open(IMMPORT_DIR / f"study_{study_id}.json", "w") as f:
-                json.dump(study, f, indent=2)
-        time.sleep(0.5)
+    # ---- REAL ImmPort subject demographics (subject-level API) ----
+    subject_pool = build_subject_pool(cache_dir=IMMPORT_DIR)
+    subject_pool.to_csv(IMMPORT_DIR / "subject_pool.csv", index=False)
 
-    n_patients = 400
-    np.random.seed(42)
+    rng = np.random.default_rng(42)
+    patient_groups = draw_patient_groups(n_patients, rng)
+    assignments = assign_subjects(subject_pool, n_patients, patient_groups, rng)
 
-    prs_rows = []
-    for i in range(n_patients):
-        patient_id = f"P{i:04d}"
-        for rs_id, gene in AUTOIMMUNE_LOCI.items():
-            locus_df = gwas_df[gwas_df["rs_id"] == rs_id]
-            if not locus_df.empty and locus_df["pvalue"].notna().any():
-                pval = locus_df["pvalue"].dropna().mean()
-                base_score = min(1.0, max(0.0, -np.log10(max(pval, 1e-300)) / 300))
-                noise = np.random.normal(0, 0.25)
-                score = min(1.0, max(0.0, base_score + noise))
-            else:
-                score = np.random.beta(2, 5)
-            z_score = round(float(np.random.normal(score * 2 - 1, 0.5)), 4)
-            prs_rows.append({
-                "patient_id": patient_id,
-                "locus_id": rs_id,
-                "gene_symbol": gene,
-                "continuous_score": round(float(score), 4),
-                "z_score": z_score,
-                "pvalue": pval if not locus_df.empty else None,
-            })
-
-    prs_df = pd.DataFrame(prs_rows)
+    # ---- Shared patient simulation (genotypes -> PRS -> labels) ----
+    prs_df, gen_rows = simulate_genotypes_prs(n_patients, AUTOIMMUNE_LOCI, patient_groups, rng)
+    label_rows = simulate_labels(
+        n_patients, patient_groups, [a["sex"] for a in assignments], gen_rows, AUTOIMMUNE_LOCI, rng
+    )
     prs_df.to_csv(FEATURES_DIR / "prs_features.csv", index=False)
     prs_df.to_parquet(FEATURES_DIR / "prs_features.parquet", index=False)
 
-    base_prevalences = {
-        "RA": 0.20,
-        "SLE": 0.10,
-        "SJOGRENS": 0.08,
-        "AITD": 0.15,
-        "T1D": 0.08,
-        "VITILIGO": 0.06,
-        "MS": 0.12,
-    }
-
+    # ---- Clinical features: REAL demographics + modeled BMI/family_history ----
     clinical_rows = []
-    label_rows = []
-    for i in range(n_patients):
-        patient_id = f"P{i:04d}"
-        patient_risk_factor = np.random.normal(0, 0.25)
-
-        labels = {"patient_id": patient_id}
-        for disease in DISEASE_LABELS:
-            base = base_prevalences[disease]
-            prevalence = min(0.95, max(0.01, base + patient_risk_factor))
-            labels[disease] = int(np.random.random() < prevalence)
-        label_rows.append(labels)
-
-        has_any_autoimmune = any(labels[d] for d in DISEASE_LABELS)
-        sex = "F" if np.random.random() < (0.55 + 0.1 * labels.get("SLE", 0) + 0.08 * labels.get("AITD", 0) + 0.05 * labels.get("RA", 0)) else "M"
-        age_factor = (35 + 15 * patient_risk_factor + 10 * labels.get("AITD", 0) + 8 * labels.get("RA", 0))
-        age_at_diagnosis_days = int(np.clip(age_factor * 365.25 + np.random.normal(0, 4 * 365), 365, 80 * 365))
-        bmi = round(float(np.clip(22 + 2 * patient_risk_factor + np.random.normal(0, 3), 16, 42)), 1)
-        family_history = int(np.random.random() < (0.15 + 0.2 * patient_risk_factor + 0.2 * has_any_autoimmune))
-
+    for i, a in enumerate(assignments):
+        pid = f"P{i:04d}"
+        age_years = a["age_years"]
+        try:
+            age_days = int(float(age_years) * 365.25)
+        except (TypeError, ValueError):
+            age_days = int(rng.normal(40, 12) * 365.25)
+        sex = a["sex"] if a["sex"] in ("F", "M") else ("F" if rng.random() < 0.55 else "M")
         clinical_rows.append({
-            "patient_id": patient_id,
+            "patient_id": pid,
             "sex": sex,
-            "ethnicity": np.random.choice(["EUR", "AFR", "EAS", "SAS"]),
-            "age_at_diagnosis_days": age_at_diagnosis_days,
-            "bmi": bmi,
-            "family_history": family_history,
+            "ethnicity": a["ancestry"],
+            "age_at_diagnosis_days": age_days,
+            "bmi": round(float(np.clip(rng.normal(22 + 2 * rng.normal(0, 0.25), 3), 16, 42)), 1),
+            "family_history": int(rng.random() < (0.15 + 0.25 * (a["assigned_group"] is not None))),
+            "subject_accession": a["subject_accession"],
+            "study_accession": a["study_accession"],
+            "cohort": a["assigned_group"] if a["assigned_group"] else "BACKGROUND",
+            "clinical_source": "immport_real",
+            "bmi_source": "modeled",
+            "family_history_source": "modeled",
         })
 
     clinical_df = pd.DataFrame(clinical_rows)
     clinical_df.to_csv(FEATURES_DIR / "clinical_features.csv", index=False)
     clinical_df.to_parquet(FEATURES_DIR / "clinical_features.parquet", index=False)
+
     labels_df = pd.DataFrame(label_rows)
     labels_df.to_csv(FEATURES_DIR / "labels.csv", index=False)
     labels_df.to_parquet(FEATURES_DIR / "labels.parquet", index=False)
 
-    return prs_df, clinical_df, labels_df
+    # ---- Provenance manifest ----
+    from collections import Counter
+    provenance = {
+        "n_patients": n_patients,
+        "n_unique_subjects": clinical_df["subject_accession"].nunique(),
+        "subject_pool_size": len(subject_pool),
+        "n_gwas_associations": len(gwas_df),
+        "cohort_counts": dict(Counter(clinical_df["cohort"])),
+        "study_counts": dict(Counter(clinical_df["study_accession"])),
+        "modeled_diseases": MODELED_DISEASES,
+        "real_cohort_diseases": [d for d in DISEASE_LABELS if d not in MODELED_DISEASES],
+        "field_sources": {
+            "sex": "real (ImmPort demographic.gender)",
+            "age": "real (ImmPort demographic.max_subject_age_in_years)",
+            "ancestry": "real (ImmPort demographic.race, mapped)",
+            "hispanic": "real (ImmPort demographic.ethnicity)",
+            "bmi": "modeled",
+            "family_history": "modeled",
+            "genotypes": "simulated (shared with System B)",
+            "labels": "simulated (cohort-informed)",
+        },
+    }
+    with open(REPORTS_DIR / "data_provenance.json", "w") as f:
+        json.dump(provenance, f, indent=2)
+    logger.info(
+        "Patient build: %d patients on %d unique ImmPort subjects; cohorts: %s",
+        n_patients, provenance["n_unique_subjects"], provenance["cohort_counts"],
+    )
+
+    return prs_df, clinical_df, labels_df, len(gwas_df)
 
 
 def prepare_feature_matrix(prs_df: pd.DataFrame, clinical_df: pd.DataFrame) -> pd.DataFrame:
@@ -229,7 +235,18 @@ def prepare_feature_matrix(prs_df: pd.DataFrame, clinical_df: pd.DataFrame) -> p
     merged = merged.merge(wide_prs, on="patient_id", how="left")
     merged = merged.fillna(0)
 
-    feature_cols = [c for c in merged.columns if c not in ("patient_id", "sex", "ethnicity")]
+    # Provenance columns are metadata, not features — keep numeric feature
+    # columns only (sex/ethnicity are re-added below as one-hots).
+    provenance_cols = {
+        "subject_accession", "study_accession", "cohort",
+        "clinical_source", "bmi_source", "family_history_source",
+    }
+    feature_cols = [
+        c for c in merged.columns
+        if c not in ("patient_id", "sex", "ethnicity")
+        and c not in provenance_cols
+        and pd.api.types.is_numeric_dtype(merged[c])
+    ]
     X = merged[feature_cols].copy()
     X["sex"] = (merged["sex"] == "M").astype(int)
     X["ethnicity_EUR"] = (merged["ethnicity"] == "EUR").astype(int)
@@ -249,7 +266,80 @@ def prepare_feature_matrix(prs_df: pd.DataFrame, clinical_df: pd.DataFrame) -> p
     return X
 
 
-def train_ensemble(X: pd.DataFrame, y: pd.DataFrame) -> MultiLabelEnsemble:
+def make_train_test_split(y: pd.DataFrame, test_size: float = 0.2, random_state: int = 123) -> tuple[np.ndarray, np.ndarray]:
+    """Stratified 80/20 patient split on a composite label.
+
+    Stratifies on 'has any autoimmune disease' so both arms see positives
+    for every disease at realistic rates. The same split is used for
+    ensemble training (80%) and held-out metric evaluation (20%).
+    """
+    from sklearn.model_selection import train_test_split
+
+    composite = (y[DISEASE_LABELS].sum(axis=1) > 0).astype(int)
+    idx_train, idx_test = train_test_split(
+        np.arange(len(y)), test_size=test_size, stratify=composite, random_state=random_state
+    )
+    return idx_train, idx_test
+
+
+def run_metrics(
+    ensemble: MultiLabelEnsemble, X: pd.DataFrame, y: pd.DataFrame, test_indices: np.ndarray
+) -> pd.DataFrame:
+    """Held-out discrimination metrics (AUROC/AUPRC/F1) per disease.
+
+    Scores ONLY on the held-out 20% test split (the ensemble was fit on the
+    complementary 80%). Labels for the modeled diseases (AITD, VITILIGO)
+    are simulated without a real cohort, and their metrics carry a 'modeled'
+    flag in the output.
+    """
+    from sklearn.metrics import average_precision_score, f1_score, roc_auc_score
+
+    X_test = X.iloc[test_indices]
+    y_test = y.iloc[test_indices]
+    preds = ensemble.predict_proba(X_test)
+    preds.index = X_test.index
+    preds.to_csv(MODELS_DIR / "test_predictions.csv", index_label="patient_id")
+
+    rows = []
+    for disease in DISEASE_LABELS:
+        if disease not in preds.columns or disease not in y_test.columns:
+            continue
+        y_true = y_test[disease].values
+        p = preds[disease].values
+        pred_bin = (p >= 0.5).astype(int)
+        auroc = float(roc_auc_score(y_true, p)) if len(np.unique(y_true)) >= 2 else float("nan")
+        auprc = float(average_precision_score(y_true, p)) if y_true.sum() > 0 else float("nan")
+        f1 = float(f1_score(y_true, pred_bin, zero_division=0))
+        # Best-F1 threshold (swept on test — exploratory upper bound; the
+        # calibrated output of an imbalanced problem often never crosses 0.5).
+        best_f1, best_t = 0.0, 0.5
+        for t in np.linspace(0.05, 0.95, 91):
+            f1_t = f1_score(y_true, (p >= t).astype(int), zero_division=0)
+            if f1_t > best_f1:
+                best_f1, best_t = float(f1_t), float(t)
+        rows.append({
+            "disease": disease,
+            "n_test": int(len(y_true)),
+            "n_positives": int(y_true.sum()),
+            "auroc": round(auroc, 4),
+            "auprc": round(auprc, 4),
+            "f1": round(f1, 4),
+            "f1_best": round(best_f1, 4),
+            "best_threshold": round(best_t, 2),
+            "modeled_label": disease in MODELED_DISEASES,
+        })
+        logger.info(
+            "METRICS %s: AUROC=%.4f AUPRC=%.4f F1@0.5=%.4f F1@best(t=%.2f)=%.4f (n_pos=%d)",
+            disease, auroc, auprc, f1, best_t, best_f1, int(y_true.sum()),
+        )
+    metrics_df = pd.DataFrame(rows)
+    metrics_df.to_csv(MODELS_DIR / "per_disease_metrics.csv", index=False)
+    return metrics_df
+
+
+def train_ensemble(
+    X: pd.DataFrame, y: pd.DataFrame, train_indices: np.ndarray | None = None
+) -> MultiLabelEnsemble:
     valid_labels = [col for col in DISEASE_LABELS if col in y.columns and y[col].nunique() >= 2]
     if not valid_labels:
         raise ValueError("No valid labels with >=2 classes found in y")
@@ -258,7 +348,7 @@ def train_ensemble(X: pd.DataFrame, y: pd.DataFrame) -> MultiLabelEnsemble:
 
     learner_names = ["xgboost", "catboost", "lightgbm"]
     ensemble = MultiLabelEnsemble(learner_names=learner_names, platt_scaling=True)
-    importances = ensemble.fit(X, y_valid)
+    importances = ensemble.fit(X, y_valid, train_indices=train_indices)
 
     platt_coeffs = []
     cal_split_info = []
@@ -379,8 +469,32 @@ def run_clustering(X: pd.DataFrame, predictions: pd.DataFrame) -> None:
     logger.info("Clustering complete. Silhouette score: %.4f", score)
 
 
+def build_cluster_disease_table(predictions: pd.DataFrame, cluster_assignments: pd.DataFrame) -> pd.DataFrame:
+    """Per-cluster mean calibrated probability per disease (3x7 table).
+
+    This is the table that lets the Discussion compare data-driven clusters
+    with Humbert-Dupond Type 1-3: each row is a cluster, each column a
+    disease, entries are mean calibrated probability of that disease within
+    the cluster. Also saves per-cluster sizes and the dominant-disease label.
+    """
+    merged = cluster_assignments.merge(
+        predictions.reset_index().rename(columns={"index": "patient_id"}),
+        on="patient_id",
+        how="inner",
+    )
+    disease_cols = [c for c in predictions.columns if c in DISEASE_LABELS]
+    profile = merged.groupby("cluster_label")[disease_cols].mean().round(4)
+    sizes = merged.groupby("cluster_label").size().rename("n_patients")
+    profile = profile.join(sizes)
+    profile["dominant_disease"] = profile[disease_cols].idxmax(axis=1)
+    profile["dominant_prob"] = profile[disease_cols].max(axis=1).round(4)
+    profile.to_csv(CLUSTERS_DIR / "cluster_disease_profile.csv", index_label="cluster_label")
+    logger.info("Cluster x disease profile:\n%s", profile)
+    return profile
+
+
 def generate_reports(prs_df: pd.DataFrame, clinical_df: pd.DataFrame, labels_df: pd.DataFrame,
-                     X: pd.DataFrame, ensemble: MultiLabelEnsemble) -> None:
+                     X: pd.DataFrame, ensemble: MultiLabelEnsemble, n_gwas_associations: int) -> None:
     report = {
         "dataset_summary": {
             "n_patients": len(clinical_df),
@@ -400,10 +514,15 @@ def generate_reports(prs_df: pd.DataFrame, clinical_df: pd.DataFrame, labels_df:
         json.dump(report, f, indent=2)
 
     summary = {
-        "raw_gwas_records": len(prs_df),
+        "raw_gwas_associations": n_gwas_associations,
+        "prs_rows": len(prs_df),
         "clinical_records": len(clinical_df),
         "label_records": len(labels_df),
         "feature_matrix_shape": list(X.shape),
+        "immport_unique_subjects": int(clinical_df["subject_accession"].nunique()) if "subject_accession" in clinical_df.columns else 0,
+        "clinical_source": "immport_real_demographics + modeled bmi/family_history" if "subject_accession" in clinical_df.columns else "synthetic",
+        "real_cohort_diseases": [d for d in DISEASE_LABELS if d not in MODELED_DISEASES],
+        "modeled_diseases": MODELED_DISEASES,
     }
     with open(REPORTS_DIR / "data_summary.json", "w") as f:
         json.dump(summary, f, indent=2)
@@ -411,16 +530,31 @@ def generate_reports(prs_df: pd.DataFrame, clinical_df: pd.DataFrame, labels_df:
 
 
 def main() -> None:
-    logger.info("=== Starting real-data ML pipeline ===")
+    import argparse
 
-    prs_df, clinical_df, labels_df = build_real_dataset()
+    parser = argparse.ArgumentParser(description="PolyMas real-data ML pipeline (System A)")
+    parser.add_argument("--n-patients", type=int, default=400, help="Number of synthetic patients to generate")
+    args = parser.parse_args()
+    n_patients = args.n_patients
+
+    logger.info("=== Starting real-data ML pipeline (n_patients=%d) ===", n_patients)
+
+    prs_df, clinical_df, labels_df, n_gwas = build_real_dataset(n_patients)
+
+    n_gwas = n_gwas  # noqa: F841 — used in generate_reports
 
     X = prepare_feature_matrix(prs_df, clinical_df)
     X.index = clinical_df["patient_id"].values
     y = labels_df.set_index("patient_id").loc[X.index, DISEASE_LABELS].copy()
 
-    logger.info("Training ensemble on real-data-derived features...")
-    ensemble = train_ensemble(X, y)
+    idx_train, idx_test = make_train_test_split(y)
+    logger.info("Patient split: %d train / %d held-out test (composite-stratified)", len(idx_train), len(idx_test))
+
+    logger.info("Training ensemble on real-data-derived features (train split only)...")
+    ensemble = train_ensemble(X, y, train_indices=idx_train)
+
+    logger.info("Computing held-out discrimination metrics (AUROC/AUPRC/F1)...")
+    run_metrics(ensemble, X, y, idx_test)
 
     logger.info("Running explainability...")
     run_explainability(ensemble, X)
@@ -429,8 +563,11 @@ def main() -> None:
     predictions = pd.read_csv(MODELS_DIR / "predictions.csv", index_col=0)
     run_clustering(X, predictions)
 
+    cluster_assignments = pd.read_csv(CLUSTERS_DIR / "cluster_assignments.csv")
+    build_cluster_disease_table(predictions, cluster_assignments)
+
     logger.info("Generating reports...")
-    generate_reports(prs_df, clinical_df, labels_df, X, ensemble)
+    generate_reports(prs_df, clinical_df, labels_df, X, ensemble, n_gwas)
 
     logger.info("=== Pipeline complete. Results in %s ===", OUTPUTS_DIR)
 
