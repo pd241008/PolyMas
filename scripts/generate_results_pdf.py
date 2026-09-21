@@ -108,6 +108,30 @@ profile_rows_html = "".join(
     for _, r in cluster_profile.iterrows()
 ) if not cluster_profile.empty else "<tr><td colspan='9'>cluster profile not available</td></tr>"
 
+# ---- Data-driven cluster reading with modeled-disease caveat ----
+cluster_reading_html = ""
+modeled_diseases_early = provenance.get("modeled_diseases", [])
+if not cluster_profile.empty:
+    bits = []
+    for _, r in cluster_profile.iterrows():
+        dom_flag = " <em>(modeled label)</em>" if r["dominant_disease"] in modeled_diseases_early else ""
+        bits.append(
+            f"Cluster {int(r['cluster_label'])} (n={int(r['n_patients'])}) is "
+            f"{r['dominant_disease']}-dominant (mean p={r['dominant_prob']:.2f}){dom_flag}"
+        )
+    cluster_reading_html = "; ".join(bits) + "."
+    modeled_doms = sorted(
+        {r["dominant_disease"] for _, r in cluster_profile.iterrows() if r["dominant_disease"] in modeled_diseases_early}
+    )
+    if modeled_doms:
+        cluster_reading_html += (
+            f" <strong>Caution:</strong> dominance of {', '.join(modeled_doms)} reflects <em>simulated label "
+            "prevalence</em>, not a genomic finding — these diseases have no real ImmPort cohort and their "
+            "labels carry no genotype effect (AUROC at chance), so any cluster they dominate should be "
+            "excluded from the Humbert–Dupond Type 1–3 comparison and read through the real-cohort "
+            "diseases' probabilities instead."
+        )
+
 # ---- Cohort provenance ----
 cohort_counts = provenance.get("cohort_counts", {})
 cohort_rows_html = "".join(
@@ -626,16 +650,12 @@ data-driven clusters with the Humbert–Dupond Type 1–3 endophenotypes. Bold m
 dominant disease.</p>
 
 <table>
-  <tr><th>Cluster</th><th>RA</th><th>SLE</th><th>SJÖGRENS</th><th>AITD</th><th>T1D</th><th>VITILIGO</th><th>MS</th><th>Dominant</th></tr>
+  <tr><th>Cluster</th><th>RA</th><th>SLE</th><th>SJÖGRENS</th><th>AITD <em>(modeled)</em></th><th>T1D</th><th>VITILIGO <em>(modeled)</em></th><th>MS</th><th>Dominant</th></tr>
   {profile_rows_html}
 </table>
 
 <div class="interpretation">
-  <strong>Reading:</strong> Cluster 1 (n=82) is MS-dominant (mean p=0.82) with elevated VITILIGO — a
-  organ-specific-pattern group; Cluster 2 (n=65) is T1D-dominant (0.76) with elevated VITILIGO, consistent
-  with the known autoimmune polyglandular overlap; Cluster 3 (n=253) is the broad background cluster with
-  moderate RA/SLE probabilities. This 3-cluster solution recovers disease-specific structure and gives the
-  Discussion section its quantitative anchor for the Type 1–3 comparison.
+  <strong>Reading:</strong> {cluster_reading_html}
 </div>
 
 <hr>
@@ -646,7 +666,7 @@ dominant disease.</p>
 
 <h2>8. Pipeline Summary</h2>
 
-<h3>7.1 Data Summary</h3>
+<h3>8.1 Data Summary</h3>
 <table>
   <tr><th>Metric</th><th>Value</th></tr>
   <tr><td>Raw GWAS associations</td><td>{summary.get('raw_gwas_associations', summary.get('raw_gwas_records', 'n/a'))} (n_patients × n_loci = PRS rows: {summary.get('prs_rows', 'n/a')})</td></tr>
