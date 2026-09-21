@@ -83,7 +83,7 @@ test-python:
 
 .PHONY: build-dataset
 build-dataset:
-	cd services/ml-engine-python && PYTHONPATH=. .venv/bin/python scripts/build_dataset.py
+	PYTHONPATH=services/ml-engine-python services/ml-engine-python/.venv/bin/python scripts/build_dataset.py
 
 .PHONY: lint-python
 lint-python:
