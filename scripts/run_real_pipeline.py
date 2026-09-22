@@ -214,6 +214,27 @@ def build_real_dataset(
         "modeled_diseases": MODELED_DISEASES,
         "real_cohort_diseases": [d for d in DISEASE_LABELS if d not in MODELED_DISEASES],
         "aitd_vitiligo_search": NEGATIVE_SEARCH_RESULTS,
+        "gwas_informed_labels": {
+            "description": (
+                "AITD/VITILIGO have no ImmPort cohort (see aitd_vitiligo_search), but their label "
+                "simulation carries GWAS-derived genetic effects at our panel loci, anchored to "
+                "published summary statistics rather than pure noise."
+            ),
+            "AITD": [
+                "rs9272346 <- GCST001200 (Graves') HLA-DRB1/DQB1 rs6457617 OR=1.40, p=7e-33",
+                "rs3087243 <- GCST001200 (Graves') CD28/CTLA4 rs1024161 OR=1.30, p=2e-17",
+            ],
+            "VITILIGO": [
+                "rs9272346 <- GCST004785 (Jin 2016) HLA-DRB1/DQA1 rs9271597 OR=1.772, p=3e-89",
+                "rs2476601 <- GCST004785 (Jin 2016) PTPN22 rs2476601 OR=1.383, p=1e-18 (direct rsID match)",
+            ],
+            "sources": [
+                "Jin Y et al., Nat Genet 2016 (PMID 27723757), GCST004785 full summary statistics",
+                "Gudmundsson/Simmonds Graves' GWAS (GCST001200) curated associations, GWAS Catalog",
+                "Bujnis MN et al., Nat Genet 2026 hypothyroidism meta-analysis (N~1.1M), ThyroidOmics",
+            ],
+            "summary_stats_archived": "results/raw/gwas_sumstats/ (vitiligo per-chr full stats; curated CSVs)"
+        },
         "field_sources": {
             "sex": "real (ImmPort demographic.gender)",
             "age": "real (ImmPort demographic.max_subject_age_in_years)",
