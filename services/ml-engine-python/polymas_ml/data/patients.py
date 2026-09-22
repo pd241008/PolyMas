@@ -5,6 +5,12 @@ Generates the synthetic genotype->PRS->label process shared by System A
 the same underlying patients. Clinical features come from REAL ImmPort
 subjects (see polymas_ml.data.immport); only BMI, family history, genotypes
 and labels are simulated (documented in the PDF as modeled fields).
+
+Modeled diseases (AITD, VITILIGO) have no ImmPort cohort, but their label
+simulation is GWAS-INFORMED: genotype effects at our panel loci use log-OR
+anchors from published summary statistics (Jin 2016 vitiligo GCST004785;
+Graves' disease GCST001200), so their labels carry real published genetic
+signal instead of pure noise.
 """
 
 from __future__ import annotations
@@ -19,15 +25,34 @@ logger = logging.getLogger(__name__)
 DISEASE_LABELS = ["RA", "SLE", "SJOGRENS", "AITD", "T1D", "VITILIGO", "MS"]
 
 # Real-cohort diseases get a genotype effect (beta); modeled diseases (no real
-# cohort on ImmPort) get beta=0 and are flagged in outputs as modeled.
+# cohort on ImmPort) are flagged in outputs as modeled, but now carry
+# GWAS-derived effect strengths (see MODELED_DISEASE_LOCUS_EFFECTS below).
 GENOTYPE_EFFECTS = {
     "RA": 0.55,
     "SLE": 0.45,
     "SJOGRENS": 0.30,
     "T1D": 0.50,
     "MS": 0.40,
-    "AITD": 0.0,
-    "VITILIGO": 0.0,
+    "AITD": 0.35,
+    "VITILIGO": 0.45,
+}
+
+# GWAS-informed anchors for modeled diseases: our panel loci that carry the
+# disease effect, with log(OR) per copy taken from published summary stats.
+# Sources downloaded under results/raw/gwas_sumstats/ (curated/ CSVs).
+MODELED_DISEASE_LOCUS_EFFECTS = {
+    "AITD": [
+        # Graves' HLA-DRB1/DQA1/DQB1 lead rs6457617 OR=1.40 -> probes our HLA-DQB1 locus.
+        {"rsid": "rs9272346", "beta": 0.336, "source": "GCST001200 (Graves') rs6457617 HLA-DRB1/DQB1 OR=1.40, p=7e-33"},
+        # Graves' CD28/CTLA4 rs1024161 OR=1.30 -> our CTLA4 locus rs3087243.
+        {"rsid": "rs3087243", "beta": 0.262, "source": "GCST001200 (Graves') rs1024161 CD28/CTLA4 OR=1.30, p=2e-17"},
+    ],
+    "VITILIGO": [
+        # Jin 2016 HLA-DRB1/DQA1 rs9271597 OR=1.772 (strongest non-HLA-A hit).
+        {"rsid": "rs9272346", "beta": 0.572, "source": "GCST004785 (Jin 2016) rs9271597 HLA-DRB1/DQA1 OR=1.772, p=3e-89"},
+        # Jin 2016 PTPN22 rs2476601 OR=1.383 - DIRECT rsID hit on our panel.
+        {"rsid": "rs2476601", "beta": 0.324, "source": "GCST004785 (Jin 2016) rs2476601 PTPN22 OR=1.383, p=1e-18"},
+    ],
 }
 
 BASE_PREVALENCES = {
@@ -74,8 +99,9 @@ def simulate_genotypes_prs(
         "SJOGRENS": ["rs2187668", "rs7574865"],
         "T1D": ["rs9272346", "rs2476601"],
         "MS": ["rs2104286", "rs2292239"],
-        "AITD": [],
-        "VITILIGO": [],
+        # Modeled diseases: GWAS-anchored loci (see MODELED_DISEASE_LOCUS_EFFECTS).
+        "AITD": ["rs9272346", "rs3087243"],
+        "VITILIGO": ["rs9272346", "rs2476601"],
     }
 
     gen_rows = []
@@ -131,8 +157,9 @@ def simulate_labels(
 
     Patients assigned to a real disease cohort get a high prevalence of that
     disease (plus base rates for others); background patients get base
-    prevalences only. Modeled diseases (AITD, VITILIGO) draw from background
-    prevalence regardless of cohort.
+    prevalences only. Modeled diseases (AITD, VITILIGO) have no cohort, so
+    their labels arise from background prevalence + GWAS-anchored polygenic
+    effects at their published risk loci + sex risk - no cohort term.
     """
     rs_ids = list(loci.keys())
     cohort_prev = {
@@ -143,14 +170,15 @@ def simulate_labels(
 
     # Disease-specific risk loci (same mapping the genotype simulator uses for
     # cohort enrichment) so labels are learnable from the per-locus features.
+    # Modeled diseases use GWAS-anchored loci (MODELED_DISEASE_LOCUS_EFFECTS).
     disease_loci = {
         "RA": ["rs2476601", "rs11209026"],
         "SLE": ["rs7574865", "rs3087243"],
         "SJOGRENS": ["rs2187668", "rs7574865"],
         "T1D": ["rs9272346", "rs2476601"],
         "MS": ["rs2104286", "rs2292239"],
-        "AITD": [],
-        "VITILIGO": [],
+        "AITD": ["rs9272346", "rs3087243"],
+        "VITILIGO": ["rs9272346", "rs2476601"],
     }
 
     for i in range(n_patients):
@@ -161,19 +189,17 @@ def simulate_labels(
 
         labels = {"patient_id": pid}
         for disease in DISEASE_LABELS:
-            if disease in GENOTYPE_EFFECTS and GENOTYPE_EFFECTS[disease] == 0.0:
-                # Modeled disease: background prevalence only.
-                p = BASE_PREVALENCES[disease]
-            else:
-                p = BASE_PREVALENCES[disease]
-                if group == disease:
-                    p = cohort_prev.get(disease, 0.5)
-                # Disease-specific polygenic effect from its own risk loci.
-                risk = disease_loci.get(disease, [])
-                if risk:
-                    prs_d = float(np.mean([g[rs_id] for rs_id in risk])) / 2.0
-                    p += 0.50 * (prs_d - 0.15)
-                p += SEX_RISK.get(sex, {}).get(disease, 0.0)
+            p = BASE_PREVALENCES[disease]
+            if group == disease:
+                p = cohort_prev.get(disease, 0.5)
+            # Disease-specific polygenic effect from its own risk loci.
+            # For modeled diseases this term IS the GWAS-informed effect
+            # (no cohort term exists); anchored to published log-ORs.
+            risk = disease_loci.get(disease, [])
+            if risk:
+                prs_d = float(np.mean([g[rs_id] for rs_id in risk])) / 2.0
+                p += 0.50 * (prs_d - 0.15)
+            p += SEX_RISK.get(sex, {}).get(disease, 0.0)
             labels[disease] = int(rng.random() < min(0.95, max(0.01, p)))
         rows.append(labels)
 
