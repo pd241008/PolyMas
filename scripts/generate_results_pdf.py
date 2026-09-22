@@ -26,7 +26,7 @@ CLUSTER_CSV = RESULTS_DIR / "clusters" / "cluster_assignments.csv"
 CLUSTER_PROFILE_CSV = RESULTS_DIR / "clusters" / "cluster_disease_profile.csv"
 METRICS_CSV = RESULTS_DIR / "models" / "per_disease_metrics.csv"
 PROVENANCE_JSON = RESULTS_DIR / "reports" / "data_provenance.json"
-MAMBA_REPORT_JSON = RESULTS_DIR / "sequence" / "kmer5000_compact_out" / "smoke_test_report.json"
+MAMBA_REPORT_JSON = RESULTS_DIR / "sequence" / "kmer5000_gwas_out" / "smoke_test_report.json"
 SILHOUETTE_TXT = RESULTS_DIR / "clusters" / "silhouette_score.txt"
 PIPELINE_REPORT = RESULTS_DIR / "reports" / "pipeline_report.json"
 DATA_SUMMARY = RESULTS_DIR / "reports" / "data_summary.json"
@@ -47,7 +47,7 @@ METRICS_GENO_CSV = RESULTS_DIR / "models" / "per_disease_metrics_genotype_only.c
 metrics_geno_df = pd.read_csv(METRICS_GENO_CSV) if METRICS_GENO_CSV.exists() else pd.DataFrame()
 cluster_profile = pd.read_csv(CLUSTER_PROFILE_CSV) if CLUSTER_PROFILE_CSV.exists() else pd.DataFrame()
 mamba_report = json.loads(MAMBA_REPORT_JSON.read_text()) if MAMBA_REPORT_JSON.exists() else None
-MAMBA_MANIFEST_JSON = RESULTS_DIR / "sequence" / "kmer5000_compact" / "manifest.json"
+MAMBA_MANIFEST_JSON = RESULTS_DIR / "sequence" / "kmer5000_gwas" / "manifest.json"
 mamba_manifest = json.loads(MAMBA_MANIFEST_JSON.read_text()) if MAMBA_MANIFEST_JSON.exists() else {}
 
 mean_preds = preds_df.mean().round(4).to_dict()
@@ -126,8 +126,9 @@ if not cluster_profile.empty:
     if modeled_doms:
         cluster_reading_html += (
             f" <strong>Caution:</strong> dominance of {', '.join(modeled_doms)} reflects <em>simulated label "
-            "prevalence</em>, not a genomic finding — these diseases have no real ImmPort cohort and their "
-            "labels carry no genotype effect (AUROC at chance), so any cluster they dominate should be "
+            "structure</em>, not observed patient data — these diseases have no real ImmPort cohort, and "
+            "although their labels are GWAS-informed (published log-OR anchors at our panel loci), they "
+            "carry no cohort-observed clinical structure, so any cluster they dominate should be "
             "excluded from the Humbert–Dupond Type 1–3 comparison and read through the real-cohort "
             "diseases' probabilities instead."
         )
@@ -174,6 +175,10 @@ if mamba_report:
         f"<td>{vm.get(f'{d}_auprc', float('nan')):.4f}</td><td>{vm.get(f'{d}_f1', float('nan')):.4f}</td></tr>"
         for d in mamba_diseases
     )
+    _note = mamba_report.get("early_terminated")
+    _mamba_early_stop_note = (
+        f"<div class=\"interpretation\"><strong>Run note:</strong> {_note}</div>\n" if _note else ""
+    )
     mamba_summary_html = f"""
 <h2>7. System B — Mamba Sequence Model</h2>
 <p>The Mamba (selective SSM) model was trained on per-patient k-mer token sequences
@@ -184,21 +189,24 @@ token, 8 loci × 10 kb Ensembl windows). Architecture: d_model={mamba_report['co
 batch={mamba_report['config']['batch_size']}, {mamba_report['n_epochs']} epochs — trained on the same
 patient split design as System A. Best epoch: {mamba_report['best_epoch']}.
 </p>
+{_mamba_early_stop_note}
 <table>
   <tr><th>Disease</th><th>Val AUROC</th><th>Val AUPRC</th><th>Val F1</th></tr>
   {mamba_rows_html}
 </table>
 <div class="interpretation">
   <strong>Note:</strong> System B sees only the sequence representation of each patient's 8-locus genotype
-  (no clinical features), so its AUROC reflects pure genotype->label signal and is not directly comparable
-  to the ensemble's numbers, which also use age/sex/ancestry/BMI/family history.
+  (no clinical features), so its AUROC reflects pure genotype-&gt;label signal learned from k-mer order.
+  The genotype-only ensemble column in §6.1 provides the apples-to-apples reference for the same information
+  content presented as engineered features instead of sequences; the full-feature ensemble additionally uses
+  age/sex/ancestry/BMI/family history.
 </div>
 """
 else:
     mamba_summary_html = """
 <h2>7. System B — Mamba Sequence Model</h2>
 <p><em>Training in progress — regenerate this report after the Mamba run completes to include
-the per-disease metrics table (results/sequence/kmer400_out/smoke_test_report.json).</em></p>
+the per-disease metrics table (results/sequence/kmer5000_gwas_out/smoke_test_report.json).</em></p>
 """
 
 
@@ -447,9 +455,13 @@ subject accession</strong> (SUBxxxx, round-robin assignment, recorded in <code>c
 
 <div class="interpretation">
   <strong>Honest limitation:</strong> ImmPort has <strong>no AITD or Vitiligo cohorts</strong> (0 studies), so patients for those two
-diseases are drawn from background prevalence only and all their clinical/disease signal is modeled
-({', '.join(modeled_diseases)} flagged as <em>modeled</em> throughout; {', '.join(real_diseases)} have real cohort structure).
-Disease labels remain cohort-informed simulations — ImmPort provides the demographics, not the genotypes.
+diseases carry simulated labels flagged as <em>modeled</em> throughout ({', '.join(real_diseases)} have real cohort structure).
+These modeled labels are <strong>GWAS-informed</strong>: genotype effects at the panel loci are anchored to published
+summary statistics (vitiligo: Jin 2016, GCST004785 — HLA-DRB1/DQA1 OR=1.772, PTPN22 OR=1.383 direct rsID match;
+AITD: Graves' disease GCST001200 — HLA-DRB1/DQB1 OR=1.40, CTLA4 OR=1.30; archived under results/raw/gwas_sumstats/),
+so they carry real published genetic signal rather than pure noise. They remain simulations: no cohort term, no
+observed clinical structure — read their metrics as a floor/sanity check, not a genomic finding. Disease labels
+for real-cohort diseases remain cohort-informed simulations — ImmPort provides the demographics, not the genotypes.
 </div>
 
 <hr>
@@ -586,11 +598,12 @@ upper bound — calibrated probabilities of an imbalanced problem often never cr
 
 <div class="interpretation">
   <strong>Interpretation:</strong> AUROC ordering tracks the amount of real signal available per disease:
-  real-cohort diseases with genotype+demographic signal (T1D, SLE, RA) score well above chance, while
-  AITD — whose labels are simulated background prevalence with no cohort and no genotype effect — sits at
-  chance, exactly as it should be under honest evaluation. VITILIGO's AUROC reflects both its modeled
-  labels and its small positive count (wide confidence intervals), though at n=5000 the test split has
-  61 positives versus 5 at n=400.
+  real-cohort diseases with cohort+demographic signal (T1D, SLE, RA) score highest. AITD and VITILIGO are
+  modeled-label diseases: no ImmPort cohort exists, but their labels are GWAS-informed (published log-OR
+  anchors at HLA-DR/DQ, PTPN22, CTLA4 — see the provenance section), so modest above-chance discrimination
+  from genotype features is expected and is itself a pipeline sanity check, while performance at or below
+  chance flags instability rather than biology. Their numbers are a floor/sanity reference, never a
+  genomic finding.
 </div>
 
 <h3>6.1 Three-Way Model Comparison (Held-Out AUROC)</h3>
@@ -607,9 +620,11 @@ k-mer sequence representation of the same 8-locus genotypes (no clinical feature
 <div class="interpretation">
   <strong>Reading:</strong> The gap between column 1 and column 2 quantifies how much the real ImmPort
   clinical demographics contribute per disease; the gap between column 2 and column 3 isolates the cost of
-  learning genotype signal from sequence form rather than engineered features. Modeled diseases (AITD,
-  VITILIGO) show near-chance values in every column — consistent with their labels carrying no recoverable
-  structure — which is itself evidence the evaluation is not leaking label information.
+  learning genotype signal from sequence form rather than engineered features. For the modeled diseases
+  (AITD, VITILIGO) the genotype columns carry the only signal their labels have — GWAS-anchored genetic
+  effects with no cohort structure — so genotype-only ≈ full-feature there, while real-cohort diseases
+  show the clinical-feature gap. Concordant near-chance modeled-disease values across all three models
+  remain evidence the evaluation is not leaking label information.
 </div>
 
 <h2>7. Clustering Results</h2>
