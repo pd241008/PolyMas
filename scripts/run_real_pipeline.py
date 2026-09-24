@@ -27,7 +27,12 @@ from polymas_ml.data import (
     build_subject_pool,
     draw_patient_groups,
 )
-from polymas_ml.data.patients import DISEASE_LABELS, simulate_genotypes_prs, simulate_labels
+from polymas_ml.data.patients import (
+    DISEASE_LABELS,
+    label_structure_report,
+    simulate_genotypes_prs,
+    simulate_labels,
+)
 from polymas_ml.explainability.explainers import LIMEExplainerWrapper, TreeExplainerWrapper
 from polymas_ml.models.ensemble import MultiLabelEnsemble
 
@@ -186,6 +191,17 @@ def build_real_dataset(
     labels_df.to_csv(FEATURES_DIR / "labels.csv", index=False)
     labels_df.to_parquet(FEATURES_DIR / "labels.parquet", index=False)
 
+    # ---- Label co-occurrence (polyautoimmunity) diagnostics ----
+    label_structure = label_structure_report(labels_df)
+    logger.info(
+        "Label structure: mean diseases/patient=%.2f, MAS-3+ rate=%.3f, "
+        "2+ rate=%.3f, overdispersion=%.3f",
+        label_structure["mean_diseases_per_patient"],
+        label_structure["rate_3plus_mas"],
+        label_structure["rate_2plus"],
+        label_structure["overdispersion_ratio"],
+    )
+
     # ---- Provenance manifest ----
     from collections import Counter
     # Reuse disclosure per cohort: patients drawn from that cohort / unique
@@ -213,6 +229,18 @@ def build_real_dataset(
         "study_counts": dict(Counter(clinical_df["study_accession"])),
         "modeled_diseases": MODELED_DISEASES,
         "real_cohort_diseases": [d for d in DISEASE_LABELS if d not in MODELED_DISEASES],
+        "label_model": {
+            "description": (
+                "Labels are NOT independent Bernoulli draws: a latent "
+                "autoimmune liability mixture plus pairwise MAS log-OR "
+                "affinities (polymas_ml.data.patients.MAS_PAIRWISE_ODDS, "
+                "Anaya 2020 / Somers 2006 / Betterle 2023 anchored) induce "
+                "polyautoimmunity co-occurrence; incoercible pairs are "
+                "excluded. Diagnostics in label_structure."
+            ),
+            "mas_exclusions": label_structure["mas_exclusions"],
+        },
+        "label_structure": label_structure,
         "aitd_vitiligo_search": NEGATIVE_SEARCH_RESULTS,
         "gwas_informed_labels": {
             "description": (
@@ -473,6 +501,11 @@ def run_explainability(ensemble: MultiLabelEnsemble, X: pd.DataFrame) -> None:
             explainer = TreeExplainerWrapper(model=base_model, feature_names=list(X.columns))
             shap_df = explainer.explain(X)
             shap_df.to_csv(EXPLANATIONS_DIR / f"shap_{disease}.csv", index=False)
+
+            # Labeled beeswarm inputs: SHAP values + the matching feature
+            # values on the same rows, so figures color correctly at any n.
+            shap_df.to_parquet(EXPLANATIONS_DIR / f"shap_values_{disease}.parquet")
+            X.to_parquet(EXPLANATIONS_DIR / f"shap_feature_values_{disease}.parquet")
 
             imp_df = explainer.feature_importance(X, top_k=10)
             imp_df.to_csv(EXPLANATIONS_DIR / f"shap_importance_{disease}.csv", index=False)
