@@ -72,6 +72,9 @@ docs/
 results/
 results.pdf
 
+# Local artifact bundles (results exports, never commit)
+*bundle.zip
+
 # === OS ===
 *.pid
 *.seed
