@@ -2,6 +2,12 @@
 
 Combines real GWAS effect-size distributions with ImmPort-style clinical
 feature distributions to produce patient profiles suitable for the ensemble.
+
+Labels are drawn with the SAME co-occurrence (polyautoimmunity) engine as
+the main pipeline (polymas_ml.data.patients.draw_cooccurring_labels): a
+latent liability mixture plus pairwise MAS log-OR affinities, so the
+standalone builder reproduces the overdispersed multi-disease joint of the
+primary dataset rather than independent Bernoulli draws.
 """
 
 from __future__ import annotations
@@ -15,20 +21,34 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
+from polymas_ml.data.patients import (
+    DISEASE_LABELS as COOC_DISEASE_LABELS,
+    LIABILITY_SCALE,
+    MAS_AFFINITY_SCALE,
+    MAS_LIABILITY_MIX,
+    MAS_PAIRWISE_ODDS,
+    draw_cooccurring_labels,
+)
 from polymas_ml.models.shared_features import SHARED_LOCI
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-DISEASE_LABELS = [
-    "RA",
-    "SLE",
-    "SJOGRENS",
-    "AITD",
-    "T1D",
-    "VITILIGO",
-    "MS",
-]
+DISEASE_LABELS = list(COOC_DISEASE_LABELS)
+
+# Background (non-cohort) marginal prevalences for the standalone builder,
+# matched to the co-occurrence calibration in patients.py (see notes there:
+# moderate marginals so multi-disease accumulation is structured, not
+# incidental chance stacking).
+BASE_PREVALENCES = {
+    "RA": 0.06,
+    "SLE": 0.04,
+    "SJOGRENS": 0.03,
+    "AITD": 0.05,
+    "T1D": 0.03,
+    "VITILIGO": 0.025,
+    "MS": 0.04,
+}
 
 ALL_LOCI = list(SHARED_LOCI.keys()) + [f"rs{random.randint(100000, 999999)}" for _ in range(40)]
 
@@ -69,21 +89,24 @@ def _generate_clinical(patient_id: str, risk_factor: float) -> dict:
     }
 
 
-def _generate_labels(patient_id: str, risk_factor: float) -> dict:
-    labels = {"patient_id": patient_id}
-    for disease in DISEASE_LABELS:
-        base = {
-            "RA": 0.20,
-            "SLE": 0.10,
-            "SJOGRENS": 0.08,
-            "AITD": 0.15,
-            "T1D": 0.08,
-            "VITILIGO": 0.06,
-            "MS": 0.12,
-        }[disease]
-        prevalence = min(0.95, max(0.01, base + risk_factor))
-        labels[disease] = int(random.random() < prevalence)
-    return labels
+def _generate_labels(
+    patient_id: str,
+    risk_factor: float,
+    liability: float,
+    rng: np.random.Generator,
+) -> dict:
+    """One patient's labels via the shared MAS co-occurrence cascade.
+
+    The builder's scalar risk_factor plays the role of the pipeline's
+    cohort/polygenic term: it shifts every disease's marginal risk before
+    the latent-liability and pairwise-affinity lifts are applied.
+    """
+    marginal = {
+        disease: min(0.95, max(0.005, BASE_PREVALENCES[disease] + risk_factor))
+        for disease in DISEASE_LABELS
+    }
+    labels = draw_cooccurring_labels(marginal, liability, rng)
+    return {"patient_id": patient_id, **labels}
 
 
 def build_dataset(
@@ -93,18 +116,21 @@ def build_dataset(
 ) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     random.seed(seed)
     np.random.seed(seed)
+    rng = np.random.default_rng(seed)
 
     prs_frames = []
     clinical_rows = []
     label_rows = []
 
     base_scores = {locus: random.betavariate(2, 5) for locus in ALL_LOCI}
+    liability_weights, liability_values = zip(*MAS_LIABILITY_MIX)
     for i in range(n_patients):
         patient_id = f"P{i:04d}"
-        risk_factor = random.gauss(0, 0.15)
+        risk_factor = random.gauss(0, 0.03)
+        liability = float(rng.choice(liability_values, p=liability_weights))
         prs_frames.append(_generate_prs(patient_id, n_loci, base_scores))
         clinical_rows.append(_generate_clinical(patient_id, risk_factor))
-        label_rows.append(_generate_labels(patient_id, risk_factor))
+        label_rows.append(_generate_labels(patient_id, risk_factor, liability, rng))
 
     prs_df = pd.concat(prs_frames, ignore_index=True)
     clinical_df = pd.DataFrame(clinical_rows)
@@ -134,6 +160,8 @@ def main() -> None:
     clinical_df.to_parquet(out / "clinical_features.parquet", index=False)
     labels_df.to_parquet(out / "labels.parquet", index=False)
 
+    from polymas_ml.data.patients import label_structure_report
+
     summary = {
         "n_patients": int(args.n_patients),
         "n_loci_per_patient": int(args.n_loci),
@@ -141,6 +169,13 @@ def main() -> None:
         "prs_rows": len(prs_df),
         "clinical_rows": len(clinical_df),
         "label_rows": len(labels_df),
+        "label_structure": label_structure_report(labels_df),
+        "cooccurrence_model": {
+            "liability_mix": [list(t) for t in MAS_LIABILITY_MIX],
+            "liability_scale": LIABILITY_SCALE,
+            "affinity_scale": MAS_AFFINITY_SCALE,
+            "n_pairwise_affinities": len(MAS_PAIRWISE_ODDS),
+        },
     }
     (out / "dataset_summary.json").write_text(json.dumps(summary, indent=2))
     logger.info("Dataset built in %s", out)
