@@ -4,6 +4,8 @@
 
 **A polyglot, gRPC-driven ML pipeline that predicts multi-disease autoimmune risk from genotypic profiles and tests whether the resulting risk clusters validate or challenge the 1988 Multiple Autoimmune Syndrome classification.**
 
+> **Honest framing:** no public dataset pairs multi-diagnosis autoimmune patients with genotype data at scale, so the cohort is semi-synthetic: real ImmPort demographics + real GWAS Catalog effect sizes, with simulated genotypes and co-occurrence-structured labels (latent liability mixture + MAS pairwise log-OR affinities, literature-anchored). The cohort therefore *contains* MAS-pattern patients (3+ concurrent diagnoses) by construction — but they are generated, not observed. Every result is a statement about this disclosed generative process.
+
 [![Python](https://img.shields.io/badge/python-3.12-3670A0?style=flat-square&logo=python&logoColor=white)]()
 [![Rust](https://img.shields.io/badge/rust-1.78-dea584?style=flat-square&logo=rust&logoColor=white)]()
 [![Go](https://img.shields.io/badge/go-1.22-00ADD8?style=flat-square&logo=go&logoColor=white)]()
