@@ -15,8 +15,6 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from . import dataset
-
 
 def _hillis_steel(a: torch.Tensor, b: torch.Tensor) -> torch.Tensor:
     """One Hillis-Steele inclusive scan pass over the diagonal recurrence."""
