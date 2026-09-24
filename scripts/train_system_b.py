@@ -30,6 +30,10 @@ parser.add_argument("--batch-size", type=int, default=2)
 parser.add_argument("--eval-batch-size", type=int, default=16,
                     help="Batch size for train/val evaluation passes (default: 16)")
 parser.add_argument("--diseases", type=str, nargs="+", default=["RA", "SLE"])
+parser.add_argument("--resume", action="store_true",
+                    help="Resume from an existing checkpoint.pt in --out-dir (default: fresh start)")
+parser.add_argument("--require-gpu", action="store_true",
+                    help="Fail fast if CUDA is unavailable instead of silently training on CPU")
 args = parser.parse_args()
 
 results_dir = PROJECT_ROOT / "results"
@@ -50,6 +54,8 @@ y = labels_df[diseases].values.astype(np.float32)
 import torch
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
+if args.require_gpu and device != "cuda":
+    raise SystemExit("--require-gpu: CUDA unavailable (host GPU driver likely down); refusing CPU fallback")
 print(f"Training on {diseases}: {tokens.shape[0]} patients x {tokens.shape[1]} tokens, {args.epochs} epochs, device={device}")
 report = train_smoke(
     tokens=tokens,
@@ -60,6 +66,7 @@ report = train_smoke(
     batch_size=args.batch_size,
     eval_batch_size=args.eval_batch_size,
     device_str=device,
+    resume=args.resume,
 )
 
 print("\n--- Smoke Test Report ---")

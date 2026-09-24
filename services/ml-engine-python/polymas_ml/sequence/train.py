@@ -13,12 +13,12 @@ import torch
 import torch.nn as nn
 from sklearn.metrics import (
     accuracy_score,
+    average_precision_score,
     f1_score,
     hamming_loss,
     roc_auc_score,
 )
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import average_precision_score
 
 from .model import MambaSequenceClassifier
 
@@ -112,6 +112,7 @@ def train_smoke(
     seed: int = 0,
     device_str: str | None = None,
     eval_batch_size: int = 8,
+    resume: bool = False,
 ) -> dict[str, Any]:
     torch.manual_seed(seed)
     np.random.seed(seed)
@@ -156,7 +157,7 @@ def train_smoke(
     best_val_auroc = -1.0
     best_state: dict[str, Any] = {}
     t0 = time.time()
-    if ckpt_path.exists():
+    if resume and ckpt_path.exists():
         ck = torch.load(ckpt_path, map_location=device, weights_only=False)
         model.load_state_dict(ck["model"])
         optimizer.load_state_dict(ck["optimizer"])

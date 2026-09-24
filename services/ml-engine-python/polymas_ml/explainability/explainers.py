@@ -31,9 +31,17 @@ class TreeExplainerWrapper:
         )
 
     def feature_importance(self, X: pd.DataFrame, top_k: int = 10) -> pd.DataFrame:
+        """Top-k features by mean |SHAP|, as a labeled (feature, value) table.
+
+        The feature name lives in a `feature` column (not the index) so the
+        DataFrame survives to_csv(index=False) without losing labels.
+        """
         shap_df = self.explain(X)
         mean_abs = shap_df.abs().mean(axis=0).sort_values(ascending=False)
-        return mean_abs.head(top_k).to_frame("mean_abs_shap")
+        out = mean_abs.head(top_k).rename("mean_abs_shap").reset_index()
+        out.columns = ["feature", "mean_abs_shap"]
+        out.insert(0, "rank", range(1, len(out) + 1))
+        return out
 
 
 class LIMEExplainerWrapper:

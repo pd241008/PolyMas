@@ -36,8 +36,6 @@ def _preflight_learner(name: str) -> bool:
     import subprocess
     import sys
 
-    import numpy as np
-    import pandas as pd
 
     probe = (
         "import sys; sys.path.insert(0, %r)\n"

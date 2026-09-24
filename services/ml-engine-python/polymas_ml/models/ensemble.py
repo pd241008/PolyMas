@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import logging
-from typing import Any
 
 import numpy as np
 import pandas as pd
@@ -246,7 +245,7 @@ class MultiLabelEnsemble:
     @staticmethod
     def _fit_platt(
         scores: np.ndarray, y: np.ndarray, lr: float = 0.01, epochs: int = 100
-    ) -> "LogisticRegression | _AffinePlatt":
+    ) -> LogisticRegression | _AffinePlatt:
         """Fit Platt scaling via scikit-learn LogisticRegression.
 
         With tiny calibration sets (< ~30 samples), an unregularized fit
