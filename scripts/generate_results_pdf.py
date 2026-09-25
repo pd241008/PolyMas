@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import json
+import os
 from pathlib import Path
 from typing import Any
 
@@ -12,9 +13,11 @@ import pandas as pd
 from weasyprint import HTML
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
-RESULTS_DIR = PROJECT_ROOT / "results"
-FIGURES_DIR = PROJECT_ROOT / "figures"
-REPORT_PATH = PROJECT_ROOT / "results.pdf"
+STASH_DIR = PROJECT_ROOT / "stash"
+# Results root; override with POLYMAS_RESULTS_DIR to read a specific run folder.
+RESULTS_DIR = Path(os.environ.get("POLYMAS_RESULTS_DIR", PROJECT_ROOT / "stash" / "results"))
+FIGURES_DIR = STASH_DIR / "figures"
+REPORT_PATH = STASH_DIR / "results.pdf"
 
 GWAS_CSV = RESULTS_DIR / "raw" / "gwas" / "gwas_associations.csv"
 PREDICTIONS_CSV = RESULTS_DIR / "models" / "predictions.csv"
@@ -99,11 +102,11 @@ Bernoulli label draws. Diagnostics computed by <code>label_structure_report</cod
   <tr><td>2+ given 1+ (conditional cascade)</td><td>{cooc_structure.get('rate_2plus_given_1plus', float('nan')) * 100:.1f}%</td><td>elevated vs the ~independent null</td></tr>
 </table>
 <div class="figure">
-  <img src="figures/phi_cooccurrence_heatmap.png" alt="Phi co-occurrence heatmap">
+  <img src="stash/figures/phi_cooccurrence_heatmap.png" alt="Phi co-occurrence heatmap">
   <div class="caption">Figure 9b: Pairwise phi correlations between disease labels. Warm cells are the embedded MAS comorbidity pairs (Sjögren's–AITD, AITD–vitiligo, T1D–vitiligo, etc.); the cold T1D–MS / RA–MS cells are the Humbert–Dupond incoercible-pair exclusions.</div>
 </div>
 <div class="figure">
-  <img src="figures/disease_count_distribution.png" alt="Disease count distribution">
+  <img src="stash/figures/disease_count_distribution.png" alt="Disease count distribution">
   <div class="caption">Figure 9c: Distribution of concurrent diagnoses per patient (red = MAS-range, 3+). The heavy right tail versus an independent-Bernoulli null is the generated polyautoimmunity structure.</div>
 </div>
 <div class="interpretation">
@@ -134,8 +137,8 @@ if not ancestry_df.empty:
   {ancestry_rows}
 </table>
 <div class="figure">
-  <img src="figures/ancestry_stratified_auroc.png" alt="Ancestry-stratified AUROC">
-  <div class="caption">Figure 6c: Ancestry-stratified held-out AUROC. Pooled numbers can hide group-level heterogeneity; this split makes the per-ancestry evidence (and its limits) explicit. Stratified bootstrap CIs for the pooled estimate are in results/stats/bootstrap_ci_ancestry_stratified.csv.</div>
+  <img src="stash/figures/ancestry_stratified_auroc.png" alt="Ancestry-stratified AUROC">
+  <div class="caption">Figure 6c: Ancestry-stratified held-out AUROC. Pooled numbers can hide group-level heterogeneity; this split makes the per-ancestry evidence (and its limits) explicit. Stratified bootstrap CIs for the pooled estimate are in stash/results/stats/bootstrap_ci_ancestry_stratified.csv.</div>
 </div>
 """
 else:
@@ -537,7 +540,7 @@ HTML(string=f"""<!DOCTYPE html>
 </div>
 
 <div class="figure">
-  <img src="figures/gwas_pvalue_distribution.png" alt="GWAS p-value distribution">
+  <img src="stash/figures/gwas_pvalue_distribution.png" alt="GWAS p-value distribution">
   <div class="caption">Figure 1: Distribution of GWAS association significance (-log10 p-values) across all fetched records and mean significance per locus. Red bars indicate loci with mean -log10(p) &gt; 50 (highly significant).</div>
 </div>
 
@@ -588,7 +591,7 @@ for real-cohort diseases remain cohort-informed simulations — ImmPort provides
 <p>This normalization maps GWAS p-values (typically 1e-300 to 1.0) into the [0, 1] range, making them suitable for ML models. The divisor 300 was chosen because -log10(1e-300) = 300, representing a near-genome-wide significant threshold.</p>
 
 <div class="figure">
-  <img src="figures/prs_distribution_by_locus.png" alt="PRS distribution by locus">
+  <img src="stash/figures/prs_distribution_by_locus.png" alt="PRS distribution by locus">
   <div class="caption">Figure 2: Boxplot of continuous PRS scores across the {n_loci} loci. Higher scores indicate stronger genetic predisposition. All scores are derived from real GWAS association p-values.</div>
 </div>
 
@@ -602,7 +605,7 @@ for real-cohort diseases remain cohort-informed simulations — ImmPort provides
 </ul>
 
 <div class="figure">
-  <img src="figures/feature_correlation_heatmap.png" alt="Feature correlation heatmap">
+  <img src="stash/figures/feature_correlation_heatmap.png" alt="Feature correlation heatmap">
   <div class="caption">Figure 3: Correlation heatmap of PRS scores across loci. Strong correlations between HLA-DRB1 and HLA-DQB1 reflect known LD structure in the MHC region.</div>
 </div>
 
@@ -636,7 +639,7 @@ for real-cohort diseases remain cohort-informed simulations — ImmPort provides
 </div>
 
 <div class="figure">
-  <img src="figures/prediction_distributions.png" alt="Prediction distributions">
+  <img src="stash/figures/prediction_distributions.png" alt="Prediction distributions">
   <div class="caption">Figure 4: Distribution of predicted probabilities for each disease. Red dashed line indicates mean.</div>
 </div>
 
@@ -664,7 +667,7 @@ for real-cohort diseases remain cohort-informed simulations — ImmPort provides
 <p>Feature importances were extracted from each active base learner per disease ({learner_list}). Raw importance scales differ by learner (XGBoost: 0–1, CatBoost: 0–100, LightGBM: 0–500), so values should be normalized before cross-learner comparison.</p>
 
 <div class="figure">
-  <img src="figures/shap_importance.png" alt="SHAP importance">
+  <img src="stash/figures/shap_importance.png" alt="SHAP importance">
   <div class="caption">Figure 5: Top 10 features by mean absolute SHAP value for RA, SLE, and SJOGRENS. SHAP values are computed on the first active base learner per disease using TreeExplainer.</div>
 </div>
 
@@ -689,7 +692,7 @@ for real-cohort diseases remain cohort-informed simulations — ImmPort provides
 <p>LIME (Local Interpretable Model-agnostic Explanations) was run in <strong>regression mode</strong> on the ensemble's probability output. This avoids the "classifier without probability scores" error by treating the task as probability regression.</p>
 
 <div class="figure">
-  <img src="figures/lime_comparison.png" alt="LIME comparison">
+  <img src="stash/figures/lime_comparison.png" alt="LIME comparison">
   <div class="caption">Figure 6: LIME feature attributions for the first patient (P0000) across RA, SLE, and SJOGRENS. Orange bars indicate positive contributions; blue bars indicate negative contributions.</div>
 </div>
 
@@ -713,7 +716,7 @@ AUROC cells carry <strong>95% patient-level percentile bootstrap confidence inte
 </table>
 
 <div class="figure">
-  <img src="figures/bootstrap_ci_forest.png" alt="Bootstrap CI forest plot">
+  <img src="stash/figures/bootstrap_ci_forest.png" alt="Bootstrap CI forest plot">
   <div class="caption">Figure 6b: Held-out AUROC per disease with 95% bootstrap confidence intervals (orange = modeled-label diseases with no real ImmPort cohort — read as pipeline sanity, not genomic findings). Intervals overlapping 0.5 indicate discrimination indistinguishable from chance at this sample size.</div>
 </div>
 
@@ -767,7 +770,7 @@ k-mer sequence representation of the same 8-locus genotypes (no clinical feature
 </div>
 
 <div class="figure">
-  <img src="figures/dendrogram.png" alt="Dendrogram">
+  <img src="stash/figures/dendrogram.png" alt="Dendrogram">
   <div class="caption">Figure 8: Hierarchical clustering dendrogram (Ward linkage, Euclidean distance). The tree structure shows how patients merge into larger groups, with the red line indicating the cut point for 3 clusters.</div>
 </div>
 
@@ -789,7 +792,7 @@ k-mer sequence representation of the same 8-locus genotypes (no clinical feature
 </div>
 
 <div class="figure">
-  <img src="figures/silhouette_permutation.png" alt="Silhouette permutation test">
+  <img src="stash/figures/silhouette_permutation.png" alt="Silhouette permutation test">
   <div class="caption">Figure 8b: Null distribution of silhouette scores under within-disease column shuffling (destroys patient-level co-occurrence while preserving per-disease marginals), versus the observed clustering. The observed score must beat this null to claim the clusters reflect patient-level structure rather than marginal separation alone.</div>
 </div>
 

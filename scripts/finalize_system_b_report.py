@@ -16,6 +16,7 @@ about what happened.
 from __future__ import annotations
 
 import json
+import os
 import sys
 from pathlib import Path
 
@@ -30,7 +31,9 @@ import pandas as pd  # noqa: E402
 from polymas_ml.sequence.model import MambaSequenceClassifier  # noqa: E402
 from polymas_ml.sequence.train import build_splits, evaluate  # noqa: E402
 
-SEQ_DIR = PROJECT_ROOT / "results" / "sequence"
+SEQ_DIR = Path(os.environ.get(
+    "POLYMAS_RESULTS_DIR", PROJECT_ROOT / "stash" / "results"
+)) / "sequence"
 DATA_DIR = SEQ_DIR / "kmer5000_gwas"
 OUT_DIR = SEQ_DIR / "kmer5000_gwas_out"
 
