@@ -144,7 +144,7 @@ def main() -> None:
     parser.add_argument("--n-patients", type=int, default=400)
     parser.add_argument("--n-loci", type=int, default=25)
     parser.add_argument("--seed", type=int, default=42)
-    parser.add_argument("--output-dir", type=str, default="results/raw/semi-synthetic")
+    parser.add_argument("--output-dir", type=str, default="stash/results/raw/semi-synthetic")
     args = parser.parse_args()
 
     out = Path(args.output_dir)

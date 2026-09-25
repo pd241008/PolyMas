@@ -11,7 +11,6 @@ Thumbs.db
 .env.*.local
 __pycache__
 catboost_info/
-results_backup_400/
 # === Rust ===
 services/control-plane-rust/target/
 services/control-plane-rust/**/*.pdb
@@ -69,6 +68,12 @@ proto/gen/
 
 # === Proprietary / NDA-protected ===
 docs/
+
+# === Stash: all local gitignored artifacts live under stash/ ===
+# (results, figures, result PDFs, bundle zips, earlier pilot runs — see stash/README.md)
+stash/
+
+# Legacy root-level locations (kept so old runs never get tracked)
 results/
 results.pdf
 
