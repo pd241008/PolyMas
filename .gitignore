@@ -90,3 +90,6 @@ results.pdf
 
 outputs/
 figures/
+
+# htslib remote-index side-effects from pysam VCF streaming
+*.tbi
