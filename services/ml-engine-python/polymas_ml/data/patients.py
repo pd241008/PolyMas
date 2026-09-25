@@ -91,6 +91,9 @@ SEX_RISK = {
 # ----------------------------------------------------------------------------
 # Published autoimmune comorbidity pairs with odds ratios, used to bias
 # latent-MAS co-occurrence toward clinically observed combinations.
+# Each pair is stored ONCE: draw_cooccurring_labels looks up both
+# orientations, so duplicate reverse-key entries would make the applied
+# affinity depend on draw order.
 # Sources:
 #   - Anaya JM et al. Autoimmune Disease Co-occurrence: The Puzzling Aspect
 #     of the Autoimmune Tautology (2020 review tables).
@@ -108,7 +111,6 @@ MAS_PAIRWISE_ODDS: dict[tuple[str, str], float] = {
     ("AITD", "VITILIGO"): 1.05,        # OR ~2.9 (thyroid-vitiligo association)
     ("AITD", "T1D"): 0.65,             # OR ~1.9 (APS-3v)
     ("T1D", "VITILIGO"): 0.60,         # OR ~1.8
-    ("AITD", "SJOGRENS"): 0.40,        # within APS-3 overlap
     # Shared-genetics pairs (GWAS sharing / pleiotropy literature)
     ("SLE", "T1D"): 0.30,              # modest
     ("SLE", "MS"): 0.20,               # HLA-DRB1*15:01 shared; RA-protective allele
@@ -253,6 +255,7 @@ def simulate_labels(
     cohort_prev = {
         "RA": 0.50, "SLE": 0.45, "SJOGRENS": 0.40, "T1D": 0.45, "MS": 0.40,
     }
+    liability_weights, liability_values = zip(*MAS_LIABILITY_MIX)
     rows = []
     gen_matrix = gen_rows.set_index("patient_id").loc[[f"P{i:04d}" for i in range(n_patients)]]
 
@@ -280,11 +283,10 @@ def simulate_labels(
         sex = sexes[i]
         g = gen_matrix.iloc[i]
 
-        # 1. Latent autoimmune liability (population mixture).
-        liability = float(rng.choice(
-            [w for w, _ in MAS_LIABILITY_MIX],
-            p=[p for p, _ in MAS_LIABILITY_MIX],
-        )) * LIABILITY_SCALE
+        # 1. Latent autoimmune liability (population mixture). Draw the RAW
+        # mixture value in liability units; LIABILITY_SCALE is applied exactly
+        # once, inside draw_cooccurring_labels.
+        liability = float(rng.choice(liability_values, p=liability_weights))
 
         # 2. Marginal risks per disease (cohort + polygenic + sex terms).
         marginal: dict[str, float] = {}
