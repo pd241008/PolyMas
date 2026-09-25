@@ -117,6 +117,16 @@ This guarantees that any result can be audited back to its exact data and code s
 
 ---
 
+## Results Program
+
+Feature development is tracked as a 24-item claim ledger in [ROADMAP.md](ROADMAP.md):
+every item carries a typed verification level (R1 exact / R2 deterministic /
+R3 statistical / R4 archival), pre-registered tolerances for statistical checks,
+and an honest status — passes, failures, and null results all get logged. ADRs
+for program decisions live in `docs/adr/`.
+
+---
+
 ## Project Structure
 
 ```
