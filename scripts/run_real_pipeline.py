@@ -130,6 +130,7 @@ def fetch_immport_study(study_id: str, max_retries: int = 3) -> dict[str, Any] |
 def build_real_dataset(
     n_patients: int = 400,
     genotype_mode: str = "simulated",
+    coupling_mode: str = "none",
 ) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, int]:
     all_associations = []
     for rs_id in AUTOIMMUNE_LOCI:
@@ -153,6 +154,7 @@ def build_real_dataset(
 
     # ---- Shared patient simulation (genotypes -> PRS -> labels) ----
     donor_ids = None
+    label_prs_terms: dict[str, np.ndarray] | None = None
     if genotype_mode == "real":
         # F-10 wiring (ADR-004): patients inherit REAL 1000G donor dosages,
         # ancestry-matched to the ImmPort-derived ancestry label.
@@ -165,10 +167,64 @@ def build_real_dataset(
         )
         known = set(kg_meta["super_pop"].unique())
         ancestry_labels = ancestry_labels.where(ancestry_labels.isin(known), "EUR")
-        donor_gt = sample_donor_genotypes(dosages, kg_meta, ancestry_labels, rng)
-        donor_ids = pd.Series(donor_gt.index.to_numpy(),
-                              index=[f"P{i:04d}" for i in range(n_patients)])
-        donor_map_for_prs = pd.Series(donor_ids.values, index=donor_ids.index)
+
+        use_coupling = coupling_mode == "published"
+        donor_gt = None
+        if use_coupling:
+            # ADR-005: Bayes-consistent anchor-disease donor weighting from
+            # published log-ORs (allele-aligned). Background patients stay
+            # uniform; the label model receives the same published betas.
+            from polymas_ml.data import coupling as coup_mod
+
+            probe_dir = OUTPUTS_DIR / "adr005_probe_20260925"
+            probe_dir.mkdir(parents=True, exist_ok=True)
+            if not (probe_dir / "dataset_picks.json").exists():
+                import shutil
+                src = OUTPUTS_DIR / "adr005_probe"
+                if src.exists():
+                    shutil.copytree(src, probe_dir, dirs_exist_ok=True)
+                else:
+                    raise FileNotFoundError(
+                        "no OpenGWAS probe cache; run scripts/ogwas_probe.py first")
+            panel_af = dosages.mean() / 2.0
+            ensembl_freqs = coup_mod.fetch_ensembl_allele_freqs(
+                dosages.columns.tolist(), OUTPUTS_DIR / "raw" / "ensembl")
+            vcf_alt = coup_mod.identify_vcf_alt(panel_af, ensembl_freqs)
+            unres = [rs for rs, a in vcf_alt.items() if not a]
+            if unres:
+                logger.warning("%d loci have unidentifiable VCF alt (dropped from coupling)", len(unres))
+            couplings = {
+                d: coup_mod.build_disease_coupling(
+                    d, panel_af, ensembl_freqs, vcf_alt, OUTPUTS_DIR, "20260925")
+                for d in coup_mod.DISEASE_DATASETS
+            }
+            for d, c in couplings.items():
+                logger.info("coupling %s (%s): %d loci aligned, %d dropped",
+                            d, c.dataset, len(c.loci), len(c.dropped))
+            aligned_by_disease = {
+                d: coup_mod.aligned_dosage_matrix(dosages, c) for d, c in couplings.items()
+            }
+            coup_mod.save_coupling_manifest(
+                OUTPUTS_DIR / "coupling_20260925", couplings, vcf_alt, {})
+            anchored = coup_mod.sample_anchored_donors(
+                couplings, aligned_by_disease, dosages, kg_meta,
+                ancestry_labels, patient_groups, rng,
+            )
+            anchored = anchored.loc[[f"P{i:04d}" for i in range(n_patients)]]
+            # Materialize each patient's dosage row from the sampled donor
+            # (same patient-indexed contract the uniform sampler produces).
+            donor_gt = dosages.loc[anchored.to_numpy()].copy()
+            donor_gt.index = anchored.index
+            label_prs_terms = {
+                d: coup_mod.label_prs_term(donor_gt, c, panel_af)
+                for d, c in couplings.items()
+            }
+            donor_map_for_prs = anchored.copy()
+        else:
+            donor_gt = sample_donor_genotypes(dosages, kg_meta, ancestry_labels, rng)
+            donor_map_for_prs = pd.Series(
+                donor_gt.index.to_numpy(), index=[f"P{i:04d}" for i in range(n_patients)])
+
         prs_df, gen_rows, donor_ids = simulate_genotypes_prs(
             n_patients, AUTOIMMUNE_LOCI, patient_groups, rng,
             donor_dosages=donor_gt, donor_map=donor_map_for_prs,
@@ -178,6 +234,7 @@ def build_real_dataset(
     label_rows = simulate_labels(
         n_patients, patient_groups, [a["sex"] for a in assignments], gen_rows, AUTOIMMUNE_LOCI, rng,
         genotype_mode=genotype_mode,
+        label_prs_terms=label_prs_terms,
     )
     prs_df.to_csv(FEATURES_DIR / "prs_features.csv", index=False)
     prs_df.to_parquet(FEATURES_DIR / "prs_features.parquet", index=False)
@@ -294,7 +351,8 @@ def build_real_dataset(
             "hispanic": "real (ImmPort demographic.ethnicity)",
             "bmi": "modeled",
             "family_history": "modeled",
-            "genotypes": ("real 1000G donor dosages (F-10/ADR-004)" if genotype_mode == "real"
+            "genotypes": (f"real 1000G donor dosages (F-10/ADR-004; coupling={coupling_mode})"
+                          if genotype_mode == "real"
                           else "simulated (shared with System B)"),
             "labels": "simulated (cohort-informed)",
         },
@@ -645,13 +703,20 @@ def main() -> None:
     parser.add_argument("--genotypes", choices=["simulated", "real"], default="simulated",
                         help="simulated: binomial genotypes (legacy). real: 1000G donor dosages "
                              "(F-10/ADR-004; requires the real-genotype substrate)")
+    parser.add_argument("--coupling", choices=["none", "published"], default="none",
+                        help="ADR-005: with --genotypes real, weight anchor-disease donors by "
+                             "published log-ORs (Bayes-consistent) and use published betas in "
+                             "the label polygenic term")
     args = parser.parse_args()
     n_patients = args.n_patients
     genotype_mode = args.genotypes
+    coupling_mode = args.coupling
 
-    logger.info("=== Starting real-data ML pipeline (n_patients=%d) ===", n_patients)
+    logger.info("=== Starting real-data ML pipeline (n_patients=%d, genotypes=%s, coupling=%s) ===",
+                n_patients, genotype_mode, coupling_mode)
 
-    prs_df, clinical_df, labels_df, n_gwas = build_real_dataset(n_patients, genotype_mode=genotype_mode)
+    prs_df, clinical_df, labels_df, n_gwas = build_real_dataset(
+        n_patients, genotype_mode=genotype_mode, coupling_mode=coupling_mode)
 
     n_gwas = n_gwas  # noqa: F841 — used in generate_reports
 
