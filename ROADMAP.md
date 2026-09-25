@@ -21,13 +21,18 @@
 | Category | Items | Done | In progress | Not started |
 |----------|:----:|:----:|:-----------:|:-----------:|
 | A. Model architectures | 5 | 0 | 0 | 5 |
-| B. Features & inputs | 5 | 1 | 0 | 4 |
+| B. Features & inputs | 5 | 2 | 3 | 0 |
 | C. Training & calibration | 5 | 0 | 0 | 5 |
 | D. Evaluation & rigor | 5 | 0 | 2 | 3 |
 | E. Productization | 4 | 0 | 1 | 3 |
-| **Total** | **24** | **1** | **3** | **20** |
+| **Total** | **24** | **2** | **6** | **16** |
 
-> Last updated: 2026-09-25 — **F-09 PASSED** (first ledger item done): 54/99 loci verified against GWAS Catalog, 45 drops logged with reasons.
+> Last updated: 2026-09-25 — Phase 1 (data substrate) essentially complete:
+> F-09 PASSED (54/99 verified), F-10 core PASSED (LD gate 13/13, 91 variants
+> × 2,504 real donors), F-06 harness PASSED with a pre-registered negative
+> tree-model result, F-07 PCs validated, F-08 gene mapping done (pathway
+> scores open). All pipeline-integration commits deliberately deferred and
+> tracked.
 
 ---
 
@@ -47,11 +52,11 @@
 
 | ID | Feature | Goal (claim form) | Verification | Files | Status |
 |----|---------|-------------------|--------------|-------|--------|
-| **F-06** | **Haplotype + epistasis features** | *DRB1–DQB1 haplotype features and pairwise interaction terms improve System A AUROC vs one-hots alone (R3).* | Ablation: with vs without, same seeds; tolerance for "no gain" = ΔAUROC < 0.005 recorded as negative result. | `polymas_ml/data/patients.py`, `scripts/run_real_pipeline.py` | ⬜ Not started |
-| **F-07** | **Ancestry PCs as covariates** | *Genotype-derived PCs correct population structure; ancestry stratified metrics improve in calibration (slope closer to 1) (R3).* | PCA on the genotype matrix (4 PCs per 1000G convention); compare per-ancestry calibration slope before/after. | `polymas_ml/data/patients.py`, `polymas_ml/evaluation/ancestry.py` | ⬜ Not started |
-| **F-08** | **Functional annotations** | *eQTL/gene mapping + pathway scores per locus are attached to every panel locus and appear as model features without breaking provenance (R2).* | Every locus in the panel has ≥1 mapped gene + pathway tags in the provenance manifest; manifest schema-validated. | `polymas_ml/data/loci.py` (new), provenance JSON | ⬜ Not started — **requires F-09** |
+| **F-06** | **Haplotype + epistasis features** | *DRB1–DQB1 haplotype features and pairwise interaction terms improve System A AUROC vs one-hots alone (R3).* | 🔶 **Negative result, harness PASSED 2026-09-25** — ground-truth injection through real 1000G dosages (main + epistasis coefficients, 47% prevalence, n=3000): both arms recover the signal (AUROC 0.665 ≫ 0.5), but ΔAUROC(base→augmented) = 0.0005 < 0.005 null bar → **no tree-model gain** (GBMs learn pairwise interactions natively). Feature machinery validated for the linear F-16 PRS baseline + interpretability. Evidence: `stash/results/f06_ablation_20260925/`. Wiring into production labels deferred until F-10 integration. | `polymas_ml/data/haplotypes.py`, `scripts/f06_ablation.py` | 🔶 Harness done — production integration pending |
+| **F-07** | **Ancestry PCs as covariates** | *Genotype-derived PCs correct population structure; ancestry stratified metrics improve in calibration (slope closer to 1) (R3).* | 🔶 **PCs built & validated 2026-09-25** — SVD PCA on 91 real dosages × 2,504 donors: correct structure (PC1 8.8% ≫ PC2 5.1%; AFR separated on PC1), wired into patient feature assembly, calibration-slope eval pending System A integration. Evidence: `stash/results/real_genotypes_20260925/ancestry_pcs.csv`. | `polymas_ml/data/genotypes.py`, `polymas_ml/data/haplotypes.py` | 🔶 In progress — pipeline integration pending |
+| **F-08** | **Functional annotations** | *eQTL/gene mapping + pathway scores per locus are attached to every panel locus and appear as model features without breaking provenance (R2).* | 🔶 **Gene mapping done 2026-09-25** — 95 loci annotated via Ensembl GRCh37 overlap: consequences (13 missense, 41 intron, 8 regulatory…) + overlapping gene for 61/95 (MHC alt-contig variants honestly NaN). Canonical anchors verified: PTPN22→PTPN22, IL23R→IL23R, STAT4→STAT4, TSHR→TSHR, IL7R→IL7R. Pathway scores still open. Evidence: `stash/results/real_genotypes_20260925/variant_annotations_genes.csv`. | `polymas_ml/data/haplotypes.py`, `variant_annotations_genes.csv` | 🔶 In progress — pathway scores open |
 | **F-09** | **Panel expansion 8 → 50–100 loci** | *The curated autoimmune panel covers ≥50 GWAS-catalog-validated loci with per-locus provenance (R2).* | ✅ **PASSED 2026-09-25** — 99 unique candidates verified live: 54 VERIFIED, 45 DROPPED with recorded reasons (404s & zero-assoc), 0 errors, 0 pending. Evidence: `stash/results/panel_expansion_20260925/panel_verification.csv` + `panel_manifest.json`. Regression tests: `tests/test_loci.py` (10 passed). Coverage uneven (SJOGRENS 4 / T1D 3 / VITILIGO 1) — wave-3 curation flagged in ADR-002. Pipeline integration is a separate change. | `polymas_ml/data/loci.py`, `scripts/expand_panel.py`, `tests/test_loci.py` | ✅ Done (verification) — pipeline wiring pending |
-| **F-10** | **Real genotype backgrounds (1000G)** | *Patient genotypes are sampled from real 1000 Genomes haplotypes; simulated labels stay cohort-informed; LD becomes real (R2 for pipeline, R3 for metrics).* | 1000G haplotype pull (GCS public bucket) + local LD matrix reproduced against published r² for ≥3 locus pairs (tolerance ±0.05). | `polymas_ml/data/genotypes.py` (new), dataset builder | 🔶 In progress — 1000G access verified free; LD computation not yet implemented |
+| **F-10** | **Real genotype backgrounds (1000G)** | *Patient genotypes are sampled from real 1000 Genomes haplotypes; simulated labels stay cohort-informed; LD becomes real (R2 for pipeline, R3 for metrics).* | ✅ **Core PASSED 2026-09-25** — 91 panel variants typed on 2,504 1000G phase-3 donors (GRCh37 mirror; assembly-mismatch and alt-contig pitfalls caught & fixed), **LD gate: 13/13 pairs within ±0.05 of Ensembl phase-3 r² → PASS** (pre-registered). Per-super-pop real LD matrices (EUR/AFR/EAS/SAS/AMR) written for the F-01 GNN. Evidence: `stash/results/real_genotypes_20260925/` (manifest + ld_validation.csv). Donor→patient wiring into the production dataset builder is the remaining integration commit. | `polymas_ml/data/genotypes.py`, `scripts/build_real_genotype_substrate.py`, `tests/test_phase1_substrate.py` | ✅ Core done — pipeline wiring pending |
 
 ### C. Training & calibration
 
