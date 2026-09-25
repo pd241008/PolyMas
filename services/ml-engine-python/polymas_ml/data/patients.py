@@ -152,13 +152,27 @@ def simulate_genotypes_prs(
     loci: dict[str, str],
     patient_groups: list[str | None],
     rng: np.random.Generator,
-) -> pd.DataFrame:
+    donor_dosages: pd.DataFrame | None = None,
+    donor_ancestry: pd.DataFrame | None = None,
+    ancestry_labels: list[str] | None = None,
+    donor_map: pd.Series | None = None,
+) -> tuple[pd.DataFrame, pd.DataFrame, pd.Series | None]:
     """Simulate per-locus genotypes and derive PRS rows from real effect sizes.
 
     Genotype (0/1/2 alt alleles) ~ Binomial(2, q), q locus-specific. PRS
     z-score = sum(beta_g * genotype_g) + noise. Disease cohorts shift their
     own loci's genotype frequencies upward so genotypes carry real signal
     about cohort membership (which drives the labels).
+
+    Real-donor mode (F-10 wiring, ADR-004): when donor_dosages is given,
+    each patient's genotype vector at panel loci is a REAL 1000 Genomes
+    donor's dosage (ancestry-matched donor sampling happens in the caller,
+    which passes donor_map: patient -> donor sample id). Cohort enrichment
+    at risk loci no longer shifts genotype frequencies — instead the donor
+    dosage is passed through to simulate_labels via gen_rows, and the
+    label model's polygenic term works off real variation. Returns the
+    donor_map so downstream stages (PCs, haplotype features, provenance)
+    stay aligned with the same donors.
     """
     # Per-locus baseline alt-allele frequencies (order matches loci dict keys).
     q_base = {
@@ -184,6 +198,20 @@ def simulate_genotypes_prs(
     n_loci = len(rs_ids)
     betas = np.array([0.30, 0.22, 0.35, 0.15, 0.18, 0.28, 0.20, 0.25][:n_loci])
 
+    real_mode = donor_dosages is not None
+    if real_mode:
+        missing = [rs for rs in rs_ids if rs not in donor_dosages.columns]
+        if missing:
+            raise ValueError(
+                f"donor dosages missing panel loci: {missing}. "
+                "Rebuild the real-genotype substrate (F-10) first."
+            )
+        donor_ids = (donor_map if donor_map is not None else
+                     pd.Series(donor_dosages.index.to_numpy()[:n_patients],
+                               index=[f"P{i:04d}" for i in range(n_patients)]))
+        if len(donor_ids) != n_patients:
+            raise ValueError("donor_map length must equal n_patients")
+
     for i in range(n_patients):
         pid = f"P{i:04d}"
         group = patient_groups[i]
@@ -191,10 +219,14 @@ def simulate_genotypes_prs(
 
         genotypes: dict[str, int] = {}
         for j, rs_id in enumerate(rs_ids):
-            q = q_base.get(rs_id, 0.2)
-            if rs_id in risk_loci:
-                q = min(0.6, q + 0.25)  # cohort enrichment at its own loci
-            g = int(rng.binomial(2, q))
+            if real_mode:
+                g = int(round(float(donor_dosages.at[donor_ids.iloc[i], rs_id])))
+                g = int(np.clip(g, 0, 2))
+            else:
+                q = q_base.get(rs_id, 0.2)
+                if rs_id in risk_loci:
+                    q = min(0.6, q + 0.25)  # cohort enrichment at its own loci
+                g = int(rng.binomial(2, q))
             genotypes[rs_id] = g
 
         for rs_id, gene in loci.items():
@@ -217,7 +249,7 @@ def simulate_genotypes_prs(
             })
         gen_rows.append({"patient_id": pid, **genotypes})
 
-    return pd.DataFrame(prs_rows), pd.DataFrame(gen_rows)
+    return pd.DataFrame(prs_rows), pd.DataFrame(gen_rows), (donor_ids if real_mode else None)
 
 
 def simulate_labels(
@@ -227,6 +259,7 @@ def simulate_labels(
     gen_rows: pd.DataFrame,
     loci: dict[str, str],
     rng: np.random.Generator,
+    genotype_mode: str = "simulated",
 ) -> pd.DataFrame:
     """Simulate disease labels with explicit polyautoimmunity (MAS) structure.
 
@@ -297,7 +330,17 @@ def simulate_labels(
             risk = disease_loci.get(disease, [])
             if risk:
                 prs_d = float(np.mean([g[rs_id] for rs_id in risk])) / 2.0
-                p += 0.50 * (prs_d - 0.15)
+                if genotype_mode == "real":
+                    # Real dosages: standardize the polygenic term by its
+                    # empirical panel mean so the shift stays calibrated
+                    # regardless of each locus's true MAF (simulated mode
+                    # keeps the historical 0.15 centering).
+                    panel_mean = float(np.mean([
+                        gen_matrix[rs_id].mean() for rs_id in risk
+                    ])) / 2.0
+                    p += 0.50 * (prs_d - panel_mean)
+                else:
+                    p += 0.50 * (prs_d - 0.15)
             p += SEX_RISK.get(sex, {}).get(disease, 0.0)
             marginal[disease] = float(min(0.95, max(0.01, p)))
 

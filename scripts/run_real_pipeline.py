@@ -129,6 +129,7 @@ def fetch_immport_study(study_id: str, max_retries: int = 3) -> dict[str, Any] |
 
 def build_real_dataset(
     n_patients: int = 400,
+    genotype_mode: str = "simulated",
 ) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, int]:
     all_associations = []
     for rs_id in AUTOIMMUNE_LOCI:
@@ -151,9 +152,32 @@ def build_real_dataset(
     assignments = assign_subjects(subject_pool, n_patients, patient_groups, rng)
 
     # ---- Shared patient simulation (genotypes -> PRS -> labels) ----
-    prs_df, gen_rows = simulate_genotypes_prs(n_patients, AUTOIMMUNE_LOCI, patient_groups, rng)
+    donor_ids = None
+    if genotype_mode == "real":
+        # F-10 wiring (ADR-004): patients inherit REAL 1000G donor dosages,
+        # ancestry-matched to the ImmPort-derived ancestry label.
+        from polymas_ml.data.genotypes import sample_donor_genotypes
+        from polymas_ml.data.haplotypes import load_substrate
+
+        dosages, kg_meta, kg_pcs, _ = load_substrate(OUTPUTS_DIR)
+        ancestry_labels = pd.Series(
+            [a["ancestry"] for a in assignments], index=[f"P{i:04d}" for i in range(n_patients)]
+        )
+        known = set(kg_meta["super_pop"].unique())
+        ancestry_labels = ancestry_labels.where(ancestry_labels.isin(known), "EUR")
+        donor_gt = sample_donor_genotypes(dosages, kg_meta, ancestry_labels, rng)
+        donor_ids = pd.Series(donor_gt.index.to_numpy(),
+                              index=[f"P{i:04d}" for i in range(n_patients)])
+        donor_map_for_prs = pd.Series(donor_ids.values, index=donor_ids.index)
+        prs_df, gen_rows, donor_ids = simulate_genotypes_prs(
+            n_patients, AUTOIMMUNE_LOCI, patient_groups, rng,
+            donor_dosages=donor_gt, donor_map=donor_map_for_prs,
+        )
+    else:
+        prs_df, gen_rows, _ = simulate_genotypes_prs(n_patients, AUTOIMMUNE_LOCI, patient_groups, rng)
     label_rows = simulate_labels(
-        n_patients, patient_groups, [a["sex"] for a in assignments], gen_rows, AUTOIMMUNE_LOCI, rng
+        n_patients, patient_groups, [a["sex"] for a in assignments], gen_rows, AUTOIMMUNE_LOCI, rng,
+        genotype_mode=genotype_mode,
     )
     prs_df.to_csv(FEATURES_DIR / "prs_features.csv", index=False)
     prs_df.to_parquet(FEATURES_DIR / "prs_features.parquet", index=False)
@@ -270,7 +294,8 @@ def build_real_dataset(
             "hispanic": "real (ImmPort demographic.ethnicity)",
             "bmi": "modeled",
             "family_history": "modeled",
-            "genotypes": "simulated (shared with System B)",
+            "genotypes": ("real 1000G donor dosages (F-10/ADR-004)" if genotype_mode == "real"
+                          else "simulated (shared with System B)"),
             "labels": "simulated (cohort-informed)",
         },
     }
@@ -617,12 +642,16 @@ def main() -> None:
 
     parser = argparse.ArgumentParser(description="PolyMas real-data ML pipeline (System A)")
     parser.add_argument("--n-patients", type=int, default=400, help="Number of synthetic patients to generate")
+    parser.add_argument("--genotypes", choices=["simulated", "real"], default="simulated",
+                        help="simulated: binomial genotypes (legacy). real: 1000G donor dosages "
+                             "(F-10/ADR-004; requires the real-genotype substrate)")
     args = parser.parse_args()
     n_patients = args.n_patients
+    genotype_mode = args.genotypes
 
     logger.info("=== Starting real-data ML pipeline (n_patients=%d) ===", n_patients)
 
-    prs_df, clinical_df, labels_df, n_gwas = build_real_dataset(n_patients)
+    prs_df, clinical_df, labels_df, n_gwas = build_real_dataset(n_patients, genotype_mode=genotype_mode)
 
     n_gwas = n_gwas  # noqa: F841 — used in generate_reports
 
