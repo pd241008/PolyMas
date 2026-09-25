@@ -273,22 +273,37 @@ def validate_ld_against_ensembl(
     return pd.DataFrame(rows)
 
 
-def sample_donor_genotypes(
+def sample_donor_genotypes_with_ids(
     dosages: pd.DataFrame, meta: pd.DataFrame, ancestry_labels: pd.Series, rng: np.random.Generator
-) -> pd.DataFrame:
+) -> tuple[pd.DataFrame, pd.Series]:
     """Draw each simulated patient's genotype vector from a real 1000G donor
-    whose super-population matches the patient's ancestry label.
+    whose super-population matches the patient's ancestry label, and return
+    the donor assignment (patient -> 1000G sample id) alongside the dosage
+    matrix. The donor ids are required by downstream external-anchoring
+    evaluations (F-16 PRS baseline, F-20 external validation) so the same
+    donors' published statistics can be scored against the same patients.
 
     Patients without a usable label fall back to the pooled panel.
-    Returns a DataFrame aligned to ancestry_labels.index, columns = rs_ids.
+    Returns (dosage DataFrame aligned to ancestry_labels.index with columns
+    = rs_ids, donor id Series aligned to ancestry_labels.index).
     """
     fallback = dosages.index.to_numpy()
     pools = {sp: meta[meta["super_pop"] == sp].index.to_numpy() for sp in SUPER_POPS}
     out = {}
+    donor_ids = {}
     for pid, anc in ancestry_labels.items():
         pool = pools.get(str(anc), fallback)
         if len(pool) == 0:
             pool = fallback
         donor = rng.choice(pool)
+        donor_ids[pid] = str(donor)
         out[pid] = dosages.loc[donor]
-    return pd.DataFrame(out).T
+    return pd.DataFrame(out).T, pd.Series(donor_ids)
+
+
+def sample_donor_genotypes(
+    dosages: pd.DataFrame, meta: pd.DataFrame, ancestry_labels: pd.Series, rng: np.random.Generator
+) -> pd.DataFrame:
+    """Dosage rows only (see sample_donor_genotypes_with_ids)."""
+    dos, _ = sample_donor_genotypes_with_ids(dosages, meta, ancestry_labels, rng)
+    return dos

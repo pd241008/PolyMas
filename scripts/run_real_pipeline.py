@@ -158,7 +158,7 @@ def build_real_dataset(
     if genotype_mode == "real":
         # F-10 wiring (ADR-004): patients inherit REAL 1000G donor dosages,
         # ancestry-matched to the ImmPort-derived ancestry label.
-        from polymas_ml.data.genotypes import sample_donor_genotypes
+        from polymas_ml.data.genotypes import sample_donor_genotypes_with_ids
         from polymas_ml.data.haplotypes import load_substrate
 
         dosages, kg_meta, kg_pcs, _ = load_substrate(OUTPUTS_DIR)
@@ -221,14 +221,26 @@ def build_real_dataset(
             }
             donor_map_for_prs = anchored.copy()
         else:
-            donor_gt = sample_donor_genotypes(dosages, kg_meta, ancestry_labels, rng)
+            # Uniform ancestry-matched sampling; donor ids are REAL 1000G
+            # sample ids (NA/HG...), required by F-16/F-20 external scoring.
+            _, real_donor_ids = sample_donor_genotypes_with_ids(
+                dosages, kg_meta, ancestry_labels, rng)
             donor_map_for_prs = pd.Series(
-                donor_gt.index.to_numpy(), index=[f"P{i:04d}" for i in range(n_patients)])
+                real_donor_ids.to_numpy(), index=[f"P{i:04d}" for i in range(n_patients)])
 
+        # simulate_genotypes_prs indexes donor_dosages BY donor_map values,
+        # so pass the substrate (donor-indexed) + the real donor-id map.
         prs_df, gen_rows, donor_ids = simulate_genotypes_prs(
             n_patients, AUTOIMMUNE_LOCI, patient_groups, rng,
-            donor_dosages=donor_gt, donor_map=donor_map_for_prs,
+            donor_dosages=dosages, donor_map=donor_map_for_prs,
         )
+        # Persist the patient -> 1000G donor assignment (R2): the F-16 PRS
+        # baseline and F-20 external validation score the SAME donors'
+        # published stats against the same held-out patients.
+        pd.DataFrame({
+            "patient_id": donor_map_for_prs.index,
+            "donor_id": donor_map_for_prs.to_numpy(),
+        }).to_csv(OUTPUTS_DIR / "donor_map.csv", index=False)
     else:
         prs_df, gen_rows, _ = simulate_genotypes_prs(n_patients, AUTOIMMUNE_LOCI, patient_groups, rng)
     label_rows = simulate_labels(

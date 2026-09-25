@@ -61,6 +61,15 @@ VITILIGO_LOCAL_BETAS: dict[str, float] = {
     "rs2476601": 0.324,
 }
 
+AITD_LOCAL_BETAS: dict[str, float] = {
+    # Same file's Graves' anchors (GCST001200): rs6457617 HLA-DRB1/DQB1
+    # OR=1.40 -> our rs9272346; rs1024161 CD28/CTLA4 OR=1.30 -> our rs3087243.
+    "rs9272346": 0.336,
+    "rs3087243": 0.262,
+}
+
+LOCAL_BETAS = {"VITILIGO": VITILIGO_LOCAL_BETAS, "AITD": AITD_LOCAL_BETAS}
+
 ENSEMBL_VARIATION_URL = "https://grch37.rest.ensembl.org/variation/human/{rs}"
 ENSEMBL_HEADERS = {"Content-Type": "application/json", "Accept": "application/json"}
 
@@ -198,7 +207,7 @@ def build_disease_coupling(
     dataset = DISEASE_DATASETS.get(disease, "")
     coup = DiseaseCoupling(disease=disease, dataset=dataset)
     if dataset.startswith("local:"):
-        for rs_id, beta in VITILIGO_LOCAL_BETAS.items():
+        for rs_id, beta in LOCAL_BETAS.get(disease, {}).items():
             if rs_id not in vcf_alt or not vcf_alt[rs_id]:
                 coup.dropped[rs_id] = "vcf alt unidentified"
                 continue
