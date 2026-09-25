@@ -260,6 +260,7 @@ def simulate_labels(
     loci: dict[str, str],
     rng: np.random.Generator,
     genotype_mode: str = "simulated",
+    label_prs_terms: dict[str, np.ndarray] | None = None,
 ) -> pd.DataFrame:
     """Simulate disease labels with explicit polyautoimmunity (MAS) structure.
 
@@ -328,7 +329,13 @@ def simulate_labels(
             if group == disease:
                 p = cohort_prev.get(disease, 0.5)
             risk = disease_loci.get(disease, [])
-            if risk:
+            if label_prs_terms is not None and disease in label_prs_terms:
+                # ADR-005 published coupling: the polygenic term is the
+                # per-SD published PRS (externally anchored, allele-aligned
+                # by polymas_ml.data.coupling). Coefficient pre-registered
+                # in ADR-005 (label-side: +0.10 per PRS SD).
+                p += 0.10 * float(label_prs_terms[disease][i])
+            elif risk:
                 prs_d = float(np.mean([g[rs_id] for rs_id in risk])) / 2.0
                 if genotype_mode == "real":
                     # Real dosages: standardize the polygenic term by its
