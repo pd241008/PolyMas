@@ -1,13 +1,14 @@
 """Train the Mamba sequence model (System B) on the k-mer smoke dataset.
 
 Run with: python run_smoke.py [--epochs 20] [--batch-size 2] [--diseases RA SLE]
-Reads results/sequence/smoke_kmer/{tokens.npy,labels.csv} written by
+Reads stash/results/sequence/smoke_kmer/{tokens.npy,labels.csv} written by
 build_kmer_dataset.py and writes the training report to
-results/sequence/smoke_kmer_out/.
+stash/results/sequence/smoke_kmer_out/.
 """
 import argparse
 import json
 import logging
+import os
 from pathlib import Path
 import sys
 
@@ -22,9 +23,9 @@ from polymas_ml.sequence.train import train_smoke  # noqa: E402
 
 parser = argparse.ArgumentParser(description="System B Mamba smoke training")
 parser.add_argument("--data-dir", type=str, default="smoke_kmer",
-                    help="Dataset dir name under results/sequence/ (default: smoke_kmer)")
+                    help="Dataset dir name under stash/results/sequence/ (default: smoke_kmer)")
 parser.add_argument("--out-dir", type=str, default="smoke_kmer_out",
-                    help="Output dir name under results/sequence/ (default: smoke_kmer_out)")
+                    help="Output dir name under stash/results/sequence/ (default: smoke_kmer_out)")
 parser.add_argument("--epochs", type=int, default=20)
 parser.add_argument("--batch-size", type=int, default=2)
 parser.add_argument("--eval-batch-size", type=int, default=16,
@@ -36,7 +37,9 @@ parser.add_argument("--require-gpu", action="store_true",
                     help="Fail fast if CUDA is unavailable instead of silently training on CPU")
 args = parser.parse_args()
 
-results_dir = PROJECT_ROOT / "results"
+# Results root for this run; override with POLYMAS_RESULTS_DIR to write a
+# fresh run folder without touching previous runs.
+results_dir = Path(os.environ.get("POLYMAS_RESULTS_DIR", PROJECT_ROOT / "stash" / "results"))
 data_dir = results_dir / "sequence" / args.data_dir
 output_dir = results_dir / "sequence" / args.out_dir
 

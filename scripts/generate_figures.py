@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import json
 import logging
+import os
 from pathlib import Path
 
 import matplotlib
@@ -18,8 +19,10 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
-RESULTS_DIR = PROJECT_ROOT / "results"
-FIGURES_DIR = PROJECT_ROOT / "figures"
+# Results root; override with POLYMAS_RESULTS_DIR to read a specific run folder.
+RESULTS_DIR = Path(os.environ.get("POLYMAS_RESULTS_DIR", PROJECT_ROOT / "stash" / "results"))
+STASH_DIR = PROJECT_ROOT / "stash"
+FIGURES_DIR = STASH_DIR / "figures"
 FIGURES_DIR.mkdir(exist_ok=True)
 STATS_DIR = RESULTS_DIR / "stats"
 DISEASE_LABELS = ["RA", "SLE", "SJOGRENS", "AITD", "T1D", "VITILIGO", "MS"]

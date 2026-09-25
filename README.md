@@ -148,9 +148,19 @@ This guarantees that any result can be audited back to its exact data and code s
     ├── build_kmer_dataset.py         # System B: k-mer token dataset from System A features
     ├── train_system_b.py             # System B: Mamba training
     ├── run_system_b.py               # System B: Ensembl ref/seq/train/sanity modes
-    ├── generate_figures.py           # Publication figures from results/
-    └── generate_results_pdf.py       # results.pdf report generator
+    ├── generate_figures.py           # Publication figures from stash/results/
+    └── generate_results_pdf.py       # stash/results.pdf report generator
 ```
+
+---
+
+## Stash folder
+
+`stash/` is the gitignored home for all local artifacts — pipeline outputs (`stash/results/`),
+publication figures (`stash/figures/`), generated reports (`stash/results.pdf`, `stash/report.pdf`),
+bundle zips, and earlier pilot runs (`stash/results_pilot_*`). Everything a pipeline run writes lands
+there so it never touches git.
+If `stash/` is missing, the next pipeline run recreates it automatically.
 
 ---
 

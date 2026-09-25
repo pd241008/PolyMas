@@ -10,7 +10,9 @@
 #   3. optionally starts fresh by parking the previous checkpoint/report.
 #
 # Usage: scripts/train_system_b_guarded.sh
-# Env overrides: EPOCHS, BATCH, DATA, OUT, DISEASES, MAX_ATTEMPTS, MAX_GPU_WAITS
+# Env overrides: EPOCHS, BATCH, DATA, OUT, DISEASES, MAX_ATTEMPTS, MAX_GPU_WAITS,
+#                POLYMAS_RESULTS_DIR (results root; default stash/results — set
+#                it to a fresh folder to never overwrite previous runs)
 set -u
 cd "$(dirname "$0")/.."
 
@@ -23,16 +25,18 @@ OUT=${OUT:-kmer5000_gwas_out}
 DISEASES=${DISEASES:-"RA SLE SJOGRENS AITD T1D VITILIGO MS"}
 MAX_ATTEMPTS=${MAX_ATTEMPTS:-20}
 MAX_GPU_WAITS=${MAX_GPU_WAITS:-30}
-REPORT="results/sequence/$OUT/smoke_test_report.json"
+RESULTS_DIR=${POLYMAS_RESULTS_DIR:-stash/results}
+export POLYMAS_RESULTS_DIR="$RESULTS_DIR"
+REPORT="$RESULTS_DIR/sequence/$OUT/smoke_test_report.json"
 
 # Fresh start: park any previous checkpoint so --resume cannot pick it up.
 if [ "${FRESH:-1}" = "1" ]; then
-  backup="results/sequence/$OUT/pre_guard_backup_$(date +%m%d_%H%M)"
-  mkdir -p "$backup"
+  parked="$RESULTS_DIR/sequence/$OUT/superseded_$(date +%m%d_%H%M)"
+  mkdir -p "$parked"
   for f in checkpoint.pt best_model.pt smoke_test_report.json; do
-    [ -f "results/sequence/$OUT/$f" ] && mv "results/sequence/$OUT/$f" "$backup/"
+    [ -f "$RESULTS_DIR/sequence/$OUT/$f" ] && mv "$RESULTS_DIR/sequence/$OUT/$f" "$parked/"
   done
-  echo "[guard] previous artifacts parked in $backup"
+  echo "[guard] previous artifacts parked in $parked"
 fi
 
 : > "$LOG"

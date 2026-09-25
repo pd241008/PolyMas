@@ -1,6 +1,6 @@
 """Post-pipeline statistical evaluation (run after run_real_pipeline.py).
 
-Produces, from the saved outputs in results/:
+Produces, from the saved outputs in stash/results/:
 
 1. Patient-level percentile bootstrap CIs for held-out AUROC/AUPRC
    (per_disease_metrics gives point estimates; this gives the intervals).
@@ -12,7 +12,7 @@ Produces, from the saved outputs in results/:
 4. Label co-occurrence structure report (MAS diagnostics of the generated
    cohort: overdispersion, polyautoimmunity rates, pairwise phi).
 
-Outputs land in results/stats/ and results/reports/.
+Outputs land in stash/results/stats/ and stash/results/reports/.
 
 Run with:
   PYTHONPATH=services/ml-engine-python services/ml-engine-python/.venv/bin/python \
@@ -24,12 +24,14 @@ from __future__ import annotations
 import argparse
 import json
 import logging
+import os
 from pathlib import Path
 
 import pandas as pd
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
-RESULTS_DIR = PROJECT_ROOT / "results"
+# Results root; override with POLYMAS_RESULTS_DIR to read/write a specific run folder.
+RESULTS_DIR = Path(os.environ.get("POLYMAS_RESULTS_DIR", PROJECT_ROOT / "stash" / "results"))
 MODELS_DIR = RESULTS_DIR / "models"
 CLUSTERS_DIR = RESULTS_DIR / "clusters"
 FEATURES_DIR = RESULTS_DIR / "features"

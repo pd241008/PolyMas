@@ -39,7 +39,9 @@ from polymas_ml.models.ensemble import MultiLabelEnsemble
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-OUTPUTS_DIR = PROJECT_ROOT / "results"
+# Results root for this run; override with POLYMAS_RESULTS_DIR to write a
+# fresh run folder without touching previous runs.
+OUTPUTS_DIR = Path(os.environ.get("POLYMAS_RESULTS_DIR", PROJECT_ROOT / "stash" / "results"))
 GWAS_DIR = OUTPUTS_DIR / "raw" / "gwas"
 IMMPORT_DIR = OUTPUTS_DIR / "raw" / "immport"
 FEATURES_DIR = OUTPUTS_DIR / "features"
@@ -62,8 +64,6 @@ for d in dirs:
 
 GWAS_BASE_URL = "https://www.ebi.ac.uk/gwas/rest/api"
 IMMPORT_BASE_URL = "https://www.immport.org/data/query"
-
-OUTPUTS_DIR = PROJECT_ROOT / "results"
 
 AUTOIMMUNE_LOCI = {
     "rs2187668": "HLA-DRB1",
@@ -261,7 +261,7 @@ def build_real_dataset(
                 "Gudmundsson/Simmonds Graves' GWAS (GCST001200) curated associations, GWAS Catalog",
                 "Bujnis MN et al., Nat Genet 2026 hypothyroidism meta-analysis (N~1.1M), ThyroidOmics",
             ],
-            "summary_stats_archived": "results/raw/gwas_sumstats/ (vitiligo per-chr full stats; curated CSVs)"
+            "summary_stats_archived": "stash/results/raw/gwas_sumstats/ (vitiligo per-chr full stats; curated CSVs)"
         },
         "field_sources": {
             "sex": "real (ImmPort demographic.gender)",

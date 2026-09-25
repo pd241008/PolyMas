@@ -14,14 +14,16 @@ Run with: PYTHONPATH=. ./.venv/bin/python scripts/run_system_b.py [mode]
 from __future__ import annotations
 
 import logging
+import os
 import sys
 from pathlib import Path
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-PROJECT_ROOT = Path(__file__).resolve().parents[3]
-RESULTS_DIR = PROJECT_ROOT / "results"
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+# Results root; override with POLYMAS_RESULTS_DIR to read/write a specific run folder.
+RESULTS_DIR = Path(os.environ.get("POLYMAS_RESULTS_DIR", PROJECT_ROOT / "stash" / "results"))
 ENSEMBL_DIR = RESULTS_DIR / "raw" / "ensembl"
 SEQUENCE_DIR = RESULTS_DIR / "sequence"
 
