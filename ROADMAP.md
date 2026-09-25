@@ -21,13 +21,13 @@
 | Category | Items | Done | In progress | Not started |
 |----------|:----:|:----:|:-----------:|:-----------:|
 | A. Model architectures | 5 | 0 | 0 | 5 |
-| B. Features & inputs | 5 | 0 | 1 | 4 |
+| B. Features & inputs | 5 | 1 | 0 | 4 |
 | C. Training & calibration | 5 | 0 | 0 | 5 |
 | D. Evaluation & rigor | 5 | 0 | 2 | 3 |
 | E. Productization | 4 | 0 | 1 | 3 |
-| **Total** | **24** | **0** | **4** | **20** |
+| **Total** | **24** | **1** | **3** | **20** |
 
-> Last updated: 2026-09-25 (program kickoff).
+> Last updated: 2026-09-25 — **F-09 PASSED** (first ledger item done): 54/99 loci verified against GWAS Catalog, 45 drops logged with reasons.
 
 ---
 
@@ -50,7 +50,7 @@
 | **F-06** | **Haplotype + epistasis features** | *DRB1–DQB1 haplotype features and pairwise interaction terms improve System A AUROC vs one-hots alone (R3).* | Ablation: with vs without, same seeds; tolerance for "no gain" = ΔAUROC < 0.005 recorded as negative result. | `polymas_ml/data/patients.py`, `scripts/run_real_pipeline.py` | ⬜ Not started |
 | **F-07** | **Ancestry PCs as covariates** | *Genotype-derived PCs correct population structure; ancestry stratified metrics improve in calibration (slope closer to 1) (R3).* | PCA on the genotype matrix (4 PCs per 1000G convention); compare per-ancestry calibration slope before/after. | `polymas_ml/data/patients.py`, `polymas_ml/evaluation/ancestry.py` | ⬜ Not started |
 | **F-08** | **Functional annotations** | *eQTL/gene mapping + pathway scores per locus are attached to every panel locus and appear as model features without breaking provenance (R2).* | Every locus in the panel has ≥1 mapped gene + pathway tags in the provenance manifest; manifest schema-validated. | `polymas_ml/data/loci.py` (new), provenance JSON | ⬜ Not started — **requires F-09** |
-| **F-09** | **Panel expansion 8 → 50–100 loci** | *The curated autoimmune panel covers ≥50 GWAS-catalog-validated loci with per-locus provenance (R2).* | Panel CSV cross-checked against GWAS Catalog associations; count and sources asserted in a test. | `polymas_ml/data/loci.py`, config | 🔶 In progress — locus curation started; blocked items F-01/F-08/F-16 depend on this |
+| **F-09** | **Panel expansion 8 → 50–100 loci** | *The curated autoimmune panel covers ≥50 GWAS-catalog-validated loci with per-locus provenance (R2).* | ✅ **PASSED 2026-09-25** — 99 unique candidates verified live: 54 VERIFIED, 45 DROPPED with recorded reasons (404s & zero-assoc), 0 errors, 0 pending. Evidence: `stash/results/panel_expansion_20260925/panel_verification.csv` + `panel_manifest.json`. Regression tests: `tests/test_loci.py` (10 passed). Coverage uneven (SJOGRENS 4 / T1D 3 / VITILIGO 1) — wave-3 curation flagged in ADR-002. Pipeline integration is a separate change. | `polymas_ml/data/loci.py`, `scripts/expand_panel.py`, `tests/test_loci.py` | ✅ Done (verification) — pipeline wiring pending |
 | **F-10** | **Real genotype backgrounds (1000G)** | *Patient genotypes are sampled from real 1000 Genomes haplotypes; simulated labels stay cohort-informed; LD becomes real (R2 for pipeline, R3 for metrics).* | 1000G haplotype pull (GCS public bucket) + local LD matrix reproduced against published r² for ≥3 locus pairs (tolerance ±0.05). | `polymas_ml/data/genotypes.py` (new), dataset builder | 🔶 In progress — 1000G access verified free; LD computation not yet implemented |
 
 ### C. Training & calibration
@@ -127,7 +127,7 @@ negative results, not dropped.**
 | ADR | Title | Status |
 |-----|-------|--------|
 | [ADR-001](docs/adr/ADR-001-results-program.md) | Adopt a 24-feature results program with typed verification | Decided |
-| [ADR-002](docs/adr/ADR-002-panel-expansion.md) | Panel expansion source & curation method | Draft |
+| [ADR-002](docs/adr/ADR-002-panel-expansion.md) | Panel expansion source & curation method (F-09) | Decided |
 | [ADR-003](docs/adr/ADR-003-external-validation-scope.md) | External validation scope: summary-stats anchoring before individual-level cohorts | Draft |
 
 > Note: `docs/` is gitignored in this repo (NPA rule from `.gitignore`); ADRs live
