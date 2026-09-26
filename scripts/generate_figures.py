@@ -718,6 +718,48 @@ def plot_roadmap_overview():
     logger.info("Saved %s", out)
 
 
+def plot_f02_disease_graph():
+    """F-02: graph head vs control vs System A AUROC, plus adjacency drift."""
+    cmp_path = RESULTS_DIR / "f02_disease_graph" / "f02_comparison.csv"
+    adj_path = RESULTS_DIR / "f02_disease_graph" / "adjacency_report.json"
+    if not cmp_path.exists():
+        logger.warning("No F-02 comparison CSV — skipping")
+        return
+    df = pd.read_csv(cmp_path)
+    fig, axes = plt.subplots(1, 2, figsize=(14, 5.5), gridspec_kw={"width_ratios": [2.2, 1]})
+    ax = axes[0]
+    x = np.arange(len(df))
+    w = 0.27
+    ax.bar(x - w, df["auroc_system_a"], w, label="System A (independent GBM ensemble)", color="#2c3e50", edgecolor="black")
+    ax.bar(x, df["auroc_graph_head"], w, label="F-02 graph head (MAS adjacency)", color="#27ae60", edgecolor="black")
+    ax.bar(x + w, df["auroc_control_head"], w, label="F-02 control (no graph path)", color="#95a5a6", edgecolor="black")
+    ax.set_xticks(x, df["disease"])
+    ax.set_ylim(0.4, 0.85)
+    ax.set_ylabel("Test AUROC")
+    ax.set_title("F-02: Disease-Graph Head vs Controls")
+    ax.legend(fontsize=8.5)
+    ax2 = axes[1]
+    if adj_path.exists():
+        rep = json.loads(adj_path.read_text())
+        pairs = sorted(rep.items(), key=lambda kv: kv[1]["init"])
+        names = [k.replace("|", "\n") for k, _ in pairs]
+        init = [v["init"] for _, v in pairs]
+        learned = [v["learned"] for _, v in pairs]
+        y = np.arange(len(pairs))
+        ax2.barh(y + 0.2, init, 0.38, label="MAS-init", color="#2980b9", edgecolor="black")
+        ax2.barh(y - 0.2, learned, 0.38, label="learned", color="#e67e22", edgecolor="black")
+        ax2.set_yticks(y, names, fontsize=7)
+        ax2.axvline(0, color="gray", lw=0.8)
+        ax2.set_xlabel("adjacency weight")
+        ax2.set_title("Learned vs published adjacency")
+        ax2.legend(fontsize=8)
+    plt.tight_layout()
+    out = FIGURES_DIR / "f02_disease_graph.png"
+    fig.savefig(out)
+    plt.close(fig)
+    logger.info("Saved %s", out)
+
+
 def main():
     logger.info("=== Generating result visualizations ===")
     plot_gwas_pvalue_distribution()
@@ -741,6 +783,7 @@ def main():
     plot_f20_direction_agreement()
     plot_f12_threshold_verification()
     plot_roadmap_overview()
+    plot_f02_disease_graph()
     logger.info("=== All figures saved to %s ===", FIGURES_DIR)
 
 
