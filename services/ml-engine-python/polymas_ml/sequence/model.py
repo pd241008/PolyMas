@@ -157,13 +157,30 @@ class MambaSequenceClassifier(nn.Module):
         )
         self.d_model = d_model
 
-    def forward(self, input_ids: torch.Tensor) -> torch.Tensor:
-        """input_ids: (B, L) int. Returns logits (B, n_diseases)."""
+    def ensure_vocab(self, new_size: int) -> None:
+        """Grow the embedding table in place (F-14: MASK token row).
+
+        Existing rows are preserved exactly; the added rows keep the default
+        nn.Embedding init so masked-token embeddings start untrained.
+        """
+        old = self.embedding.num_embeddings
+        if new_size <= old:
+            return
+        new_emb = nn.Embedding(new_size, self.d_model)
+        with torch.no_grad():
+            new_emb.weight[:old] = self.embedding.weight
+        self.embedding = new_emb
+
+    def embed(self, input_ids: torch.Tensor) -> torch.Tensor:
+        """Contextual hidden states (B, L, d) — pooling input of the head."""
         x = self.embedding(input_ids)
         for block in self.blocks:
             x = block(x)
-        x = self.norm_f(x)
-        pooled = x.mean(dim=1)  # mean-pool over sequence length
+        return self.norm_f(x)
+
+    def forward(self, input_ids: torch.Tensor) -> torch.Tensor:
+        """input_ids: (B, L) int. Returns logits (B, n_diseases)."""
+        pooled = self.embed(input_ids).mean(dim=1)  # mean-pool over sequence length
         return self.head(pooled)
 
 
