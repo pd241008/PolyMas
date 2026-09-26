@@ -760,6 +760,38 @@ def plot_f02_disease_graph():
     logger.info("Saved %s", out)
 
 
+def plot_f05_focal_loss():
+    """F-05: per-disease loss-arm deltas vs control with null/floor bands."""
+    path = RESULTS_DIR / "f05_focal_loss" / "f05_comparison.csv"
+    if not path.exists():
+        logger.warning("No F-05 comparison CSV — skipping")
+        return
+    df = pd.read_csv(path)
+    p = df.pivot(index="disease", columns="arm", values="auprc")
+    a = df.pivot(index="disease", columns="arm", values="auroc")
+    order = df[df["arm"] == "control"]["disease"].tolist()
+    fig, axes = plt.subplots(1, 2, figsize=(13, 5))
+    for ax, (pivot, metric) in zip(axes, [(p, "AUPRC"), (a, "AUROC")]):
+        d_f = (pivot["focal"] - pivot["control"]).loc[order]
+        d_c = (pivot["costsens"] - pivot["control"]).loc[order]
+        x = np.arange(len(order))
+        ax.bar(x - 0.2, d_f, 0.38, label="focal (α=0.25, γ=2)", color="#2980b9", edgecolor="black")
+        ax.bar(x + 0.2, d_c, 0.38, label="cost-sensitive", color="#e67e22", edgecolor="black")
+        ax.axhline(0, color="black", lw=0.8)
+        ax.axhspan(-0.005, 0.005, color="gray", alpha=0.15, label="null band (±0.005)")
+        ax.axhline(-0.01, color="#c0392b", ls=":", lw=1.2, label="AUROC floor (−0.01)")
+        ax.set_xticks(x, order, rotation=30, ha="right")
+        ax.set_ylabel(f"{metric} delta vs logloss control")
+    axes[0].set_title("F-05: Focal/cost-sensitive loss — AUPRC deltas")
+    axes[1].set_title("AUROC deltas (floor violations)")
+    axes[0].legend(fontsize=8)
+    plt.tight_layout()
+    out = FIGURES_DIR / "f05_focal_loss.png"
+    fig.savefig(out)
+    plt.close(fig)
+    logger.info("Saved %s", out)
+
+
 def main():
     logger.info("=== Generating result visualizations ===")
     plot_gwas_pvalue_distribution()
@@ -784,6 +816,7 @@ def main():
     plot_f12_threshold_verification()
     plot_roadmap_overview()
     plot_f02_disease_graph()
+    plot_f05_focal_loss()
     logger.info("=== All figures saved to %s ===", FIGURES_DIR)
 
 
