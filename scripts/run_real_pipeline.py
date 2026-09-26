@@ -733,7 +733,16 @@ def run_clustering(X: pd.DataFrame, predictions: pd.DataFrame) -> None:
 
     score = clusterer.silhouette_score(predictions)
     with open(CLUSTERS_DIR / "silhouette_score.txt", "w") as f:
-        f.write(f"silhouette_score: {score:.4f}\n")
+        f.write(
+            f"silhouette_score: {score:.4f}\n"
+            "note: in-sample silhouette of the full-cohort Ward k=3 cut on "
+            "predictions.csv. For structure significance use "
+            "stats/silhouette_permutation_test.json (within-column shuffling "
+            "null), which evaluates the SAME labels and matrix — the two "
+            "must agree (reconciliation note 2026-09-26: a stale 0.2683 here "
+            "once disagreed with the permutation test's observed 0.0068; "
+            "the permutation file is authoritative).\n"
+        )
 
     logger.info("Clustering complete. Silhouette score: %.4f", score)
 
