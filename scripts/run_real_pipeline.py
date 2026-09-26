@@ -155,6 +155,7 @@ def build_real_dataset(
     # ---- Shared patient simulation (genotypes -> PRS -> labels) ----
     donor_ids = None
     label_prs_terms: dict[str, np.ndarray] | None = None
+    aligned_prs_terms: dict[str, np.ndarray] | None = None
     if genotype_mode == "real":
         # F-10 wiring (ADR-004): patients inherit REAL 1000G donor dosages,
         # ancestry-matched to the ImmPort-derived ancestry label.
@@ -169,43 +170,47 @@ def build_real_dataset(
         ancestry_labels = ancestry_labels.where(ancestry_labels.isin(known), "EUR")
 
         use_coupling = coupling_mode == "published"
+        # ADR-006: published anchor betas, VCF-alt identification and allele
+        # alignment run in EVERY real mode — the label term's alignment is
+        # independent of the (rejected, ablation-only) donor weighting.
+        from polymas_ml.data import coupling as coup_mod
+
+        probe_dir = OUTPUTS_DIR / "adr005_probe_20260925"
+        probe_dir.mkdir(parents=True, exist_ok=True)
+        if not (probe_dir / "dataset_picks.json").exists():
+            import shutil
+            src = OUTPUTS_DIR / "adr005_probe"
+            if src.exists():
+                shutil.copytree(src, probe_dir, dirs_exist_ok=True)
+            else:
+                raise FileNotFoundError(
+                    "no OpenGWAS probe cache; run scripts/ogwas_probe.py first")
+        panel_af = dosages.mean() / 2.0
+        ensembl_freqs = coup_mod.fetch_ensembl_allele_freqs(
+            dosages.columns.tolist(), OUTPUTS_DIR / "raw" / "ensembl")
+        vcf_alt = coup_mod.identify_vcf_alt(panel_af, ensembl_freqs)
+        unres = [rs for rs, a in vcf_alt.items() if not a]
+        if unres:
+            logger.warning("%d loci have unidentifiable VCF alt (dropped from coupling)", len(unres))
+        couplings = {
+            d: coup_mod.build_disease_coupling(
+                d, panel_af, ensembl_freqs, vcf_alt, OUTPUTS_DIR, "20260925")
+            for d in coup_mod.DISEASE_DATASETS
+        }
+        for d, c in couplings.items():
+            logger.info("coupling %s (%s): %d loci aligned, %d dropped",
+                        d, c.dataset, len(c.loci), len(c.dropped))
+        aligned_by_disease = {
+            d: coup_mod.aligned_dosage_matrix(dosages, c) for d, c in couplings.items()
+        }
+        coup_mod.save_coupling_manifest(
+            OUTPUTS_DIR / "coupling_20260925", couplings, vcf_alt, {})
         donor_gt = None
         if use_coupling:
-            # ADR-005: Bayes-consistent anchor-disease donor weighting from
-            # published log-ORs (allele-aligned). Background patients stay
-            # uniform; the label model receives the same published betas.
-            from polymas_ml.data import coupling as coup_mod
-
-            probe_dir = OUTPUTS_DIR / "adr005_probe_20260925"
-            probe_dir.mkdir(parents=True, exist_ok=True)
-            if not (probe_dir / "dataset_picks.json").exists():
-                import shutil
-                src = OUTPUTS_DIR / "adr005_probe"
-                if src.exists():
-                    shutil.copytree(src, probe_dir, dirs_exist_ok=True)
-                else:
-                    raise FileNotFoundError(
-                        "no OpenGWAS probe cache; run scripts/ogwas_probe.py first")
-            panel_af = dosages.mean() / 2.0
-            ensembl_freqs = coup_mod.fetch_ensembl_allele_freqs(
-                dosages.columns.tolist(), OUTPUTS_DIR / "raw" / "ensembl")
-            vcf_alt = coup_mod.identify_vcf_alt(panel_af, ensembl_freqs)
-            unres = [rs for rs, a in vcf_alt.items() if not a]
-            if unres:
-                logger.warning("%d loci have unidentifiable VCF alt (dropped from coupling)", len(unres))
-            couplings = {
-                d: coup_mod.build_disease_coupling(
-                    d, panel_af, ensembl_freqs, vcf_alt, OUTPUTS_DIR, "20260925")
-                for d in coup_mod.DISEASE_DATASETS
-            }
-            for d, c in couplings.items():
-                logger.info("coupling %s (%s): %d loci aligned, %d dropped",
-                            d, c.dataset, len(c.loci), len(c.dropped))
-            aligned_by_disease = {
-                d: coup_mod.aligned_dosage_matrix(dosages, c) for d, c in couplings.items()
-            }
-            coup_mod.save_coupling_manifest(
-                OUTPUTS_DIR / "coupling_20260925", couplings, vcf_alt, {})
+            # ADR-005 (ablation arm only): Bayes-consistent anchor-disease
+            # donor weighting from published log-ORs (allele-aligned).
+            # Background patients stay uniform; the label model receives the
+            # same published betas.
             anchored = coup_mod.sample_anchored_donors(
                 couplings, aligned_by_disease, dosages, kg_meta,
                 ancestry_labels, patient_groups, rng,
@@ -241,12 +246,31 @@ def build_real_dataset(
             "patient_id": donor_map_for_prs.index,
             "donor_id": donor_map_for_prs.to_numpy(),
         }).to_csv(OUTPUTS_DIR / "donor_map.csv", index=False)
+        # ADR-006: allele-aligned published-anchor PRS terms for the label
+        # model, computed on the patient's OWN genotypes (raw VCF-alt
+        # dosages flipped where the published effect allele is the ref
+        # allele). Diseases with no resolvable anchor loci are omitted so
+        # the legacy fallback term still applies to them (no silent signal
+        # loss).
+        patient_gt = gen_rows.set_index("patient_id")
+        from polymas_ml.data.patients import DISEASE_RISK_LOCI
+        aligned_prs_terms = {}
+        for d, c in couplings.items():
+            own = coup_mod.restrict_to_anchor_loci(c, DISEASE_RISK_LOCI.get(d, []))
+            logger.info(
+                "ADR-006 label term %s: %d/%d own-anchor loci aligned (%s)",
+                d, len(own.loci), len(DISEASE_RISK_LOCI.get(d, [])),
+                ",".join(l.rs_id for l in own.loci) or "none",
+            )
+            if own.loci:
+                aligned_prs_terms[d] = coup_mod.aligned_anchor_prs(patient_gt, own)
     else:
         prs_df, gen_rows, _ = simulate_genotypes_prs(n_patients, AUTOIMMUNE_LOCI, patient_groups, rng)
     label_rows = simulate_labels(
         n_patients, patient_groups, [a["sex"] for a in assignments], gen_rows, AUTOIMMUNE_LOCI, rng,
         genotype_mode=genotype_mode,
         label_prs_terms=label_prs_terms,
+        aligned_prs_terms=aligned_prs_terms,
     )
     prs_df.to_csv(FEATURES_DIR / "prs_features.csv", index=False)
     prs_df.to_parquet(FEATURES_DIR / "prs_features.parquet", index=False)

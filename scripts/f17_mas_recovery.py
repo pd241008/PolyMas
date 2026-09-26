@@ -43,7 +43,7 @@ from polymas_ml.data.patients import (  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[1]
 RESULTS = Path(os.environ.get(
-    "POLYMAS_RESULTS_DIR", ROOT / "stash/results_phase2_20260925"))
+    "POLYMAS_RESULTS_DIR", ROOT / "stash/results_final_20260926"))
 ALPHA = 0.05
 N_PAIRS_EXPECTED = 21
 

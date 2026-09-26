@@ -48,7 +48,7 @@ MONOTONE_TOL = 0.01
 
 def main() -> int:
     results = Path(os.environ.get(
-        "POLYMAS_RESULTS_DIR", ROOT / "stash/results_phase2_20260925"))
+        "POLYMAS_RESULTS_DIR", ROOT / "stash/results_final_20260926"))
     out_dir = results / "f18_noise_sweep"
     out_dir.mkdir(parents=True, exist_ok=True)
 

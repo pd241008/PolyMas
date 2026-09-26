@@ -46,7 +46,7 @@ from polymas_ml.data.patients import DISEASE_LABELS  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[1]
 RESULTS = Path(os.environ.get(
-    "POLYMAS_RESULTS_DIR", ROOT / "stash/results_phase2_20260925"))
+    "POLYMAS_RESULTS_DIR", ROOT / "stash/results_final_20260926"))
 GWS_P = 5e-8
 TOPUP_P = 1e-4
 MIN_GWS = 3
