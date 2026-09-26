@@ -792,6 +792,77 @@ def plot_f05_focal_loss():
     logger.info("Saved %s", out)
 
 
+def plot_phase3_panel():
+    """Phase 3 close-out: 4-panel evidence figure (F-01..F-04 + curve arms)."""
+    fig, axes = plt.subplots(2, 2, figsize=(14, 10))
+
+    # (a) F-03: hier vs flat val curves + test bars
+    ax = axes[0][0]
+    try:
+        for mode, color in (("flat", "#95a5a6"), ("hierarchical", "#27ae60")):
+            arm = json.loads((RESULTS_DIR / "f03_hierarchical_mamba" / f"arm_{mode}.json").read_text())
+            ep = [h["epoch"] for h in arm["history"]]
+            ax.plot(ep, [h["val_macro_auroc"] for h in arm["history"]],
+                    marker="o", color=color, label=f"{mode} (val)")
+        ax.set_title("F-03: hierarchical vs flat Mamba (val AUROC)")
+        ax.set_xlabel("epoch")
+        ax.legend(fontsize=8)
+    except FileNotFoundError:
+        ax.text(0.5, 0.5, "F-03 missing", ha="center")
+
+    # (b) F-01: System C vs A per disease
+    ax = axes[0][1]
+    try:
+        df = pd.read_csv(RESULTS_DIR / "f01_ld_gnn" / "f01_comparison.csv")
+        x = np.arange(len(df))
+        ax.bar(x - 0.2, df["auroc_system_c"], 0.38, label="System C (LD-GNN)", color="#8e44ad", edgecolor="black")
+        ax.bar(x + 0.2, df["auroc_system_a"], 0.38, label="System A", color="#2c3e50", edgecolor="black")
+        ax.set_xticks(x, df["disease"], rotation=30, ha="right")
+        ax.set_ylim(0.4, 0.85)
+        ax.set_title("F-01: LD-GNN vs System A")
+        ax.legend(fontsize=8)
+    except FileNotFoundError:
+        ax.text(0.5, 0.5, "F-01 missing", ha="center")
+
+    # (c) F-18 both systems
+    ax = axes[1][0]
+    try:
+        n = pd.read_csv(RESULTS_DIR / "f18_noise_sweep" / "noise_curves.csv")
+        macro = n[n["disease"] == "MACRO"] if "MACRO" in set(n["disease"]) else None
+        for system, color in (("A", "#2980b9"), ("B", "#e67e22")):
+            g = n[n["system"] == system].groupby("rate")["auroc"].mean().sort_index()
+            ax.plot(g.index, g.values, marker="o", color=color, label=f"System {system} (macro)")
+        ax.set_xticks([0, 0.05, 0.1, 0.2], ["0%", "5%", "10%", "20%"])
+        ax.set_xlabel("label flip rate")
+        ax.set_title("F-18: noise robustness, both systems")
+        ax.legend(fontsize=8)
+    except Exception:
+        ax.text(0.5, 0.5, "F-18 missing", ha="center")
+
+    # (d) F-19 scaling, both systems
+    ax = axes[1][1]
+    try:
+        s = pd.read_csv(RESULTS_DIR / "f19_scaling_sweep" / "scaling_curves.csv")
+        for system, color in (("A", "#2980b9"), ("B", "#e67e22")):
+            g = s[(s["system"] == system) & (s["disease"] == "MACRO")].sort_values("n")
+            ax.plot(g["n"], g["auroc"], marker="o", color=color, label=f"System {system} (macro)")
+        ax.set_xscale("log")
+        ax.set_xticks([1000, 2500, 5000, 10000], ["1k", "2.5k", "5k", "10k"])
+        ax.minorticks_off()
+        ax.set_xlabel("n patients")
+        ax.set_title("F-19: scaling, both systems")
+        ax.legend(fontsize=8)
+    except Exception:
+        ax.text(0.5, 0.5, "F-19 missing", ha="center")
+
+    fig.suptitle("Phase 3 close-out — all verdicts recorded honestly", fontsize=13)
+    plt.tight_layout()
+    out = FIGURES_DIR / "phase3_closeout.png"
+    fig.savefig(out)
+    plt.close(fig)
+    logger.info("Saved %s", out)
+
+
 def main():
     logger.info("=== Generating result visualizations ===")
     plot_gwas_pvalue_distribution()
@@ -817,6 +888,7 @@ def main():
     plot_roadmap_overview()
     plot_f02_disease_graph()
     plot_f05_focal_loss()
+    plot_phase3_panel()
     logger.info("=== All figures saved to %s ===", FIGURES_DIR)
 
 
