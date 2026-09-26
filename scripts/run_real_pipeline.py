@@ -129,6 +129,8 @@ def fetch_immport_study(study_id: str, max_retries: int = 3) -> dict[str, Any] |
 
 def build_real_dataset(
     n_patients: int = 400,
+    genotype_mode: str = "simulated",
+    coupling_mode: str = "none",
 ) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, int]:
     all_associations = []
     for rs_id in AUTOIMMUNE_LOCI:
@@ -151,9 +153,124 @@ def build_real_dataset(
     assignments = assign_subjects(subject_pool, n_patients, patient_groups, rng)
 
     # ---- Shared patient simulation (genotypes -> PRS -> labels) ----
-    prs_df, gen_rows = simulate_genotypes_prs(n_patients, AUTOIMMUNE_LOCI, patient_groups, rng)
+    donor_ids = None
+    label_prs_terms: dict[str, np.ndarray] | None = None
+    aligned_prs_terms: dict[str, np.ndarray] | None = None
+    if genotype_mode == "real":
+        # F-10 wiring (ADR-004): patients inherit REAL 1000G donor dosages,
+        # ancestry-matched to the ImmPort-derived ancestry label.
+        from polymas_ml.data.genotypes import sample_donor_genotypes_with_ids
+        from polymas_ml.data.haplotypes import load_substrate
+
+        dosages, kg_meta, kg_pcs, _ = load_substrate(OUTPUTS_DIR)
+        ancestry_labels = pd.Series(
+            [a["ancestry"] for a in assignments], index=[f"P{i:04d}" for i in range(n_patients)]
+        )
+        known = set(kg_meta["super_pop"].unique())
+        ancestry_labels = ancestry_labels.where(ancestry_labels.isin(known), "EUR")
+
+        use_coupling = coupling_mode == "published"
+        # ADR-006: published anchor betas, VCF-alt identification and allele
+        # alignment run in EVERY real mode — the label term's alignment is
+        # independent of the (rejected, ablation-only) donor weighting.
+        from polymas_ml.data import coupling as coup_mod
+
+        probe_dir = OUTPUTS_DIR / "adr005_probe_20260925"
+        probe_dir.mkdir(parents=True, exist_ok=True)
+        if not (probe_dir / "dataset_picks.json").exists():
+            import shutil
+            src = OUTPUTS_DIR / "adr005_probe"
+            if src.exists():
+                shutil.copytree(src, probe_dir, dirs_exist_ok=True)
+            else:
+                raise FileNotFoundError(
+                    "no OpenGWAS probe cache; run scripts/ogwas_probe.py first")
+        panel_af = dosages.mean() / 2.0
+        ensembl_freqs = coup_mod.fetch_ensembl_allele_freqs(
+            dosages.columns.tolist(), OUTPUTS_DIR / "raw" / "ensembl")
+        vcf_alt = coup_mod.identify_vcf_alt(panel_af, ensembl_freqs)
+        unres = [rs for rs, a in vcf_alt.items() if not a]
+        if unres:
+            logger.warning("%d loci have unidentifiable VCF alt (dropped from coupling)", len(unres))
+        couplings = {
+            d: coup_mod.build_disease_coupling(
+                d, panel_af, ensembl_freqs, vcf_alt, OUTPUTS_DIR, "20260925")
+            for d in coup_mod.DISEASE_DATASETS
+        }
+        for d, c in couplings.items():
+            logger.info("coupling %s (%s): %d loci aligned, %d dropped",
+                        d, c.dataset, len(c.loci), len(c.dropped))
+        aligned_by_disease = {
+            d: coup_mod.aligned_dosage_matrix(dosages, c) for d, c in couplings.items()
+        }
+        coup_mod.save_coupling_manifest(
+            OUTPUTS_DIR / "coupling_20260925", couplings, vcf_alt, {})
+        donor_gt = None
+        if use_coupling:
+            # ADR-005 (ablation arm only): Bayes-consistent anchor-disease
+            # donor weighting from published log-ORs (allele-aligned).
+            # Background patients stay uniform; the label model receives the
+            # same published betas.
+            anchored = coup_mod.sample_anchored_donors(
+                couplings, aligned_by_disease, dosages, kg_meta,
+                ancestry_labels, patient_groups, rng,
+            )
+            anchored = anchored.loc[[f"P{i:04d}" for i in range(n_patients)]]
+            # Materialize each patient's dosage row from the sampled donor
+            # (same patient-indexed contract the uniform sampler produces).
+            donor_gt = dosages.loc[anchored.to_numpy()].copy()
+            donor_gt.index = anchored.index
+            label_prs_terms = {
+                d: coup_mod.label_prs_term(donor_gt, c, panel_af)
+                for d, c in couplings.items()
+            }
+            donor_map_for_prs = anchored.copy()
+        else:
+            # Uniform ancestry-matched sampling; donor ids are REAL 1000G
+            # sample ids (NA/HG...), required by F-16/F-20 external scoring.
+            _, real_donor_ids = sample_donor_genotypes_with_ids(
+                dosages, kg_meta, ancestry_labels, rng)
+            donor_map_for_prs = pd.Series(
+                real_donor_ids.to_numpy(), index=[f"P{i:04d}" for i in range(n_patients)])
+
+        # simulate_genotypes_prs indexes donor_dosages BY donor_map values,
+        # so pass the substrate (donor-indexed) + the real donor-id map.
+        prs_df, gen_rows, donor_ids = simulate_genotypes_prs(
+            n_patients, AUTOIMMUNE_LOCI, patient_groups, rng,
+            donor_dosages=dosages, donor_map=donor_map_for_prs,
+        )
+        # Persist the patient -> 1000G donor assignment (R2): the F-16 PRS
+        # baseline and F-20 external validation score the SAME donors'
+        # published stats against the same held-out patients.
+        pd.DataFrame({
+            "patient_id": donor_map_for_prs.index,
+            "donor_id": donor_map_for_prs.to_numpy(),
+        }).to_csv(OUTPUTS_DIR / "donor_map.csv", index=False)
+        # ADR-006: allele-aligned published-anchor PRS terms for the label
+        # model, computed on the patient's OWN genotypes (raw VCF-alt
+        # dosages flipped where the published effect allele is the ref
+        # allele). Diseases with no resolvable anchor loci are omitted so
+        # the legacy fallback term still applies to them (no silent signal
+        # loss).
+        patient_gt = gen_rows.set_index("patient_id")
+        from polymas_ml.data.patients import DISEASE_RISK_LOCI
+        aligned_prs_terms = {}
+        for d, c in couplings.items():
+            own = coup_mod.restrict_to_anchor_loci(c, DISEASE_RISK_LOCI.get(d, []))
+            logger.info(
+                "ADR-006 label term %s: %d/%d own-anchor loci aligned (%s)",
+                d, len(own.loci), len(DISEASE_RISK_LOCI.get(d, [])),
+                ",".join(l.rs_id for l in own.loci) or "none",
+            )
+            if own.loci:
+                aligned_prs_terms[d] = coup_mod.aligned_anchor_prs(patient_gt, own)
+    else:
+        prs_df, gen_rows, _ = simulate_genotypes_prs(n_patients, AUTOIMMUNE_LOCI, patient_groups, rng)
     label_rows = simulate_labels(
-        n_patients, patient_groups, [a["sex"] for a in assignments], gen_rows, AUTOIMMUNE_LOCI, rng
+        n_patients, patient_groups, [a["sex"] for a in assignments], gen_rows, AUTOIMMUNE_LOCI, rng,
+        genotype_mode=genotype_mode,
+        label_prs_terms=label_prs_terms,
+        aligned_prs_terms=aligned_prs_terms,
     )
     prs_df.to_csv(FEATURES_DIR / "prs_features.csv", index=False)
     prs_df.to_parquet(FEATURES_DIR / "prs_features.parquet", index=False)
@@ -270,7 +387,9 @@ def build_real_dataset(
             "hispanic": "real (ImmPort demographic.ethnicity)",
             "bmi": "modeled",
             "family_history": "modeled",
-            "genotypes": "simulated (shared with System B)",
+            "genotypes": (f"real 1000G donor dosages (F-10/ADR-004; coupling={coupling_mode})"
+                          if genotype_mode == "real"
+                          else "simulated (shared with System B)"),
             "labels": "simulated (cohort-informed)",
         },
     }
@@ -338,20 +457,40 @@ def prepare_feature_matrix(prs_df: pd.DataFrame, clinical_df: pd.DataFrame) -> p
     return X
 
 
-def make_train_test_split(y: pd.DataFrame, test_size: float = 0.2, random_state: int = 123) -> tuple[np.ndarray, np.ndarray]:
-    """Stratified 80/20 patient split on a composite label.
+def make_train_val_test_split(
+    y: pd.DataFrame, val_size: float = 0.10, test_size: float = 0.20, random_state: int = 123
+) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """Stratified three-way patient split (F-12, R2).
 
-    Stratifies on 'has any autoimmune disease' so both arms see positives
-    for every disease at realistic rates. The same split is used for
-    ensemble training (80%) and held-out metric evaluation (20%).
+    70% train+calibration / 10% validation / 20% test, stratified on the
+    composite 'has any autoimmune disease' label. The validation split is
+    the ONLY data thresholds may be swept on (F-12: the previous test-swept
+    best-F1 was leakage-adjacent). The same three-way split is persisted to
+    MODELS_DIR/split_indices.csv so the F-16 baseline, F-17 and F-20
+    evaluations see exactly the same held-out patients.
     """
     from sklearn.model_selection import train_test_split
 
     composite = (y[DISEASE_LABELS].sum(axis=1) > 0).astype(int)
-    idx_train, idx_test = train_test_split(
+    idx_trainval, idx_test = train_test_split(
         np.arange(len(y)), test_size=test_size, stratify=composite, random_state=random_state
     )
-    return idx_train, idx_test
+    composite_tv = composite.iloc[idx_trainval]
+    # Carve validation out of the train+cal pool (relative fraction).
+    rel_val = val_size / (1.0 - test_size)
+    idx_train, idx_val = train_test_split(
+        idx_trainval, test_size=rel_val, stratify=composite_tv, random_state=random_state
+    )
+    return idx_train, idx_val, idx_test
+
+
+def persist_split(patient_ids: pd.Index, splits: dict[str, np.ndarray]) -> None:
+    """Write the split assignment per patient for cross-script reuse (R2)."""
+    rows = []
+    for name, idx in splits.items():
+        for i in idx:
+            rows.append({"patient_id": patient_ids[i], "split": name})
+    pd.DataFrame(rows).to_csv(MODELS_DIR / "split_indices.csv", index=False)
 
 
 def run_metrics(
@@ -360,14 +499,23 @@ def run_metrics(
     y: pd.DataFrame,
     test_indices: np.ndarray,
     tag: str | None = None,
+    val_indices: np.ndarray | None = None,
 ) -> pd.DataFrame:
     """Held-out discrimination metrics (AUROC/AUPRC/F1) per disease.
 
+    F-12 (R2): per-disease decision thresholds are swept on the VALIDATION
+    split only and applied unchanged to the test split. The test-split
+    oracle (best-F1 over thresholds) is computed once for the ROADMAP
+    verification check (val-chosen F1 within noise of the oracle) and is
+    clearly marked as such — it is not a reported claim metric and nothing
+    downstream sweeps on test.
+
     Scores ONLY on the held-out 20% test split (the ensemble was fit on the
-    complementary 80%). Labels for the modeled diseases (AITD, VITILIGO)
-    are simulated without a real cohort, and their metrics carry a 'modeled'
-    flag in the output. With tag set (e.g. 'genotype_only'), outputs are
-    suffixed so ablation runs never overwrite the full-feature tables.
+    complementary 70% + 10% validation). Labels for the modeled diseases
+    (AITD, VITILIGO) are simulated without a real cohort, and their metrics
+    carry a 'modeled' flag in the output. With tag set (e.g.
+    'genotype_only'), outputs are suffixed so ablation runs never overwrite
+    the full-feature tables.
     """
     from sklearn.metrics import average_precision_score, f1_score, roc_auc_score
 
@@ -378,18 +526,39 @@ def run_metrics(
     preds.index = X_test.index
     preds.to_csv(MODELS_DIR / f"test_predictions{suffix}.csv", index_label="patient_id")
 
+    # Validation-split scores for threshold sweeping (F-12).
+    val_preds = None
+    y_val = None
+    if val_indices is not None and len(val_indices) > 0:
+        X_val = X.iloc[val_indices]
+        y_val = y.iloc[val_indices]
+        val_preds = ensemble.predict_proba(X_val)
+        val_preds.index = X_val.index
+
     rows = []
     for disease in DISEASE_LABELS:
         if disease not in preds.columns or disease not in y_test.columns:
             continue
         y_true = y_test[disease].values
         p = preds[disease].values
-        pred_bin = (p >= 0.5).astype(int)
         auroc = float(roc_auc_score(y_true, p)) if len(np.unique(y_true)) >= 2 else float("nan")
         auprc = float(average_precision_score(y_true, p)) if y_true.sum() > 0 else float("nan")
-        f1 = float(f1_score(y_true, pred_bin, zero_division=0))
-        # Best-F1 threshold (swept on test — exploratory upper bound; the
-        # calibrated output of an imbalanced problem often never crosses 0.5).
+
+        # F-12: threshold chosen on VALIDATION only, applied to test.
+        chosen_t, val_f1 = 0.5, float("nan")
+        if val_preds is not None and disease in val_preds.columns:
+            yv = y_val[disease].values
+            pv = val_preds[disease].values
+            best_val_f1, chosen_t = -1.0, 0.5
+            for t in np.linspace(0.05, 0.95, 91):
+                f1_v = f1_score(yv, (pv >= t).astype(int), zero_division=0)
+                if f1_v > best_val_f1:
+                    best_val_f1, chosen_t = float(f1_v), float(t)
+            val_f1 = best_val_f1
+        f1 = float(f1_score(y_true, (p >= chosen_t).astype(int), zero_division=0))
+
+        # Oracle (test-swept) computed ONCE for the F-12 verification table
+        # only — never used downstream.
         best_f1, best_t = 0.0, 0.5
         for t in np.linspace(0.05, 0.95, 91):
             f1_t = f1_score(y_true, (p >= t).astype(int), zero_division=0)
@@ -402,16 +571,33 @@ def run_metrics(
             "auroc": round(auroc, 4),
             "auprc": round(auprc, 4),
             "f1": round(f1, 4),
-            "f1_best": round(best_f1, 4),
-            "best_threshold": round(best_t, 2),
+            "threshold_source": "validation" if val_preds is not None else "default_0.5",
+            "chosen_threshold": round(chosen_t, 2),
+            "val_f1_at_chosen": round(val_f1, 4) if val_f1 == val_f1 else None,
+            "test_best_f1_oracle": round(best_f1, 4),
+            "oracle_threshold": round(best_t, 2),
+            "test_swept": False,
             "modeled_label": disease in MODELED_DISEASES,
         })
         logger.info(
-            "METRICS %s: AUROC=%.4f AUPRC=%.4f F1@0.5=%.4f F1@best(t=%.2f)=%.4f (n_pos=%d)",
-            disease, auroc, auprc, f1, best_t, best_f1, int(y_true.sum()),
+            "METRICS %s: AUROC=%.4f AUPRC=%.4f F1@val(t=%.2f)=%.4f "
+            "[oracle F1=%.4f @%.2f, verification only] (n_pos=%d)",
+            disease, auroc, auprc, chosen_t, f1, best_f1, best_t, int(y_true.sum()),
         )
     metrics_df = pd.DataFrame(rows)
     metrics_df.to_csv(MODELS_DIR / f"per_disease_metrics{suffix}.csv", index=False)
+
+    # F-12 verification artifact: val-chosen-threshold F1 vs the test oracle.
+    # Pre-registered check: the honest estimate must be within noise of the
+    # oracle (a large systematic gap would mean the val split is unrepresentative).
+    if suffix == "":
+        ver = metrics_df[["disease", "f1", "test_best_f1_oracle"]].copy()
+        ver["delta_oracle"] = (ver["test_best_f1_oracle"] - ver["f1"]).round(4)
+        ver.to_csv(MODELS_DIR / "threshold_verification.csv", index=False)
+        logger.info(
+            "F-12 threshold verification: mean |F1_val-chosen - F1_oracle| = %.4f",
+            float(ver["delta_oracle"].abs().mean()),
+        )
     return metrics_df
 
 
@@ -617,12 +803,23 @@ def main() -> None:
 
     parser = argparse.ArgumentParser(description="PolyMas real-data ML pipeline (System A)")
     parser.add_argument("--n-patients", type=int, default=400, help="Number of synthetic patients to generate")
+    parser.add_argument("--genotypes", choices=["simulated", "real"], default="simulated",
+                        help="simulated: binomial genotypes (legacy). real: 1000G donor dosages "
+                             "(F-10/ADR-004; requires the real-genotype substrate)")
+    parser.add_argument("--coupling", choices=["none", "published"], default="none",
+                        help="ADR-005: with --genotypes real, weight anchor-disease donors by "
+                             "published log-ORs (Bayes-consistent) and use published betas in "
+                             "the label polygenic term")
     args = parser.parse_args()
     n_patients = args.n_patients
+    genotype_mode = args.genotypes
+    coupling_mode = args.coupling
 
-    logger.info("=== Starting real-data ML pipeline (n_patients=%d) ===", n_patients)
+    logger.info("=== Starting real-data ML pipeline (n_patients=%d, genotypes=%s, coupling=%s) ===",
+                n_patients, genotype_mode, coupling_mode)
 
-    prs_df, clinical_df, labels_df, n_gwas = build_real_dataset(n_patients)
+    prs_df, clinical_df, labels_df, n_gwas = build_real_dataset(
+        n_patients, genotype_mode=genotype_mode, coupling_mode=coupling_mode)
 
     n_gwas = n_gwas  # noqa: F841 — used in generate_reports
 
@@ -630,14 +827,18 @@ def main() -> None:
     X.index = clinical_df["patient_id"].values
     y = labels_df.set_index("patient_id").loc[X.index, DISEASE_LABELS].copy()
 
-    idx_train, idx_test = make_train_test_split(y)
-    logger.info("Patient split: %d train / %d held-out test (composite-stratified)", len(idx_train), len(idx_test))
+    idx_train, idx_val, idx_test = make_train_val_test_split(y)
+    persist_split(X.index, {"train": idx_train, "val": idx_val, "test": idx_test})
+    logger.info(
+        "Patient split (F-12): %d train / %d val / %d held-out test (composite-stratified)",
+        len(idx_train), len(idx_val), len(idx_test),
+    )
 
-    logger.info("Training ensemble on real-data-derived features (train split only)...")
+    logger.info("Training ensemble on real-data-derived features (train+cal split only)...")
     ensemble = train_ensemble(X, y, train_indices=idx_train)
 
     logger.info("Computing held-out discrimination metrics (AUROC/AUPRC/F1)...")
-    run_metrics(ensemble, X, y, idx_test)
+    run_metrics(ensemble, X, y, idx_test, val_indices=idx_val)
 
     logger.info("Running explainability...")
     run_explainability(ensemble, X)

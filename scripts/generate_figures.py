@@ -492,6 +492,232 @@ def plot_disease_count_distribution():
     logger.info("Saved %s", out)
 
 
+def plot_f16_model_vs_prs():
+    """F-16: model vs classic C+T PRS baseline, paired bars per disease."""
+    path = RESULTS_DIR / "f16_prs_baseline" / "model_vs_prs_comparison.csv"
+    if not path.exists():
+        logger.warning("No F-16 comparison CSV — skipping")
+        return
+    df = pd.read_csv(path)
+    df = df.sort_values("disease")
+    x = np.arange(len(df))
+    w = 0.38
+    fig, ax = plt.subplots(figsize=(11, 5.5))
+    b1 = ax.bar(x - w / 2, df["auroc_model"], w, label="Model (System A)", color="#2980b9", edgecolor="black")
+    prs = df["auroc_prs"].astype(float)
+    b2 = ax.bar(x + w / 2, prs.fillna(0), w, label="C+T PRS (published betas)", color="#e67e22", edgecolor="black")
+    for i, v in prs.items():
+        if np.isnan(v):
+            ax.text(i + w / 2, 0.02, "n/a", ha="center", fontsize=8, rotation=90, color="gray")
+    for bars in (b1, b2):
+        for bar in bars:
+            h = bar.get_height()
+            if h > 0:
+                ax.text(bar.get_x() + bar.get_width() / 2, h + 0.008, f"{h:.3f}",
+                        ha="center", fontsize=7.5)
+    ax.set_xticks(x, df["disease"])
+    ax.set_ylim(0, 1)
+    ax.axhline(0.5, color="gray", ls=":", lw=1)
+    ax.text(len(df) - 0.5, 0.505, "chance", fontsize=8, color="gray", ha="right")
+    ax.set_ylabel("Test AUROC")
+    ax.set_title("F-16: Model vs Classic C+T PRS Baseline (same F-12 test split)")
+    ax.legend(loc="upper right", fontsize=9)
+    plt.tight_layout()
+    out = FIGURES_DIR / "f16_model_vs_prs.png"
+    fig.savefig(out)
+    plt.close(fig)
+    logger.info("Saved %s", out)
+
+
+def plot_f17_mas_recovery():
+    """F-17: label phi vs prediction phi per pair, colored by recovery."""
+    path = RESULTS_DIR / "f17_mas_recovery" / "mas_recovery_pairs.csv"
+    if not path.exists():
+        logger.warning("No F-17 pairs CSV — skipping")
+        return
+    df = pd.read_csv(path)
+    fig, ax = plt.subplots(figsize=(8.5, 7))
+    colors = {True: "#27ae60", False: "#c0392b"}
+    for recovered, g in df.groupby("recovered"):
+        ax.scatter(g["phi_labels"], g["phi_predictions"], s=42,
+                   c=[colors[bool(r)] for r in g["recovered"]], edgecolor="black",
+                   linewidth=0.5, label=("recovered (sign+sig)" if recovered else "not recovered"), zorder=3)
+    for _, r in df.iterrows():
+        ax.annotate(r["pair"], (r["phi_labels"], r["phi_predictions"]),
+                    fontsize=6.5, xytext=(3, 3), textcoords="offset points")
+    lim = max(0.35, df[["phi_labels", "phi_predictions"]].abs().max().max() * 1.15)
+    ax.axhline(0, color="gray", lw=0.8)
+    ax.axvline(0, color="gray", lw=0.8)
+    ax.plot([-lim, lim], [-lim, lim], "k:", lw=0.8, alpha=0.5)
+    ax.set_xlim(-lim, lim)
+    ax.set_ylim(-lim, lim)
+    ax.set_xlabel("phi — label co-occurrence")
+    ax.set_ylabel("phi — model predictions")
+    n_rec = int(df["recovered"].sum())
+    ax.set_title(f"F-17: MAS Recovery — {n_rec}/{len(df)} pairs sign+significant (honest)")
+    ax.legend(fontsize=9)
+    plt.tight_layout()
+    out = FIGURES_DIR / "f17_mas_recovery.png"
+    fig.savefig(out)
+    plt.close(fig)
+    logger.info("Saved %s", out)
+
+
+def plot_f18_noise_curves():
+    """F-18: AUROC vs label-flip rate per disease, System A."""
+    path = RESULTS_DIR / "f18_noise_sweep" / "noise_curves.csv"
+    if not path.exists():
+        logger.warning("No F-18 curves CSV — skipping")
+        return
+    df = pd.read_csv(path)
+    df = df[df["system"] == "A"]
+    fig, ax = plt.subplots(figsize=(9, 5.5))
+    palette = sns.color_palette("tab10", df["disease"].nunique())
+    for color, (disease, g) in zip(palette, df.groupby("disease")):
+        g = g.sort_values("rate")
+        ax.plot(g["rate"], g["auroc"], marker="o", label=disease, color=color)
+    ax.set_xlabel("Label flip rate")
+    ax.set_ylabel("Test AUROC (vs flipped labels)")
+    ax.set_title("F-18: Label-Noise Robustness (System A) — re-run on ADR-006-corrected labels")
+    ax.set_xticks(sorted(df["rate"].unique()), [f"{r:.0%}" for r in sorted(df["rate"].unique())])
+    ax.legend(fontsize=9, ncol=2)
+    plt.tight_layout()
+    out = FIGURES_DIR / "f18_noise_curves.png"
+    fig.savefig(out)
+    plt.close(fig)
+    logger.info("Saved %s", out)
+
+
+def plot_f19_scaling():
+    """F-19: macro AUROC vs n with fitted power law, plus per-disease light lines."""
+    path = RESULTS_DIR / "f19_scaling_sweep" / "scaling_curves.csv"
+    summary_path = RESULTS_DIR / "f19_scaling_sweep" / "scaling_summary.json"
+    if not path.exists():
+        logger.warning("No F-19 curves CSV — skipping")
+        return
+    df = pd.read_csv(path)
+    fig, ax = plt.subplots(figsize=(9, 5.5))
+    for disease, g in df[df["disease"] != "MACRO"].groupby("disease"):
+        g = g.sort_values("n")
+        ax.plot(g["n"], g["auroc"], color="gray", alpha=0.3, lw=0.9)
+    macro = df[df["disease"] == "MACRO"].sort_values("n")
+    ax.plot(macro["n"], macro["auroc"], marker="o", color="#8e44ad", lw=2.5,
+            label="Macro AUROC", zorder=5)
+    alpha = None
+    if summary_path.exists():
+        alpha = json.loads(summary_path.read_text()).get("macro_exponent_alpha")
+    if alpha is not None:
+        n_grid = np.linspace(macro["n"].min(), macro["n"].max(), 200)
+        shortfall0 = macro["auroc"].iloc[-1]
+        base = macro["auroc"].iloc[0]
+        n0 = macro["n"].iloc[0]
+        fit = macro["auroc"].iloc[-1] - (macro["auroc"].iloc[-1] - base) * (n_grid / n0) ** (-alpha)
+        ax.plot(n_grid, fit, "k--", lw=1.2,
+                label=f"power-law fit (α={alpha})")
+    ax.set_xscale("log")
+    ax.set_xticks(macro["n"], [f"{int(v):,}" for v in macro["n"]])
+    ax.minorticks_off()
+    ax.set_xlabel("Training-set size n (patients)")
+    ax.set_ylabel("Test AUROC")
+    ax.set_title("F-19: Sample-Size Scaling (System A, ADR-006-corrected)")
+    ax.legend(fontsize=9)
+    plt.tight_layout()
+    out = FIGURES_DIR / "f19_scaling.png"
+    fig.savefig(out)
+    plt.close(fig)
+    logger.info("Saved %s", out)
+
+
+def plot_f20_direction_agreement():
+    """F-20: model rho vs aligned published beta on GWS own-anchor pairs."""
+    path = RESULTS_DIR / "f20_external_validation" / "external_direction_pairs.csv"
+    if not path.exists():
+        logger.warning("No F-20 pairs CSV — skipping")
+        return
+    df = pd.read_csv(path)
+    df = df[df["sign_agrees"].notna()].copy()
+    if df.empty:
+        logger.warning("No tested F-20 pairs — skipping")
+        return
+    df["pair"] = df["disease"] + "\n" + df["locus"]
+    df = df.sort_values("published_beta")
+    fig, ax = plt.subplots(figsize=(8, 5))
+    colors = {True: "#27ae60", False: "#c0392b"}
+    ax.bar(df["pair"], df["model_rho"], color=[colors[bool(v)] for v in df["sign_agrees"]],
+           edgecolor="black", width=0.55, label="model rho (Spearman)")
+    ax.scatter(df["pair"], df["published_beta"], marker="D", s=55, color="#2c3e50",
+               zorder=5, label="published beta (aligned)")
+    ax.axhline(0, color="gray", lw=0.8)
+    rate = df["sign_agrees"].mean()
+    ax.set_ylabel("Direction")
+    ax.set_title(f"F-20: External Direction Agreement — {int(rate * 100)}% ({len(df)} GWS own-anchor pairs)")
+    ax.legend(fontsize=9)
+    plt.tight_layout()
+    out = FIGURES_DIR / "f20_direction_agreement.png"
+    fig.savefig(out)
+    plt.close(fig)
+    logger.info("Saved %s", out)
+
+
+def plot_f12_threshold_verification():
+    """F-12: val-chosen vs oracle test F1 per disease (leakage check)."""
+    path = MODELS_DIR / "threshold_verification.csv"
+    if not path.exists():
+        logger.warning("No threshold verification CSV — skipping")
+        return
+    df = pd.read_csv(path)
+    x = np.arange(len(df))
+    w = 0.38
+    fig, ax = plt.subplots(figsize=(10, 5))
+    ax.bar(x - w / 2, df["f1"], w, label="F1 at val-chosen threshold (used)", color="#16a085", edgecolor="black")
+    ax.bar(x + w / 2, df["test_best_f1_oracle"], w, label="F1 at test-oracle threshold (verification only)",
+           color="#95a5a6", edgecolor="black")
+    for i, r in df.iterrows():
+        ax.text(i, max(r["f1"], r["test_best_f1_oracle"]) + 0.006,
+                f"Δ={r['delta_oracle']:+.3f}", ha="center", fontsize=7.5)
+    ax.set_xticks(x, df["disease"])
+    ax.set_ylabel("Test F1")
+    mean_d = df["delta_oracle"].abs().mean()
+    ax.set_title(f"F-12: Validation-Swept Thresholds — mean |Δ oracle| = {mean_d:.4f}")
+    ax.legend(fontsize=9)
+    plt.tight_layout()
+    out = FIGURES_DIR / "f12_threshold_verification.png"
+    fig.savefig(out)
+    plt.close(fig)
+    logger.info("Saved %s", out)
+
+
+def plot_roadmap_overview():
+    """Diagram: Phase-2 claim scoreboard with verdicts (R1 honesty at a glance)."""
+    items = [
+        ("F-12 thresholds", "PASS", 0.0370),
+        ("F-16 PRS baseline", "DONE", None),
+        ("F-17 MAS recovery", "NEGATIVE", 0.474),
+        ("F-18 noise curves", "PASS 5/7", None),
+        ("F-19 scaling", "DONE α=1.66", None),
+        ("F-20 external val", "PASS 4/4", 1.0),
+    ]
+    color_map = {"PASS": "#27ae60", "PASS 5/7": "#f39c12", "PASS 4/4": "#27ae60",
+                 "DONE": "#2980b9", "DONE α=1.66": "#2980b9", "NEGATIVE": "#c0392b"}
+    fig, ax = plt.subplots(figsize=(11, 4.2))
+    ax.axis("off")
+    for i, (name, verdict, metric) in enumerate(items):
+        col, row = i % 3, i // 3
+        x, y = 0.05 + col * 0.34, 0.55 - row * 0.5
+        box = plt.Rectangle((x, y), 0.28, 0.36, transform=ax.transAxes,
+                            facecolor=color_map[verdict], alpha=0.18, edgecolor=color_map[verdict], linewidth=2)
+        ax.add_patch(box)
+        ax.text(x + 0.014, y + 0.26, name, transform=ax.transAxes, fontsize=11, fontweight="bold")
+        ax.text(x + 0.014, y + 0.10, verdict if metric is None else f"{verdict}  ({metric:.3f})",
+                transform=ax.transAxes, fontsize=10, color=color_map[verdict])
+    ax.set_title("Phase 2 — pre-registered verdicts (ADR-006-corrected canonical run)", fontsize=12)
+    plt.tight_layout()
+    out = FIGURES_DIR / "phase2_scoreboard.png"
+    fig.savefig(out)
+    plt.close(fig)
+    logger.info("Saved %s", out)
+
+
 def main():
     logger.info("=== Generating result visualizations ===")
     plot_gwas_pvalue_distribution()
@@ -508,6 +734,13 @@ def main():
     plot_ancestry_stratified()
     plot_phi_heatmap()
     plot_disease_count_distribution()
+    plot_f16_model_vs_prs()
+    plot_f17_mas_recovery()
+    plot_f18_noise_curves()
+    plot_f19_scaling()
+    plot_f20_direction_agreement()
+    plot_f12_threshold_verification()
+    plot_roadmap_overview()
     logger.info("=== All figures saved to %s ===", FIGURES_DIR)
 
 

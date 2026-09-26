@@ -30,6 +30,9 @@ from pathlib import Path
 import pandas as pd
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
+import sys
+
+sys.path.insert(0, str(PROJECT_ROOT / "services" / "ml-engine-python"))
 # Results root; override with POLYMAS_RESULTS_DIR to read/write a specific run folder.
 RESULTS_DIR = Path(os.environ.get("POLYMAS_RESULTS_DIR", PROJECT_ROOT / "stash" / "results"))
 MODELS_DIR = RESULTS_DIR / "models"
