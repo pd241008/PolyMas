@@ -863,6 +863,105 @@ def plot_phase3_panel():
     logger.info("Saved %s", out)
 
 
+def plot_phase4_panel():
+    """Phase 4 close-out: 4-panel evidence figure (F-11, F-15, F-13, F-14)."""
+    fig, axes = plt.subplots(2, 2, figsize=(14, 10))
+
+    # (a) F-11: conformal coverage per disease x ancestry vs the 0.88 gate
+    ax = axes[0][0]
+    try:
+        df = pd.read_csv(RESULTS_DIR / "f11_conformal" / "f11_coverage_by_ancestry.csv")
+        diseases = df["disease"].unique().tolist()
+        anc_colors = {"EUR": "#2980b9", "AFR": "#e67e22", "EAS": "#27ae60"}
+        for i, anc in enumerate(("EUR", "AFR", "EAS")):
+            g = df[df["ancestry"] == anc].set_index("disease").loc[diseases]
+            ax.bar(np.arange(len(diseases)) + (i - 1) * 0.27, g["coverage"], 0.26,
+                   label=anc, color=anc_colors[anc], edgecolor="black", lw=0.4)
+        pooled = pd.read_csv(RESULTS_DIR / "f11_conformal" / "f11_coverage_by_disease.csv")
+        ax.plot(np.arange(len(diseases)), pooled.set_index("disease").loc[diseases, "coverage"],
+                "k_", markersize=14, label="pooled")
+        ax.axhline(0.88, color="#c0392b", ls=":", lw=1.3, label="gate 0.88")
+        ax.set_xticks(np.arange(len(diseases)), diseases, rotation=30, ha="right")
+        ax.set_ylim(0.6, 1.0)
+        ax.set_ylabel("empirical coverage @ nominal 0.90")
+        ax.set_title("F-11: split-conformal coverage (held-out)")
+        ax.legend(fontsize=7, ncol=2)
+    except FileNotFoundError:
+        ax.text(0.5, 0.5, "F-11 missing", ha="center")
+
+    # (b) F-15: NLL single vs ensemble vs MC-dropout
+    ax = axes[0][1]
+    try:
+        df = pd.read_csv(RESULTS_DIR / "f15_uncertainty" / "f15_uncertainty_table.csv")
+        diseases = df["disease"].unique().tolist()
+        arms = [("single_seed42", "#95a5a6", "single (seed 42)"),
+                ("ensemble5", "#27ae60", "deep ensemble (5)"),
+                ("mc_dropout", "#8e44ad", "MC-dropout (T=30)")]
+        for i, (model, color, label) in enumerate(arms):
+            g = df[df["model"] == model].set_index("disease").loc[diseases]
+            ax.bar(np.arange(len(diseases)) + (i - 1) * 0.27, g["nll"], 0.26,
+                   label=label, color=color, edgecolor="black", lw=0.4)
+        ax.set_xticks(np.arange(len(diseases)), diseases, rotation=30, ha="right")
+        ax.set_ylabel("test NLL (macro)")
+        ax.set_title("F-15: uncertainty arms (lower is better)")
+        ax.legend(fontsize=7)
+    except FileNotFoundError:
+        ax.text(0.5, 0.5, "F-15 missing", ha="center")
+
+    # (c) F-13: Optuna val/test macro, default vs tuned, both systems
+    ax = axes[1][0]
+    try:
+        a = pd.read_csv(RESULTS_DIR / "f13_optuna" / "f13_system_a_comparison.csv")
+        means = a.groupby("config")[["auroc_val", "auroc_test"]].mean()
+        b_sum = json.loads((RESULTS_DIR / "f13_optuna" / "f13_system_b_retrain.json").read_text())
+        x = np.arange(4)
+        vals = [means.loc["default", "auroc_val"], means.loc["tuned", "auroc_val"],
+                b_sum["default_flat_val_macro"], b_sum["tuned_val_macro"]]
+        tests = [means.loc["default", "auroc_test"], means.loc["tuned", "auroc_test"],
+                 b_sum["default_flat_test_macro"], b_sum["tuned_test_macro"]]
+        labels = ["A default", "A tuned", "B default (F-03)", "B tuned"]
+        colors = ["#95a5a6", "#2980b9", "#e67e22", "#d35400"]
+        ax.bar(x - 0.2, vals, 0.38, color=colors, edgecolor="black",
+               label="val (selection)")
+        ax.bar(x + 0.2, tests, 0.38, color=colors, edgecolor="black", alpha=0.45,
+               hatch="//", label="test")
+        ax.set_xticks(x, labels, fontsize=8)
+        ax.set_ylim(0.45, 0.70)
+        ax.set_ylabel("macro AUROC")
+        ax.set_title("F-13: HPO helps GBMs; short-budget signal fails at\nfull budget for the SSM (B: honest FAIL)")
+        ax.legend(fontsize=7)
+    except FileNotFoundError:
+        ax.text(0.5, 0.5, "F-13 missing", ha="center")
+
+    # (d) F-14: SSL pretrain vs scratch, per seed
+    ax = axes[1][1]
+    try:
+        per = pd.read_csv(RESULTS_DIR / "f14_ssl" / "f14_per_seed.csv")
+        piv = per.pivot(index="seed", columns="arm", values="val")
+        seeds = piv.index.tolist()
+        x = np.arange(len(seeds))
+        ax.bar(x - 0.2, piv["scratch"], 0.38, label="scratch", color="#95a5a6",
+               edgecolor="black")
+        ax.bar(x + 0.2, piv["pretrained"], 0.38, label="SSL-pretrained",
+               color="#27ae60", edgecolor="black")
+        md = (piv["pretrained"] - piv["scratch"]).mean()
+        ax.axhline(0, color="black", lw=0.8)
+        ax.set_xticks(x, [f"seed {s}" for s in seeds])
+        ax.set_ylabel("val macro AUROC")
+        ax.set_ylim(0.4, 0.65)
+        ax.set_title(f"F-14: masked k-mer pretraining (mean paired delta {md:+.4f})")
+        ax.legend(fontsize=8)
+    except (FileNotFoundError, KeyError):
+        ax.text(0.5, 0.5, "F-14 pending", ha="center")
+
+    fig.suptitle("Phase 4 close-out — calibration & uncertainty", fontsize=13)
+    plt.tight_layout()
+    out = FIGURES_DIR / "phase4_closeout.png"
+    fig.savefig(out)
+    plt.close(fig)
+    logger.info("Saved %s", out)
+
+
 def main():
     logger.info("=== Generating result visualizations ===")
     plot_gwas_pvalue_distribution()
@@ -889,6 +988,7 @@ def main():
     plot_f02_disease_graph()
     plot_f05_focal_loss()
     plot_phase3_panel()
+    plot_phase4_panel()
     logger.info("=== All figures saved to %s ===", FIGURES_DIR)
 
 
