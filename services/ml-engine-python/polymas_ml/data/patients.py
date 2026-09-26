@@ -65,6 +65,19 @@ MODELED_DISEASE_LOCUS_EFFECTS = {
     ],
 }
 
+# Disease-specific risk loci (single source of truth, hoisted in ADR-006 so
+# the label term, F-20 external validation, and gate evaluation all test the
+# same (disease, locus) pairs the generative model actually embeds).
+DISEASE_RISK_LOCI: dict[str, list[str]] = {
+    "RA": ["rs2476601", "rs11209026"],
+    "SLE": ["rs7574865", "rs3087243"],
+    "SJOGRENS": ["rs2187668", "rs7574865"],
+    "T1D": ["rs9272346", "rs2476601"],
+    "MS": ["rs2104286", "rs2292239"],
+    "AITD": ["rs9272346", "rs3087243"],
+    "VITILIGO": ["rs9272346", "rs2476601"],
+}
+
 # Background (non-cohort) prevalences. Deliberately moderate: with the
 # disease-enriched cohort design (75% of patients drawn from autoimmune
 # cohorts), higher values made multi-disease accumulation incidental
@@ -261,6 +274,7 @@ def simulate_labels(
     rng: np.random.Generator,
     genotype_mode: str = "simulated",
     label_prs_terms: dict[str, np.ndarray] | None = None,
+    aligned_prs_terms: dict[str, np.ndarray] | None = None,
 ) -> pd.DataFrame:
     """Simulate disease labels with explicit polyautoimmunity (MAS) structure.
 
@@ -293,18 +307,10 @@ def simulate_labels(
     rows = []
     gen_matrix = gen_rows.set_index("patient_id").loc[[f"P{i:04d}" for i in range(n_patients)]]
 
-    # Disease-specific risk loci (same mapping the genotype simulator uses for
-    # cohort enrichment) so labels are learnable from the per-locus features.
-    # Modeled diseases use GWAS-anchored loci (MODELED_DISEASE_LOCUS_EFFECTS).
-    disease_loci = {
-        "RA": ["rs2476601", "rs11209026"],
-        "SLE": ["rs7574865", "rs3087243"],
-        "SJOGRENS": ["rs2187668", "rs7574865"],
-        "T1D": ["rs9272346", "rs2476601"],
-        "MS": ["rs2104286", "rs2292239"],
-        "AITD": ["rs9272346", "rs3087243"],
-        "VITILIGO": ["rs9272346", "rs2476601"],
-    }
+    # Disease-specific risk loci: module-level DISEASE_RISK_LOCI (ADR-006
+    # single source of truth) so labels are learnable from the per-locus
+    # features and external validation tests the embedded pairs only.
+    disease_loci = DISEASE_RISK_LOCI
 
     # Sequential draw order: draw the cohort disease first when the patient
     # belongs to one, then diseases in descending baseline prevalence so the
@@ -336,18 +342,29 @@ def simulate_labels(
                 # in ADR-005 (label-side: +0.10 per PRS SD).
                 p += 0.10 * float(label_prs_terms[disease][i])
             elif risk:
-                prs_d = float(np.mean([g[rs_id] for rs_id in risk])) / 2.0
-                if genotype_mode == "real":
-                    # Real dosages: standardize the polygenic term by its
-                    # empirical panel mean so the shift stays calibrated
-                    # regardless of each locus's true MAF (simulated mode
-                    # keeps the historical 0.15 centering).
-                    panel_mean = float(np.mean([
-                        gen_matrix[rs_id].mean() for rs_id in risk
-                    ])) / 2.0
-                    p += 0.50 * (prs_d - panel_mean)
+                if genotype_mode == "real" and aligned_prs_terms is not None and disease in aligned_prs_terms:
+                    # ADR-006: allele-aligned published-anchor PRS. The raw
+                    # VCF-alt dosage is flipped where the published effect
+                    # allele is the ref allele (the PTPN22 rs2476601 / STAT4
+                    # rs7574865 trap: VCF alt is the common protective
+                    # allele), beta-weighted over the disease's own anchor
+                    # loci, and centered on the panel — the label term's sign
+                    # now matches the published biology the simulation cites.
+                    p += 0.50 * float(aligned_prs_terms[disease][i])
                 else:
-                    p += 0.50 * (prs_d - 0.15)
+                    prs_d = float(np.mean([g[rs_id] for rs_id in risk])) / 2.0
+                    if genotype_mode == "real":
+                        # Legacy real-mode fallback (used only when no anchor
+                        # betas resolve): standardize by the empirical panel
+                        # mean so the shift stays calibrated regardless of
+                        # each locus's true MAF (simulated mode keeps the
+                        # historical 0.15 centering).
+                        panel_mean = float(np.mean([
+                            gen_matrix[rs_id].mean() for rs_id in risk
+                        ])) / 2.0
+                        p += 0.50 * (prs_d - panel_mean)
+                    else:
+                        p += 0.50 * (prs_d - 0.15)
             p += SEX_RISK.get(sex, {}).get(disease, 0.0)
             marginal[disease] = float(min(0.95, max(0.01, p)))
 

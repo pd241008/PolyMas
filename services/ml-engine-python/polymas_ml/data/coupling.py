@@ -265,6 +265,22 @@ def build_disease_coupling(
     return coup
 
 
+def restrict_to_anchor_loci(
+    coup: DiseaseCoupling, allowed_rs_ids: list[str]
+) -> DiseaseCoupling:
+    """ADR-006: keep only the disease's OWN anchor loci (DISEASE_RISK_LOCI)
+    from a full coupling. The label term must not read other diseases'
+    anchors; loci dropped by alignment stay absent (caller falls back to the
+    legacy term when a disease has no remaining anchor loci)."""
+    keep = set(allowed_rs_ids)
+    return DiseaseCoupling(
+        disease=coup.disease,
+        dataset=coup.dataset,
+        loci=[l for l in coup.loci if l.rs_id in keep],
+        dropped=dict(coup.dropped),
+    )
+
+
 def aligned_dosage_matrix(
     dosages: pd.DataFrame, coup: DiseaseCoupling
 ) -> pd.DataFrame:
@@ -341,6 +357,32 @@ def sample_anchored_donors(
             len(esses),
         )
     return pd.Series(out)
+
+
+def aligned_anchor_prs(
+    gen_matrix: pd.DataFrame,
+    coup: DiseaseCoupling,
+) -> np.ndarray:
+    """ADR-006 label-term PRS at the LEGACY TERM'S SCALE (do not confuse
+    with label_prs_term, which is per-SD standardized for ADR-005's +0.10/SD
+    coupling coefficient).
+
+    Pre-registered ADR-006 formula: prs_d = mean over the disease's anchor
+    loci of beta_locus * aligned_effect_dosage, empirically centered on the
+    patient panel (zero-mean by construction, same magnitude convention as
+    the legacy raw-dosage term so `p += 0.50 * term` keeps marginals
+    calibrated). Sign-corrected: aligned_effect_dosage is the dosage of the
+    PUBLISHED effect allele, so beta * aligned_dosage is the correct log-OR
+    contribution per locus regardless of which allele the VCF calls alt."""
+    if not coup.loci:
+        return np.zeros(len(gen_matrix))
+    total = np.zeros(len(gen_matrix))
+    for locus in coup.loci:
+        col = gen_matrix[locus.rs_id].to_numpy(dtype=float)
+        aligned = col if locus.aligned_to == "alt" else 2.0 - col
+        total += locus.beta * aligned
+    total /= len(coup.loci)
+    return total - total.mean()
 
 
 def label_prs_term(
