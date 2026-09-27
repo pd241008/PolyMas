@@ -141,6 +141,10 @@ belong in the paper as negative results; "bottleneck/dominance" failures would
 need new architecture claims. Dispositions marked *decide later* wait for an
 explicit call.
 
+> Blameless postmortems for each failure (timeline, mechanism, contributing
+> factors, lessons, action items) live in [postmortems/](postmortems/README.md)
+> — PM-001 (F-01) through PM-009 (benign nulls).
+
 | Item | Category | Root cause (one line) | Disposition |
 |------|----------|----------------------|-------------|
 | **F-01** LD-GNN | 🏗️ Structural contradiction | LD-pruned panel has only 7 usable r²≥0.2 edges among 91 loci — claim and panel design mutually exclusive; graph degenerates to an MLP (test 0.540 vs 0.616) | Recorded negative. LD-rich panel variant = new ADR + claim — *decide later* |
