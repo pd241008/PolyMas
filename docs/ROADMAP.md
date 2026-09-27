@@ -118,6 +118,7 @@ requiring fresh pre-registration (per ADR-001 discipline), not a repair.
 |------|-------------------|-----------|-------------------|----------------------|
 | **F-13a** | Budget-aware System B retune (ASHA/successive-halving pruner, or 2-stage: 2-epoch screen → top-5 retrained to 12 epochs) | Full-budget retrain proved the 2-epoch sweep's +0.018 signal was an early-training-speed artifact; the default config was *in-space* and rejected for the wrong reason, so a budget-aware sweep is the fair protocol. Expected payoff modest: System B's ~0.55–0.575 val ceiling looks like a data/architecture limit (F-19 curve, Phase 3), not an HPO limit (~40% chance of flipping to PASS). | Only if System B becomes load-bearing for a claim (e.g. the manuscript's sequence-model section needs a tuned baseline). | ~45–60 min GPU |
 | **F-14a** | SSL variant (a): mask CONTEXT k-mers only, keep the 8 genotype tokens always visible — forces modeling of genotype↔context interaction instead of cheap flank memorization (the recorded root cause of the −0.0189 FAIL) | The original claim (naive masked-token SSL helps) is falsified; variant (a) is a different, unregistered hypothesis. Worth ONE run so the manuscript can say the obvious fix was tried. Locus-dropout (predict one locus's genotype from the other 7) and external-corpus pretraining (1000G/gnomAD) are further variants — the latter is a transfer-learning claim, not cohort SSL. | With any future System B architecture work, or before manuscript submission to close the SSL section. | ~15 min GPU (pretrain 8 epochs + 2 paired FT seeds) |
+| **F-17a** | Targeted MAS anchor-pair recovery re-test: score sign agreement ONLY on the pre-registered own-anchor pairs (the F-20 own-anchor protocol), where the two incoercible pairs (T1D–MS, RA–MS) were already sharply recovered | F-17's overall 9/19 (p=0.68) is dominated by weakly-anchored pairs; a pair-restricted test is a different, unregistered claim. Cheap and manuscript-relevant if it holds. | Before manuscript submission, if the MAS-recovery section needs a positive angle. | ~10 min CPU (re-uses the F-17 confusion tables) |
 | **F-11b** | Wire `polymas_ml/evaluation/conformal.py` into `scripts/run_stats_eval.py` as a standard section so every future run emits coverage tables automatically (currently standalone: `scripts/f11_conformal.py`) | Pure convenience/automation — the F-11 evidence itself is complete and committed. Natural home is the Phase-5 productization pass (F-24 make e2e/verify would then exercise it). | Phase 5 (F-23/F-24), where pipeline integration is the actual goal. | ~30 min CPU |
 | *(Phase 1 legacy)* | F-06 production-label wiring; F-08 pathway scores | Carried from the Phase-1 note — integration commits were deliberately deferred pending F-10; superseded in priority by Phases 2–4. | With F-16/PRS work if haplotype features ever revisit the linear baseline. | — |
 
@@ -127,6 +128,41 @@ are measured against fixed rails), productization last so it wraps canonical
 artifacts that already exist. **Everything verified in Phases 2+ lands in the
 paper; Phase 3 features that miss their pre-registered bar are reported as
 negative results, not dropped.**
+
+---
+
+## 🧯 Failure Taxonomy (every failed gate across Phases 1–4, categorized)
+
+Recorded so each failure's category — and therefore whether a fix even makes
+sense — is explicit. Category determines disposition: "protocol artifact" and
+"objective misallocation" failures have cheap, deferred follow-ups; "structural
+contradiction" and "regime absence" failures are design-level findings that
+belong in the paper as negative results; "bottleneck/dominance" failures would
+need new architecture claims. Dispositions marked *decide later* wait for an
+explicit call.
+
+> Blameless postmortems for each failure (timeline, mechanism, contributing
+> factors, lessons, action items) live in [postmortems/](postmortems/README.md)
+> — PM-001 (F-01) through PM-009 (benign nulls).
+
+| Item | Category | Root cause (one line) | Disposition |
+|------|----------|----------------------|-------------|
+| **F-01** LD-GNN | 🏗️ Structural contradiction | LD-pruned panel has only 7 usable r²≥0.2 edges among 91 loci — claim and panel design mutually exclusive; graph degenerates to an MLP (test 0.540 vs 0.616) | Recorded negative. LD-rich panel variant = new ADR + claim — *decide later* |
+| **F-05** focal/cost-sensitive loss | 📉 Regime absence | At 9–20% prevalence logloss GBMs already handle imbalance; focal's extreme-imbalance regime never arises, and its largest "gain" landed on high-prevalence RA | Recorded negative; no fix applicable in this cohort |
+| **F-17** MAS-pair recovery | 📉 Regime absence (weak signal) | 9/19 sign agreement (47.4%, p=0.68): co-occurrence signal too weak vs noise at n=5,000 — though the incoercible pairs (T1D–MS, RA–MS) were sharply recovered | Recorded negative. Anchor-pair-restricted re-test deferred as **F-17a** — *decide later* |
+| **F-02** disease-graph head | 🚧 Information bottleneck | 7-probability stacking bottleneck: heads see only compressed ensemble outputs while System A decides from 23 features (worst head-trail AITD −0.104); the graph path itself beat its own control on 4/7 | Recorded negative. Feature-hybrid head = new protocol — *candidate, decide later* |
+| **F-04** gated fusion | 🚧 Parent dominance | System B dominated on 6/7 diseases → no honest fusion beats max(A, B) under any α (plus the in-sample α-fit caveat) | Recorded negative; moot until System B is competitive |
+| **F-13** System B HPO | 🧪 Protocol artifact | 2-epoch trials rank configs by early-training speed, not converged quality; the in-space default was rejected for the wrong reason; full-budget retrain loses −0.0149 | Deferred as **F-13a** (ASHA/budget-aware retune) — *decide later* |
+| **F-14** SSL pretraining | 🎯 Objective misallocation | 496/504 tokens are cheap flanking context: mlm_loss collapses 4.84→0.015 while the 8 genotype tokens get 1.6% of signal; pretrained init *hurts* (−0.0189, scratch wins 3/3) | Deferred as **F-14a** (context-only masking); locus-dropout & external-corpus variants = further new claims — *decide later* |
+| **F-15** MC-dropout arm | ➖ Benign sub-gate | ΔNLL +0.0000 by rounding; ensemble members near-identical (no diversity for dropout to exploit) | Recorded alongside the F-15 PASS; no action |
+| **F-06** haplotype/epistasis | ➖ Pre-registered null | ΔAUROC 0.0005: GBMs learn pairwise interactions natively (harness itself passed via ground-truth injection) | Negative result recorded; production wiring deferred (Phase-1 legacy) |
+| **F-20** external validation (first pass) | 🐛 Real bug — **FIXED** | Allele-sign inversion at protective-alt loci (PTPN22/STAT4) + non-anchor protocol flaw → 3/12 = 25% | ✅ Fixed by ADR-006; re-run **4/4 = 100%**, CI [0.40, 1.00]; failed first-pass tables preserved as evidence |
+
+> Meta-pattern for the manuscript: 1 structural contradiction, 2 regime
+> absences, 2 bottleneck/dominance, 2 protocol/estimation artifacts (one fixed,
+> one deferred), 1 objective misallocation, 2 benign nulls. Every failure ships
+> a falsifiable mechanism; exactly three have cheap deferred follow-ups
+> (F-13a, F-14a, F-17a) and one was fixed outright (F-20 → ADR-006).
 
 ---
 
