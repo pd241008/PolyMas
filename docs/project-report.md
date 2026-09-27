@@ -37,7 +37,7 @@ Roughly a quarter of patients with one autoimmune disease go on to develop anoth
 
 UK Biobank / dbGaP were evaluated and excluded — application backlog and institutional-affiliation requirements make them infeasible on this project's timeline. ImmPort + GWAS Catalog give real, government-affiliated data without that bottleneck.
 
-**Dataset construction:** since no public dataset contains real patients with 3+ concurrent autoimmune diagnoses and genotype data at scale, patient profiles are constructed semi-synthetically: real GWAS effect sizes generate PRS values, combined with real ImmPort per-disease clinical feature distributions. This is disclosed explicitly as a methodological choice, not presented as a real patient cohort.
+**Dataset construction:** since no public dataset contains real patients with 3+ concurrent autoimmune diagnoses and genotype data at scale, patient profiles are constructed semi-synthetically: real ImmPort demographics and per-disease clinical feature distributions, genotypes drawn from **2,504 real 1000G donor haplotypes** at a curated 91-locus panel (real linkage structure), PRS from real GWAS Catalog effect sizes, and co-occurrence labels from a latent-liability mixture with literature-anchored MAS pairwise affinities — allele-aligned to the published effect strands per ADR-006 (F-20's external sign validation anchors label direction). This is disclosed explicitly as a methodological choice, not presented as a real patient cohort.
 
 ## 4. System Architecture
 
@@ -134,42 +134,61 @@ Model output risk-probability vectors (one vector per patient across all disease
 
 ## 8. Roadmap Status
 
-| Phase | Status |
-|-------|--------|
-| Problem framing, novelty angle, literature validation | ✅ Complete |
-| System architecture | ✅ Complete |
-| Data source selection (GWAS Catalog + ImmPort) | ✅ Complete |
-| Tech stack + reproducibility design | ✅ Complete |
-| Target journal selection | ✅ Complete |
-| ML methodology fully specified | ✅ Complete |
-| Lock final disease list + SNP feature set | ⬜ Pending |
-| Implement puller/cleaner/orchestrator services | ✅ Complete |
-| Implement feature engineering + composite dataset construction | 🟡 In Progress |
-| Train ensemble (XGBoost + CatBoost + LightGBM), tune voting weights | ⬜ Pending |
-| Run SHAP/LIME explainability | ⬜ Pending |
-| Run clustering + literature validation | ⬜ Pending |
-| Build dashboard | 🟡 In Progress |
-| Fill in paper Results/Discussion/Conclusion with actual findings | ⬜ Pending |
-| Submit to *npj Digital Medicine* | ⬜ Pending |
+The results program (24-item claim ledger in `ROADMAP.md`, ADR-001) has closed
+four of five phases. "Evaluated" means a pre-registered gate was run and its
+verdict recorded — passes and honest failures both count; every failure ships
+a root-cause mechanism.
+
+| Phase | Scope | Status |
+|-------|-------|--------|
+| Phase 0 | Repo hygiene, e2e verification, API access (OpenGWAS + GWAS Catalog) | ✅ Complete |
+| Phase 1 | Data substrate: 91-locus curated panel, 2,504 real 1000G donors, LD gate 13/13, PCs, haplotype machinery | ✅ Complete |
+| Phase 2 | Honesty layer: F-12 held-out threshold discipline, F-16 PRS baseline, F-17 MAS-pair recovery, F-18 noise curves, F-19 scaling curves, F-20 external sign validation (→ ADR-006 fix, re-run) | ✅ Complete |
+| Phase 3 | Model architectures: hierarchical Mamba (PASS), disease-graph head, focal loss, LD-GNN, gated fusion (honest fails with mechanisms) | ✅ Complete |
+| Phase 4 | Calibration & uncertainty: split-conformal (PASS), deep ensembles/MC-dropout (PASS marginal), Optuna HPO (split verdict), SSL pretraining (honest fail) | ✅ Complete |
+| Phase 5 | Productization: MLflow tracking, make e2e/verify, gRPC serving, dashboard | ⬜ Pending |
+
+**Canonical run:** `results_final_20260926/` — 5,000 patients, ADR-006-corrected
+allele-aligned labels, seed 42, reconciled stats layer (bootstrap points match
+direct test AUROCs to 0.000000 after the Phase-2 review). Headline numbers:
+
+- **System A** (XGBoost + CatBoost + LightGBM, Platt-scaled voting): test macro
+  AUROC **0.616**; the F-13-tuned single LightGBM reaches **0.649** and beats the
+  full ensemble — HPO helps GBMs at this scale.
+- **System B** (hierarchical Mamba over k-mer token sequences): val macro 0.575
+  vs flat 0.552 (parameter-matched); test ceiling ~0.55 — the sequence model
+  does not close the gap to the feature-based ensemble at n=5,000.
+- **Conformal sets** on System A: empirical coverage 0.888–0.926 per disease at
+  nominal 0.90, zero empty sets, ancestry-stratified miscoverage reported.
+- **Honest negatives (all root-caused):** LD-GNN vs LD-pruned panel (7 usable
+  edges — claim and panel design mutually exclusive), disease-graph head (7-
+  probability stacking bottleneck), focal/cost-sensitive loss (benefit regime
+  absent at 9–20% prevalence), gated fusion (System B dominated on 6/7
+  diseases), SSL pretraining (context-memorization collapses the objective),
+  short-budget HPO for the SSM (early-epoch rankings do not transfer).
+
+Three follow-up experiments are **deliberately deferred** with rationale
+(budget-aware ASHA retune of System B; context-only-masked SSL variant;
+conformal integration into the stats runner) — see "⏸ Deferred" in ROADMAP.md.
 
 ## Current Limitations & Next Steps
 
 ### Current Limitations
 
-1. **ImmPort authentication required:** Real clinical data could not be fetched without an API key. The pipeline uses semi-synthetic clinical features.
-2. **Small sample size:** 50 patients is sufficient for pipeline validation but not for publication-grade statistical inference. Target: 500+ patients.
-3. **Class imbalance:** MONOGENIC_DIABETES had <2 classes in the sample, causing CatBoost training failure. Rare diseases require stratified sampling or oversampling.
-4. **No protobuf codegen:** gRPC stubs are not yet generated, so services communicate via REST gateway only.
-5. **LIME regression mode:** LIME was forced into regression mode due to library limitations with classifier probability outputs. A custom wrapper or different library (e.g., SHAP KernelExplainer) may provide better local explanations.
+1. **Semi-synthetic cohort (disclosed):** no public dataset pairs multi-diagnosis autoimmune patients with genotypes at scale. Real ImmPort demographics and real 1000G donor genotypes; co-occurrence labels are generated from a latent-liability mixture with literature-anchored MAS affinities. Every result is a statement about this disclosed generative process; F-20 external sign validation anchors label direction to published GWAS.
+2. **Effect sizes are modest and honest:** macro AUROC ~0.62 (System A) with per-disease spread; PRS beats the model on SLE and decisively on vitiligo; AITD has a coverage gap in the PRS substrate. These are reported as-is, not spun.
+3. **System B is a bounded negative result:** the sequence model's val ceiling (~0.55–0.575) appears to be a data/architecture limit at n=5,000, not a hyperparameter limit (F-13 full-budget retrain; F-19 scaling curve).
+4. **Panel design constrains graph methods:** the F-09 panel was deliberately LD-pruned, so LD-aware architectures have no structure to exploit (F-01 audit: 7 edges ≥ r²0.2 among 91 loci).
+5. **No protobuf codegen yet:** gRPC stubs are not generated; services communicate via REST gateway only. Phase 5 item (F-22).
+6. **LIME regression mode:** LIME is forced into regression mode due to library limitations with classifier probability outputs; SHAP TreeExplainer (exact) remains the primary explanation path.
+7. **Small-GPU training constraints:** the 6 GB laptop GPU required documented workarounds for the SSL runs (expandable-segments allocator, one-time device upload, batch-64 evaluation) — all inline-commented in `scripts/f14_ssl_pretrain.py`.
 
 ### Immediate Next Steps
 
-1. **Run `make proto`** to generate gRPC stubs and wire services together.
-2. **Obtain ImmPort API credentials** to replace synthetic clinical features with real cohort data.
-3. **Scale to 500+ patients** by expanding GWAS loci and using real ImmPort cohorts.
-4. **Hyperparameter tuning** via grid search or Bayesian optimization.
-5. **Literature validation:** Map clusters to Humbert & Dupond Type 1–4 classification and report matches/divergences.
-6. **Dashboard integration:** Start Rust control plane and verify live data flow to Next.js frontend.
+1. **Phase 5 productization:** MLflow experiment tracking (F-23), `make e2e/verify` wiring the canonical pipeline end-to-end (F-24), gRPC stub generation and serving path (F-22), dashboard integration (F-21).
+2. **Manuscript rewrite on reconciled numbers:** every section is stale relative to the Phase-2 reconciliation and Phases 3–4 results; five new evaluation subsections (F-16–F-20) plus a Phase-3/4 negative-results section are required. Venue-format decision (full clinical paper vs resource paper split) deferred until Phase 5 lands.
+3. **Deferred follow-ups** (only by explicit decision): ASHA retune of System B; context-only-masked SSL variant; conformal integration into `run_stats_eval.py`.
+4. **Literature validation:** map cluster structure (now a rigorous null: Ward k=3 finds no structure beyond marginals, permutation-tested) against Humbert & Dupond Type 1–4 and Betterle APS-3 expansions in the discussion section.
 
 ## Appendix: Key Verified References
 

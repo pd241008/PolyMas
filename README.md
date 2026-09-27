@@ -142,12 +142,14 @@ for program decisions live in `docs/adr/`.
 │   └── ml-engine-python/             # Python ML engine (GBDT ensemble + SHAP/LIME)
 │       ├── polymas_ml/
 │       │   ├── data/                #   ImmPort subject client + shared patient simulation
-│       │   ├── models/              #   XGBoost, CatBoost, LightGBM + MultiLabelEnsemble
-│       │   ├── sequence/            #   Mamba (selective SSM) model, k-mer datasets, training
+│       │   ├── models/              #   XGBoost, CatBoost, LightGBM + MultiLabelEnsemble + focal loss
+│       │   ├── sequence/            #   Mamba (selective SSM) model, k-mer datasets, training, SSL
+│       │   ├── graph/               #   LD-GNN (System C) over real r² edges
+│       │   ├── evaluation/          #   stats, ancestry cuts, conformal sets, uncertainty (NLL/ECE/Brier)
 │       │   ├── explainability/      #   TreeExplainer (exact SHAP) + LIME wrappers
 │       │   ├── clustering/          #   Hierarchical clustering + dendrogram JSON gen
 │       │   └── serving/             #   gRPC server entry point
-│       └── tests/                    #   pytest (ensemble + clustering)
+│       └── tests/                    #   pytest (131 tests: ensemble, clustering, focal, conformal, uncertainty, SSL, …)
 ├── apps/
 │   └── dashboard-nextjs/             # Next.js dashboard (App Router + Tailwind)
 └── scripts/
@@ -158,7 +160,21 @@ for program decisions live in `docs/adr/`.
     ├── build_kmer_dataset.py         # System B: k-mer token dataset from System A features
     ├── train_system_b.py             # System B: Mamba training
     ├── run_system_b.py               # System B: Ensembl ref/seq/train/sanity modes
-    ├── generate_figures.py           # Publication figures from stash/results/
+    ├── noise_sweep.py                # F-18 label-noise robustness curves (both systems)
+    ├── f01_train_system_c.py         # F-01 LD-GNN (System C) train/evaluate
+    ├── f02_disease_graph.py          # F-02 MAS-aware disease-graph head ablation
+    ├── f03_hierarchical_mamba.py     # F-03 hierarchical vs flat Mamba (resumable)
+    ├── f04_fusion.py                 # F-04 gated late fusion of Systems A+B
+    ├── f05_focal_loss.py             # F-05 focal / cost-sensitive loss ablation
+    ├── f11_conformal.py              # F-11 split-conformal coverage audit
+    ├── f13_tune_system_a.py          # F-13 Optuna sweep, System A (50 trials)
+    ├── f13_tune_system_b.py          # F-13 Optuna sweep, System B (30 trials)
+    ├── f13_retrain_system_b.py       # F-13 full-budget retrain of swept config
+    ├── f14_ssl_pretrain.py           # F-14 masked k-mer SSL pretrain + paired FT
+    ├── f15_uncertainty.py            # F-15 deep ensemble + MC-dropout
+    ├── run_stats_eval.py             # Bootstrap CIs, ancestry cuts, silhouette perm test
+    ├── system_b_curves.py            # F-18/F-19 System B arms (resumable CLI)
+    ├── generate_figures.py           # Publication figures (28) from stash/results/
     └── generate_results_pdf.py       # stash/results.pdf report generator
 ```
 
@@ -183,12 +199,19 @@ If `stash/` is missing, the next pipeline run recreates it automatically.
 | ML methodology specification | ✅ |
 | Monorepo scaffolding (all 5 services) | ✅ |
 | Protobuf data contracts | ✅ |
-| Service implementation | ⬜ |
-| Dataset construction & feature engineering | ⬜ |
-| Model training & tuning | ⬜ |
-| Explainability & clustering | ⬜ |
+| Phase 1 — data substrate (real 1000G genotypes, 91-locus panel, LD gate) | ✅ |
+| Phase 2 — honesty layer (held-out discipline, PRS baseline, external sign validation, noise/scaling curves) | ✅ |
+| Phase 3 — model architectures (hierarchical Mamba PASS; LD-GNN, disease-graph head, focal loss, fusion: honest fails w/ mechanisms) | ✅ |
+| Phase 4 — calibration & uncertainty (conformal PASS; deep-ensemble PASS marginal; HPO split; SSL honest fail) | ✅ |
+| Service implementation (Phase 5 productization) | ⬜ |
 | Dashboard integration | ⬜ |
 | Paper submission | ⬜ |
+
+> 19 of 24 ledger items evaluated (passes and honest fails both count).
+> Three follow-ups deliberately deferred with rationale — see "⏸ Deferred" in
+> [ROADMAP.md](ROADMAP.md). Two systems: **System A** (GBM ensemble,
+> test macro AUROC 0.616; tuned single LightGBM 0.649) and **System B**
+> (hierarchical Mamba over k-mer token sequences, val 0.575).
 
 ---
 
