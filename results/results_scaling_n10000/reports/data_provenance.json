@@ -1,0 +1,180 @@
+{
+  "n_patients": 10000,
+  "n_unique_subjects": 1430,
+  "subject_pool_size": 1430,
+  "n_gwas_associations": 331,
+  "reuse_policy": "cohort-internal reuse after pool exhaustion; no cross-cohort borrowing",
+  "cohort_counts": {
+    "BACKGROUND": 2442,
+    "T1D": 1622,
+    "MS": 1702,
+    "RA": 2351,
+    "SLE": 1495,
+    "SJOGRENS": 388
+  },
+  "cohort_unique_subjects": {
+    "BACKGROUND": 205,
+    "T1D": 267,
+    "MS": 271,
+    "RA": 379,
+    "SLE": 244,
+    "SJOGRENS": 64
+  },
+  "reuse_ratio": {
+    "BACKGROUND": 11.912,
+    "T1D": 6.075,
+    "MS": 6.28,
+    "RA": 6.203,
+    "SLE": 6.127,
+    "SJOGRENS": 6.062
+  },
+  "study_counts": {
+    "SDY1": 1894,
+    "SDY2594": 442,
+    "SDY2869": 686,
+    "SDY473": 397,
+    "SDY180": 548,
+    "SDY1904": 826,
+    "SDY2195": 758,
+    "SDY2507": 1568,
+    "SDY1475": 390,
+    "SDY824": 386,
+    "SDY1628": 354,
+    "SDY823": 314,
+    "SDY1043": 607,
+    "SDY3285": 409,
+    "SDY474": 347,
+    "SDY961": 74
+  },
+  "modeled_diseases": [
+    "AITD",
+    "VITILIGO"
+  ],
+  "real_cohort_diseases": [
+    "RA",
+    "SLE",
+    "SJOGRENS",
+    "T1D",
+    "MS"
+  ],
+  "label_model": {
+    "description": "Labels are NOT independent Bernoulli draws: a latent autoimmune liability mixture plus pairwise MAS log-OR affinities (polymas_ml.data.patients.MAS_PAIRWISE_ODDS, Anaya 2020 / Somers 2006 / Betterle 2023 anchored) induce polyautoimmunity co-occurrence; incoercible pairs are excluded. Diagnostics in label_structure.",
+    "mas_exclusions": [
+      [
+        "T1D",
+        "MS"
+      ],
+      [
+        "RA",
+        "MS"
+      ]
+    ]
+  },
+  "label_structure": {
+    "n_patients": 10000,
+    "disease_count_distribution": {
+      "0": 3721,
+      "1": 4008,
+      "2": 1670,
+      "3": 499,
+      "4": 89,
+      "5": 13
+    },
+    "mean_diseases_per_patient": 0.9266,
+    "var_diseases_per_patient": 0.8343,
+    "binomial_null_variance": 0.8039,
+    "overdispersion_ratio": 1.0378,
+    "rate_1plus": 0.6279,
+    "rate_2plus": 0.2271,
+    "rate_3plus_mas": 0.0601,
+    "rate_2plus_given_1plus": 0.3617,
+    "target_mas_rate_3plus": 0.15,
+    "target_polyautoimmunity_rate_2plus": 0.25,
+    "pairwise_phi": {
+      "RA|SLE": 0.0056,
+      "RA|SJOGRENS": 0.0566,
+      "RA|AITD": 0.0568,
+      "RA|T1D": -0.0039,
+      "RA|VITILIGO": -0.0022,
+      "RA|MS": -0.166,
+      "SLE|SJOGRENS": 0.1184,
+      "SLE|AITD": 0.0081,
+      "SLE|T1D": -0.0154,
+      "SLE|VITILIGO": 0.0094,
+      "SLE|MS": -0.0183,
+      "SJOGRENS|AITD": 0.0768,
+      "SJOGRENS|T1D": -0.0104,
+      "SJOGRENS|VITILIGO": 0.0101,
+      "SJOGRENS|MS": -0.0128,
+      "AITD|T1D": 0.0432,
+      "AITD|VITILIGO": 0.0729,
+      "AITD|MS": 0.0143,
+      "T1D|VITILIGO": 0.0787,
+      "T1D|MS": -0.1342,
+      "VITILIGO|MS": 0.0036
+    },
+    "mean_positive_pairwise_phi": 0.0427,
+    "model": "latent_liability_mixture + pairwise_log_or_affinity (MAS_PAIRWISE_ODDS)",
+    "mas_exclusions": [
+      [
+        "T1D",
+        "MS"
+      ],
+      [
+        "RA",
+        "MS"
+      ]
+    ]
+  },
+  "aitd_vitiligo_search": {
+    "checked_on": "2026-09-21",
+    "api": "https://www.immport.org/data/query/api/search",
+    "study_term_queries_zero_hits": [
+      "Hashimoto",
+      "Graves",
+      "autoimmune thyroiditis",
+      "thyroiditis",
+      "vitiligo",
+      "autoimmune thyroid",
+      "depigmentation"
+    ],
+    "subject_queries_zero_hits": [
+      "conditionOrDisease=vitiligo",
+      "conditionOrDisease=Graves' disease",
+      "term=vitiligo",
+      "term=Hashimoto"
+    ],
+    "vocabulary_terms_present_but_unused": {
+      "vitiligo": "DOID:12306",
+      "Graves' disease": "DOID:12361",
+      "hypothyroidism": "DOID:1459"
+    }
+  },
+  "gwas_informed_labels": {
+    "description": "AITD/VITILIGO have no ImmPort cohort (see aitd_vitiligo_search), but their label simulation carries GWAS-derived genetic effects at our panel loci, anchored to published summary statistics rather than pure noise.",
+    "AITD": [
+      "rs9272346 <- GCST001200 (Graves') HLA-DRB1/DQB1 rs6457617 OR=1.40, p=7e-33",
+      "rs3087243 <- GCST001200 (Graves') CD28/CTLA4 rs1024161 OR=1.30, p=2e-17"
+    ],
+    "VITILIGO": [
+      "rs9272346 <- GCST004785 (Jin 2016) HLA-DRB1/DQA1 rs9271597 OR=1.772, p=3e-89",
+      "rs2476601 <- GCST004785 (Jin 2016) PTPN22 rs2476601 OR=1.383, p=1e-18 (direct rsID match)"
+    ],
+    "sources": [
+      "Jin Y et al., Nat Genet 2016 (PMID 27723757), GCST004785 full summary statistics",
+      "Gudmundsson/Simmonds Graves' GWAS (GCST001200) curated associations, GWAS Catalog",
+      "Bujnis MN et al., Nat Genet 2026 hypothyroidism meta-analysis (N~1.1M), ThyroidOmics"
+    ],
+    "summary_stats_archived": "stash/results/raw/gwas_sumstats/ (vitiligo per-chr full stats; curated CSVs)"
+  },
+  "field_sources": {
+    "sex": "real (ImmPort demographic.gender)",
+    "age": "real (ImmPort demographic.max_subject_age_in_years)",
+    "ancestry": "real (ImmPort demographic.race, mapped)",
+    "hispanic": "real (ImmPort demographic.ethnicity)",
+    "bmi": "modeled",
+    "family_history": "modeled",
+    "genotypes": "real 1000G donor dosages (F-10/ADR-004; coupling=none)",
+    "labels": "simulated (cohort-informed)"
+  }
+}

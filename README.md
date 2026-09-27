@@ -119,7 +119,7 @@ This guarantees that any result can be audited back to its exact data and code s
 
 ## Results Program
 
-Feature development is tracked as a 24-item claim ledger in [ROADMAP.md](ROADMAP.md):
+Feature development is tracked as a 24-item claim ledger in [docs/ROADMAP.md](docs/ROADMAP.md):
 every item carries a typed verification level (R1 exact / R2 deterministic /
 R3 statistical / R4 archival), pre-registered tolerances for statistical checks,
 and an honest status — passes, failures, and null results all get logged. ADRs
@@ -174,19 +174,25 @@ for program decisions live in `docs/adr/`.
     ├── f15_uncertainty.py            # F-15 deep ensemble + MC-dropout
     ├── run_stats_eval.py             # Bootstrap CIs, ancestry cuts, silhouette perm test
     ├── system_b_curves.py            # F-18/F-19 System B arms (resumable CLI)
-    ├── generate_figures.py           # Publication figures (28) from stash/results/
-    └── generate_results_pdf.py       # stash/results.pdf report generator
+    ├── generate_figures.py           # Publication figures (28) from results/
+    └── generate_results_pdf.py       # results/results.pdf report generator
 ```
 
 ---
 
-## Stash folder
+## Artifacts & what gets committed
 
-`stash/` is the gitignored home for all local artifacts — pipeline outputs (`stash/results/`),
-publication figures (`stash/figures/`), generated reports (`stash/results.pdf`, `stash/report.pdf`),
-bundle zips, and earlier pilot runs (`stash/results_pilot_*`). Everything a pipeline run writes lands
-there so it never touches git.
-If `stash/` is missing, the next pipeline run recreates it automatically.
+`results/` is the home for all pipeline artifacts — run outputs (`results/results/`,
+`results/results_final_20260926/`, pilot runs), publication figures (`results/figures/`),
+generated reports (`results/results.pdf`), and phase bundle zips. A fresh run recreates
+any missing subdirectory automatically; `POLYMAS_RESULTS_DIR` overrides the root in
+every run/reader script.
+
+**Commit policy (see `results/README.md`):** summary/metrics JSONs ≤ 300 KB are
+tracked — the auditable numeric record (~13 MB, 400+ files). CSVs, parquet/model
+checkpoints, and the two heavy re-fetchable JSON classes stay local. Everything
+visual ships later: **figures and PDFs are withheld until the paper is
+finalised**, then released alongside it.
 
 ---
 
@@ -209,7 +215,7 @@ If `stash/` is missing, the next pipeline run recreates it automatically.
 
 > 19 of 24 ledger items evaluated (passes and honest fails both count).
 > Three follow-ups deliberately deferred with rationale — see "⏸ Deferred" in
-> [ROADMAP.md](ROADMAP.md). Two systems: **System A** (GBM ensemble,
+> [docs/ROADMAP.md](docs/ROADMAP.md). Two systems: **System A** (GBM ensemble,
 > test macro AUROC 0.616; tuned single LightGBM 0.649) and **System B**
 > (hierarchical Mamba over k-mer token sequences, val 0.575).
 

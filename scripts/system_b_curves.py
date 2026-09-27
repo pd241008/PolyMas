@@ -44,7 +44,7 @@ logger = logging.getLogger("system_b_curves")
 from polymas_ml.data.patients import DISEASE_LABELS  # noqa: E402
 
 RESULTS = Path(os.environ.get(
-    "POLYMAS_RESULTS_DIR", ROOT / "stash/results_final_20260926"))
+    "POLYMAS_RESULTS_DIR", ROOT / "results/results_final_20260926"))
 SEQ = RESULTS / "sequence" / "kmer_canonical"
 F03 = RESULTS / "f03_hierarchical_mamba"
 SEED = 42

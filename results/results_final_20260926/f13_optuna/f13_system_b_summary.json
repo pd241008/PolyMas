@@ -1,0 +1,77 @@
+{
+  "n_trials": 30,
+  "best_val_2epoch": 0.5624,
+  "default_config_2epoch_val": 0.5441,
+  "delta": 0.0183,
+  "best_params": {
+    "d_model": 96,
+    "n_local_layers": 1,
+    "d_state": 4,
+    "lr": 0.0013811146846643206,
+    "dropout": 0.1793363651669237,
+    "weight_decay": 0.00255091680175084
+  },
+  "top5": [
+    {
+      "number": 24,
+      "value": 0.5624447438693527,
+      "params": {
+        "d_model": 96,
+        "n_local_layers": 1,
+        "d_state": 4,
+        "lr": 0.0013811146846643206,
+        "dropout": 0.1793363651669237,
+        "weight_decay": 0.00255091680175084
+      }
+    },
+    {
+      "number": 26,
+      "value": 0.5515977461167508,
+      "params": {
+        "d_model": 96,
+        "n_local_layers": 1,
+        "d_state": 4,
+        "lr": 0.0010728178865487463,
+        "dropout": 0.07009852463745794,
+        "weight_decay": 0.0014571062933987728
+      }
+    },
+    {
+      "number": 25,
+      "value": 0.551458697295986,
+      "params": {
+        "d_model": 96,
+        "n_local_layers": 1,
+        "d_state": 4,
+        "lr": 0.0009034949796873787,
+        "dropout": 0.08899541082601362,
+        "weight_decay": 0.004057177183339466
+      }
+    },
+    {
+      "number": 0,
+      "value": 0.5509829229654875,
+      "params": {
+        "d_model": 64,
+        "n_local_layers": 2,
+        "d_state": 4,
+        "lr": 0.00190303683817358,
+        "dropout": 0.20027875293580222,
+        "weight_decay": 0.01479540262121465
+      }
+    },
+    {
+      "number": 2,
+      "value": 0.5509829229654875,
+      "params": {
+        "d_model": 64,
+        "n_local_layers": 2,
+        "d_state": 4,
+        "lr": 0.00190303683817358,
+        "dropout": 0.20027875293580222,
+        "weight_decay": 0.01479540262121465
+      }
+    }
+  ],
+  "note": "2-epoch budget per trial; best-config full retrain via the guarded GPU wrapper recorded separately when run"
+}

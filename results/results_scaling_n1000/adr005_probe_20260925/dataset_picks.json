@@ -1,0 +1,114 @@
+{
+  "RA": [
+    {
+      "id": "ieu-a-833",
+      "trait": "Rheumatoid arthritis",
+      "ncase": 19234,
+      "ncontrol": 61565,
+      "population": "Mixed",
+      "year": 2014,
+      "pmid": 24390342,
+      "unit": "log odds"
+    },
+    {
+      "id": "ieu-a-832",
+      "trait": "Rheumatoid arthritis",
+      "ncase": 14361,
+      "ncontrol": 43923,
+      "population": "European",
+      "year": 2014,
+      "pmid": 24390342,
+      "unit": "log odds"
+    },
+    {
+      "id": "ebi-a-GCST002318",
+      "trait": "Rheumatoid arthritis",
+      "ncase": 14361,
+      "ncontrol": 42923,
+      "population": "European",
+      "year": 2013,
+      "pmid": 24390342,
+      "unit": "logOR"
+    }
+  ],
+  "SLE": [
+    {
+      "id": "ebi-a-GCST003156",
+      "trait": "Systemic lupus erythematosus",
+      "ncase": 5201,
+      "ncontrol": 9066,
+      "population": "European",
+      "year": 2015,
+      "pmid": 26502338,
+      "unit": "logOR"
+    },
+    {
+      "id": "ieu-a-815",
+      "trait": "Systemic lupus erythematosus",
+      "ncase": 1311,
+      "ncontrol": 1783,
+      "population": "European",
+      "year": 2008,
+      "pmid": 18204098,
+      "unit": "log odds"
+    }
+  ],
+  "SJOGRENS": [],
+  "AITD": [
+    {
+      "id": "ieu-a-1082",
+      "trait": "Thyroid cancer",
+      "ncase": 649,
+      "ncontrol": 431,
+      "population": "European",
+      "year": 2013,
+      "pmid": 23894154,
+      "unit": "log odds"
+    }
+  ],
+  "T1D": [
+    {
+      "id": "ebi-a-GCST005536",
+      "trait": "Type 1 diabetes",
+      "ncase": 6683,
+      "ncontrol": 12173,
+      "population": "European",
+      "year": 2015,
+      "pmid": 25751624,
+      "unit": "logOR"
+    }
+  ],
+  "VITILIGO": [],
+  "MS": [
+    {
+      "id": "ieu-a-1025",
+      "trait": "Multiple sclerosis",
+      "ncase": 14498,
+      "ncontrol": 24091,
+      "population": "European",
+      "year": 2013,
+      "pmid": 24076602,
+      "unit": "log odds"
+    },
+    {
+      "id": "ebi-a-GCST005531",
+      "trait": "Multiple sclerosis",
+      "ncase": 14498,
+      "ncontrol": 24091,
+      "population": "European",
+      "year": 2013,
+      "pmid": 24076602,
+      "unit": "logOR"
+    },
+    {
+      "id": "ebi-a-GCST001198",
+      "trait": "Multiple sclerosis",
+      "ncase": 9772,
+      "ncontrol": 16849,
+      "population": "European",
+      "year": 2011,
+      "pmid": 21833088,
+      "unit": "logOR"
+    }
+  ]
+}

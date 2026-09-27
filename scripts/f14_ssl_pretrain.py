@@ -40,7 +40,7 @@ logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
 logger = logging.getLogger("f14_ssl")
 
 RESULTS = Path(os.environ.get(
-    "POLYMAS_RESULTS_DIR", ROOT / "stash/results_final_20260926"))
+    "POLYMAS_RESULTS_DIR", ROOT / "results/results_final_20260926"))
 OUT = RESULTS / "f14_ssl"
 OUT.mkdir(parents=True, exist_ok=True)
 DISEASES = ["RA", "SLE", "SJOGRENS", "T1D", "MS", "AITD", "VITILIGO"]

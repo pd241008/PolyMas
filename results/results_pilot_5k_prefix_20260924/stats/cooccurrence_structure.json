@@ -1,0 +1,61 @@
+{
+  "label_structure": {
+    "n_patients": 5000,
+    "disease_count_distribution": {
+      "0": 1258,
+      "1": 1951,
+      "2": 1172,
+      "3": 480,
+      "4": 115,
+      "5": 21,
+      "6": 3
+    },
+    "mean_diseases_per_patient": 1.2636,
+    "var_diseases_per_patient": 1.0899,
+    "binomial_null_variance": 1.0355,
+    "overdispersion_ratio": 1.0526,
+    "rate_1plus": 0.7484,
+    "rate_2plus": 0.3582,
+    "rate_3plus_mas": 0.1238,
+    "rate_2plus_given_1plus": 0.4786,
+    "target_mas_rate_3plus": 0.15,
+    "target_polyautoimmunity_rate_2plus": 0.25,
+    "pairwise_phi": {
+      "RA|SLE": -0.0325,
+      "RA|SJOGRENS": 0.0459,
+      "RA|AITD": 0.0365,
+      "RA|T1D": 0.0346,
+      "RA|VITILIGO": 0.0449,
+      "RA|MS": -0.2399,
+      "SLE|SJOGRENS": 0.1296,
+      "SLE|AITD": 0.0602,
+      "SLE|T1D": -0.0279,
+      "SLE|VITILIGO": -0.0078,
+      "SLE|MS": -0.0195,
+      "SJOGRENS|AITD": 0.077,
+      "SJOGRENS|T1D": 0.0092,
+      "SJOGRENS|VITILIGO": 0.0191,
+      "SJOGRENS|MS": -0.0187,
+      "AITD|T1D": 0.1061,
+      "AITD|VITILIGO": 0.1324,
+      "AITD|MS": 0.0012,
+      "T1D|VITILIGO": 0.1689,
+      "T1D|MS": -0.2062,
+      "VITILIGO|MS": -0.0345
+    },
+    "mean_positive_pairwise_phi": 0.0666,
+    "model": "latent_liability_mixture + pairwise_log_or_affinity (MAS_PAIRWISE_ODDS)",
+    "mas_exclusions": [
+      [
+        "T1D",
+        "MS"
+      ],
+      [
+        "RA",
+        "MS"
+      ]
+    ]
+  },
+  "phi_table_rows": 21,
+  "n_phi_below_0.05_bonferroni": 8
+}

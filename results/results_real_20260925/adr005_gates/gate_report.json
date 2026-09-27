@@ -1,0 +1,394 @@
+{
+  "date": "2026-09-25",
+  "n_patients": 5000,
+  "seed": 42,
+  "g1_enrichment": {
+    "RA": {
+      "status": "PASS",
+      "realized": 0.06679,
+      "predicted": 0.02548,
+      "ratio": 2.622,
+      "mode": "genome_wide",
+      "n_loci": 23,
+      "n_cohort": 1182,
+      "per_locus": [
+        {
+          "rs": "rs2240340",
+          "beta": -0.0861777,
+          "p": 1.20005e-11,
+          "realized": -0.11247,
+          "predicted": -0.04305
+        },
+        {
+          "rs": "rs2476601",
+          "beta": -0.593327,
+          "p": 1e-149,
+          "realized": -0.0929,
+          "predicted": -0.03157
+        },
+        {
+          "rs": "rs11889341",
+          "beta": 0.131028,
+          "p": 6.70039e-19,
+          "realized": 0.08703,
+          "predicted": 0.0478
+        },
+        {
+          "rs": "rs9271366",
+          "beta": 0.371564,
+          "p": 1.59993e-61,
+          "realized": 0.18151,
+          "predicted": 0.09462
+        },
+        {
+          "rs": "rs2187668",
+          "beta": -0.430783,
+          "p": 5.60015e-54,
+          "realized": -0.10049,
+          "predicted": -0.06172
+        },
+        {
+          "rs": "rs1480380",
+          "beta": -0.356675,
+          "p": 3.10027e-32,
+          "realized": -0.08162,
+          "predicted": -0.0541
+        },
+        {
+          "rs": "rs17264332",
+          "beta": 0.162519,
+          "p": 6.70039e-19,
+          "realized": 0.09622,
+          "predicted": 0.02775
+        },
+        {
+          "rs": "rs10488631",
+          "beta": 0.162519,
+          "p": 1.29987e-11,
+          "realized": 0.02559,
+          "predicted": 0.01808
+        },
+        {
+          "rs": "rs13277113",
+          "beta": 0.0953102,
+          "p": 2.49977e-11,
+          "realized": 0.16425,
+          "predicted": 0.04379
+        },
+        {
+          "rs": "rs4938573",
+          "beta": 0.139762,
+          "p": 4.00037e-14,
+          "realized": 0.05116,
+          "predicted": 0.04251
+        },
+        {
+          "rs": "rs34536443",
+          "beta": -0.378436,
+          "p": 4.40048e-16,
+          "realized": -0.02043,
+          "predicted": -0.00763
+        },
+        {
+          "rs": "rs2304256",
+          "beta": -0.0833816,
+          "p": 1.29999e-08,
+          "realized": -0.05034,
+          "predicted": -0.03254
+        },
+        {
+          "rs": "rs934734",
+          "beta": -0.105361,
+          "p": 2.09991e-13,
+          "realized": -0.0064,
+          "predicted": -0.04948
+        },
+        {
+          "rs": "rs874040",
+          "beta": 0.139262,
+          "p": 1.99986e-16,
+          "realized": 0.07844,
+          "predicted": 0.04491
+        },
+        {
+          "rs": "rs9272346",
+          "beta": 0.392042,
+          "p": 7.00003e-90,
+          "realized": 0.42657,
+          "predicted": 0.19552
+        },
+        {
+          "rs": "rs2736340",
+          "beta": 0.0953102,
+          "p": 1.99986e-11,
+          "realized": 0.16936,
+          "predicted": 0.04399
+        },
+        {
+          "rs": "rs7574865",
+          "beta": -0.131028,
+          "p": 4.60045e-18,
+          "realized": -0.09911,
+          "predicted": -0.04983
+        },
+        {
+          "rs": "rs3087243",
+          "beta": -0.139262,
+          "p": 1.69981e-22,
+          "realized": -0.15259,
+          "predicted": -0.06485
+        },
+        {
+          "rs": "rs9271597",
+          "beta": 0.444686,
+          "p": 5.00035e-156,
+          "realized": 0.45209,
+          "predicted": 0.21126
+        },
+        {
+          "rs": "rs3135388",
+          "beta": 0.430783,
+          "p": 7.19946e-67,
+          "realized": 0.1729,
+          "predicted": 0.0354
+        },
+        {
+          "rs": "rs9270986",
+          "beta": 0.371064,
+          "p": 5.10035e-59,
+          "realized": 0.18754,
+          "predicted": 0.10643
+        },
+        {
+          "rs": "rs6920220",
+          "beta": 0.157004,
+          "p": 7.10068e-19,
+          "realized": 0.09622,
+          "predicted": 0.02686
+        },
+        {
+          "rs": "rs2004640",
+          "beta": 0.0861777,
+          "p": 2.69998e-09,
+          "realized": 0.06363,
+          "predicted": 0.0418
+        }
+      ]
+    },
+    "SLE": {
+      "status": "SKIP",
+      "reason": "predicted enrichment < 0.01",
+      "predicted": 0.006210204700407995,
+      "realized": 0.083880462389328,
+      "mode": "genome_wide",
+      "n_loci": 18
+    },
+    "T1D": {
+      "status": "PASS",
+      "realized": -0.02616,
+      "predicted": -0.03624,
+      "ratio": 0.722,
+      "mode": "genome_wide",
+      "n_loci": 10,
+      "n_cohort": 835,
+      "per_locus": [
+        {
+          "rs": "rs2476601",
+          "beta": -0.635995,
+          "p": 1.10154e-122,
+          "realized": -0.0664,
+          "predicted": -0.03384
+        },
+        {
+          "rs": "rs2104286",
+          "beta": -0.217037,
+          "p": 5.98412e-23,
+          "realized": -0.03752,
+          "predicted": -0.04928
+        },
+        {
+          "rs": "rs763361",
+          "beta": -0.116983,
+          "p": 8.03156e-11,
+          "realized": 0.04074,
+          "predicted": -0.05827
+        },
+        {
+          "rs": "rs3757247",
+          "beta": 0.10598,
+          "p": 2.4198e-08,
+          "realized": 0.07173,
+          "predicted": 0.05069
+        },
+        {
+          "rs": "rs2292239",
+          "beta": -0.215998,
+          "p": 6.0062e-30,
+          "realized": -0.06776,
+          "predicted": -0.09077
+        },
+        {
+          "rs": "rs6498169",
+          "beta": -0.107957,
+          "p": 1.3142e-08,
+          "realized": -0.09988,
+          "predicted": -0.04986
+        },
+        {
+          "rs": "rs2304256",
+          "beta": -0.139032,
+          "p": 3.61493e-11,
+          "realized": -0.01084,
+          "predicted": -0.05426
+        },
+        {
+          "rs": "rs1990760",
+          "beta": 0.158996,
+          "p": 5.83983e-17,
+          "realized": 0.0543,
+          "predicted": 0.07296
+        },
+        {
+          "rs": "rs653178",
+          "beta": -0.266051,
+          "p": 1.55883e-44,
+          "realized": -0.08794,
+          "predicted": -0.06686
+        },
+        {
+          "rs": "rs3087243",
+          "beta": -0.178051,
+          "p": 7.36207e-21,
+          "realized": -0.05799,
+          "predicted": -0.08292
+        }
+      ]
+    },
+    "MS": {
+      "status": "FAIL",
+      "realized": -0.22721,
+      "predicted": -0.04813,
+      "ratio": 4.721,
+      "mode": "genome_wide",
+      "n_loci": 8,
+      "n_cohort": 807,
+      "per_locus": [
+        {
+          "rs": "rs2104286",
+          "beta": -0.189794,
+          "p": 7.61027e-23,
+          "realized": -0.04479,
+          "predicted": -0.0431
+        },
+        {
+          "rs": "rs9271366",
+          "beta": -1.02676,
+          "p": 1e-200,
+          "realized": -0.86729,
+          "predicted": -0.26148
+        },
+        {
+          "rs": "rs6498169",
+          "beta": -0.134531,
+          "p": 3.99025e-15,
+          "realized": -0.18767,
+          "predicted": -0.06213
+        },
+        {
+          "rs": "rs34536443",
+          "beta": 0.248421,
+          "p": 1.24e-08,
+          "realized": -0.03432,
+          "predicted": 0.00501
+        },
+        {
+          "rs": "rs2288904",
+          "beta": 0.128393,
+          "p": 9.56996e-10,
+          "realized": 0.05591,
+          "predicted": 0.03834
+        },
+        {
+          "rs": "rs1800693",
+          "beta": 0.134531,
+          "p": 6.9199e-16,
+          "realized": 0.05065,
+          "predicted": 0.05647
+        },
+        {
+          "rs": "rs6897932",
+          "beta": -0.109751,
+          "p": 5.72994e-09,
+          "realized": -0.01783,
+          "predicted": -0.03134
+        },
+        {
+          "rs": "rs3135388",
+          "beta": -1.05675,
+          "p": 1e-200,
+          "realized": -0.77234,
+          "predicted": -0.08684
+        }
+      ]
+    },
+    "SJOGRENS": {
+      "status": "SKIP",
+      "reason": "predicted enrichment < 0.01",
+      "predicted": 0.0005035427278016425,
+      "realized": 0.011198538584922452,
+      "mode": "genome_wide",
+      "n_loci": 5
+    }
+  },
+  "g2_structure": {
+    "status": "FAIL",
+    "overdispersion": 0.9996,
+    "rate_2plus": 0.3322,
+    "rate_3plus_mas": 0.1056,
+    "mean_diseases_per_patient": 1.1984
+  },
+  "g3_marginals": {
+    "status": "FAIL",
+    "tolerance": 0.03,
+    "per_disease": {
+      "RA": {
+        "coupled": 0.2474,
+        "no_coupling": 0.1914,
+        "delta": 0.056
+      },
+      "SLE": {
+        "coupled": 0.2068,
+        "no_coupling": 0.1816,
+        "delta": 0.0252
+      },
+      "SJOGRENS": {
+        "coupled": 0.1632,
+        "no_coupling": 0.1306,
+        "delta": 0.0326
+      },
+      "AITD": {
+        "coupled": 0.1196,
+        "no_coupling": 0.1206,
+        "delta": -0.001
+      },
+      "T1D": {
+        "coupled": 0.1962,
+        "no_coupling": 0.142,
+        "delta": 0.0542
+      },
+      "VITILIGO": {
+        "coupled": 0.1024,
+        "no_coupling": 0.0942,
+        "delta": 0.0082
+      },
+      "MS": {
+        "coupled": 0.1628,
+        "no_coupling": 0.1144,
+        "delta": 0.0484
+      }
+    }
+  },
+  "adoption_rule": "G1 PASS >= 3 of ['RA', 'SLE', 'T1D', 'MS', 'SJOGRENS'] (no FAIL) AND G2 AND G3",
+  "g1_pass_count": 2,
+  "verdict": "FALLBACK (no-coupling stays canonical, ADR-004)"
+}

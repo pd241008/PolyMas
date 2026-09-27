@@ -1,0 +1,36 @@
+{
+  "run_date": "20260925",
+  "seed": 123,
+  "n_patients": 3000,
+  "ground_truth": {
+    "intercept": -0.9,
+    "main": {
+      "rs2476601": 0.9,
+      "rs7574865": 0.7
+    },
+    "epistasis": {
+      "pair": [
+        "rs2476601",
+        "rs3087243"
+      ],
+      "coef": 1.1
+    }
+  },
+  "results": [
+    {
+      "tag": "base_dosages+PCs",
+      "auroc": 0.6651,
+      "auprc": 0.6294,
+      "n_features": 97
+    },
+    {
+      "tag": "base+haplotype/epistasis",
+      "auroc": 0.6656,
+      "auprc": 0.6287,
+      "n_features": 106
+    }
+  ],
+  "auroc_delta": 0.0005,
+  "pre_registered_pass": false,
+  "interpretation": "Harness validation: features carry recoverable signal through System A's training path. NOT a production-label ablation \u2014 labels here are injected through real genotypes by construction."
+}

@@ -134,7 +134,7 @@ Model output risk-probability vectors (one vector per patient across all disease
 
 ## 8. Roadmap Status
 
-The results program (24-item claim ledger in `ROADMAP.md`, ADR-001) has closed
+The results program (24-item claim ledger in `docs/ROADMAP.md`, ADR-001) has closed
 four of five phases. "Evaluated" means a pre-registered gate was run and its
 verdict recorded — passes and honest failures both count; every failure ships
 a root-cause mechanism.
@@ -169,7 +169,7 @@ direct test AUROCs to 0.000000 after the Phase-2 review). Headline numbers:
 
 Three follow-up experiments are **deliberately deferred** with rationale
 (budget-aware ASHA retune of System B; context-only-masked SSL variant;
-conformal integration into the stats runner) — see "⏸ Deferred" in ROADMAP.md.
+conformal integration into the stats runner) — see "⏸ Deferred" in docs/ROADMAP.md.
 
 ## Current Limitations & Next Steps
 

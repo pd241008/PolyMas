@@ -1,0 +1,30 @@
+{
+  "gates": {
+    "beats_best_parent_somewhere": {
+      "n_wins": 1,
+      "of": 7,
+      "pass": false
+    },
+    "no_disease_loses_gt_0.01": {
+      "worst": -0.1387,
+      "pass": false
+    },
+    "macro_improves": {
+      "fused": 0.5738,
+      "best_parent_macro": 0.621,
+      "pass": false
+    }
+  },
+  "verdict": "FAIL",
+  "alphas_system_a": {
+    "RA": 0.0,
+    "SLE": 0.0,
+    "SJOGRENS": 0.05,
+    "AITD": 0.0,
+    "T1D": 0.13,
+    "VITILIGO": 0.0,
+    "MS": 0.0
+  },
+  "note": "decision-level late fusion; alpha_d fit by logistic regression on the VAL split (no test fitting); System B probs from the F-03 flat checkpoint (same artifact)",
+  "estimator_caveat": "alpha_d fit on val logloss collapses to the better-CALIBRATED val parent: System A's predictions.csv val rows are in-sample for the base learners (extreme, miscalibrated probs), so logloss penalizes A. An unbiased alpha would need honest out-of-sample System A val probs (retrain on train-only). Recorded, not patched: even the trivially-safe alpha=1 (pure A) gives macro 0.6163 vs per-disease-best-parent macro 0.6210, so the macro gate fails under ANY alpha; System B is dominated on 6/7 diseases (F-03 test)."
+}

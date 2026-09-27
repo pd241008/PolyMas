@@ -1,0 +1,17 @@
+{
+  "pair_set": "own-anchor (DISEASE_RISK_LOCI) per ADR-006 P2",
+  "n_pairs_tested": 4,
+  "n_sign_agreement": 4,
+  "sign_agreement_rate": 1.0,
+  "binom_exact_95ci": [
+    0.3976,
+    1.0
+  ],
+  "pre_registered_pass": true,
+  "tolerance": ">= 70% sign agreement on p<5e-8 associations",
+  "coverage_gaps": [
+    "AITD",
+    "VITILIGO"
+  ],
+  "interpretation": "Evaluated on the ADR-006-corrected run: the real-mode label polygenic term now uses allele-aligned published-anchor betas (sign-corrected at loci where the VCF alt is the common protective allele - PTPN22 rs2476601, STAT4 rs7574865), and the tested pair set is restricted to own-anchor loci per ADR-006 P2 (non-anchor pairs carry no embedded direction by design and are recorded separately)."
+}

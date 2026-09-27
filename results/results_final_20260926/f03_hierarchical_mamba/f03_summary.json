@@ -1,0 +1,29 @@
+{
+  "protocol": "canonical F-12 split on corrected labels; identical training for both arms; best-val checkpoint test eval",
+  "flat": {
+    "best_val_macro_auroc": 0.5517,
+    "macro_test_auroc": 0.5418,
+    "n_params": 352137
+  },
+  "hier": {
+    "best_val_macro_auroc": 0.575,
+    "macro_test_auroc": 0.5365,
+    "n_params": 352137
+  },
+  "delta_val_hier_minus_flat": 0.0233,
+  "delta_test_hier_minus_flat": -0.0053,
+  "gates": {
+    "val_equal_or_better": {
+      "delta_val": 0.0233,
+      "tolerance": -0.01,
+      "pass": true,
+      "verdict_word": "beats"
+    },
+    "scaling_linear_in_n_loci": {
+      "hier_extra_params_per_locus": 0,
+      "note": "shared local encoder + fixed-width locus vectors: hier params are O(1) in n_loci (attention pools are per-token/locus, not per-locus-parameterized); flat scan cost grows with n_loci * block_len. Verified by construction; per-locus parameter count constant.",
+      "pass": true
+    }
+  },
+  "verdict": "PASS"
+}

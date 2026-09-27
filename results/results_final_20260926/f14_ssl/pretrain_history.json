@@ -1,0 +1,34 @@
+[
+  {
+    "epoch": 1,
+    "mlm_loss": 4.8448
+  },
+  {
+    "epoch": 2,
+    "mlm_loss": 0.8734
+  },
+  {
+    "epoch": 3,
+    "mlm_loss": 0.1482
+  },
+  {
+    "epoch": 4,
+    "mlm_loss": 0.0643
+  },
+  {
+    "epoch": 5,
+    "mlm_loss": 0.0385
+  },
+  {
+    "epoch": 6,
+    "mlm_loss": 0.0264
+  },
+  {
+    "epoch": 7,
+    "mlm_loss": 0.0195
+  },
+  {
+    "epoch": 8,
+    "mlm_loss": 0.0151
+  }
+]

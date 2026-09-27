@@ -1,0 +1,83 @@
+{
+  "protocol": "labels flipped 1<->0 with prob r on all splits; seed 42; System A ensemble retrained per rate on the canonical train split",
+  "rates": [
+    0.0,
+    0.05,
+    0.1,
+    0.2
+  ],
+  "monotone_tolerance": 0.01,
+  "checks": {
+    "AITD": {
+      "curve": [
+        0.5707,
+        0.5512,
+        0.5386,
+        0.5259
+      ],
+      "monotone_within_tol": true,
+      "total_drop": 0.0448
+    },
+    "MS": {
+      "curve": [
+        0.5606,
+        0.5158,
+        0.4991,
+        0.4978
+      ],
+      "monotone_within_tol": true,
+      "total_drop": 0.0628
+    },
+    "RA": {
+      "curve": [
+        0.6381,
+        0.5901,
+        0.5541,
+        0.5016
+      ],
+      "monotone_within_tol": true,
+      "total_drop": 0.1365
+    },
+    "SJOGRENS": {
+      "curve": [
+        0.5484,
+        0.4949,
+        0.4627,
+        0.4703
+      ],
+      "monotone_within_tol": true,
+      "total_drop": 0.0781
+    },
+    "SLE": {
+      "curve": [
+        0.5896,
+        0.5454,
+        0.5377,
+        0.5005
+      ],
+      "monotone_within_tol": true,
+      "total_drop": 0.0891
+    },
+    "T1D": {
+      "curve": [
+        0.7038,
+        0.665,
+        0.6462,
+        0.5343
+      ],
+      "monotone_within_tol": true,
+      "total_drop": 0.1695
+    },
+    "VITILIGO": {
+      "curve": [
+        0.6255,
+        0.5648,
+        0.5522,
+        0.5132
+      ],
+      "monotone_within_tol": true,
+      "total_drop": 0.1123
+    }
+  },
+  "system_b_pending": true
+}

@@ -37,12 +37,12 @@ logger = logging.getLogger("f19_scaling")
 
 from polymas_ml.data.patients import DISEASE_LABELS  # noqa: E402
 
-CANONICAL = "stash/results_final_20260926"
+CANONICAL = "results/results_final_20260926"
 POINTS = [
-    (1000, "stash/results_scaling_n1000"),
-    (2500, "stash/results_scaling_n2500"),
+    (1000, "results/results_scaling_n1000"),
+    (2500, "results/results_scaling_n2500"),
     (5000, CANONICAL),
-    (10000, "stash/results_scaling_n10000"),
+    (10000, "results/results_scaling_n10000"),
 ]
 
 

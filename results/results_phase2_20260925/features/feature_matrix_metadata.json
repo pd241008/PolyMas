@@ -1,0 +1,29 @@
+{
+  "n_features": 23,
+  "features": [
+    "age_at_diagnosis_days",
+    "bmi",
+    "family_history",
+    "rs11209026__score",
+    "rs2104286__score",
+    "rs2187668__score",
+    "rs2292239__score",
+    "rs2476601__score",
+    "rs3087243__score",
+    "rs7574865__score",
+    "rs9272346__score",
+    "rs11209026__zscore",
+    "rs2104286__zscore",
+    "rs2187668__zscore",
+    "rs2292239__zscore",
+    "rs2476601__zscore",
+    "rs3087243__zscore",
+    "rs7574865__zscore",
+    "rs9272346__zscore",
+    "sex",
+    "ethnicity_EUR",
+    "ethnicity_AFR",
+    "ethnicity_EAS"
+  ],
+  "n_patients": 5000
+}

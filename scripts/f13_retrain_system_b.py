@@ -26,7 +26,7 @@ logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
 logger = logging.getLogger("f13_retrain_b")
 
 RESULTS = Path(os.environ.get(
-    "POLYMAS_RESULTS_DIR", ROOT / "stash/results_final_20260926"))
+    "POLYMAS_RESULTS_DIR", ROOT / "results/results_final_20260926"))
 OUT = RESULTS / "f13_optuna"
 CKPT = OUT / "system_b_retrain_ckpt.pt"
 SUMMARY = OUT / "f13_system_b_retrain.json"

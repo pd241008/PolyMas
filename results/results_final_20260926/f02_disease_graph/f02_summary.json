@@ -1,0 +1,29 @@
+{
+  "gates": {
+    "auroc_floor": {
+      "macro_delta_vs_systemA": -0.0413,
+      "floor": -0.01,
+      "pass": false
+    },
+    "phi_recovery": {
+      "recovered_graph": 8,
+      "recovered_systemA": 9,
+      "recovered_control": 6,
+      "sign_agrees_graph": 8,
+      "sign_agrees_control": 6,
+      "pass": false
+    },
+    "per_disease_floor": {
+      "worst_delta_vs_systemA": -0.1037,
+      "pass": false
+    }
+  },
+  "verdict": "FAIL",
+  "macro": {
+    "systemA": 0.6163,
+    "graph": 0.5751,
+    "control": 0.5796,
+    "graph_minus_control": -0.0046
+  },
+  "note": "Head/control train on 3-fold OOF base predictions; val+test inputs from the same refit ensemble. Recovery scored F-17-identical (ALPHA=0.05, incoercibles reported not counted)."
+}

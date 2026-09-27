@@ -6,7 +6,7 @@ REST API for the rsID's associations and records:
   - the strongest (lowest-p) association with its mapped trait
   - whether the rsID exists in the Catalog at all
 
-Writes stash/results/panel_expansion_<date>/ with:
+Writes results/results/panel_expansion_<date>/ with:
   - panel_verification.csv     one row per candidate, verified or dropped
   - panel_manifest.json        the verified panel + provenance + drop log
   - verification_run.json      run metadata (timestamps, API, counts)
@@ -38,7 +38,7 @@ sys.path.insert(0, str(PROJECT_ROOT / "services" / "ml-engine-python"))
 
 from polymas_ml.data.loci import LEGACY_LOCI, CANDIDATE_LOCI, unique_loci  # noqa: E402
 
-RESULTS_ROOT = Path(os.environ.get("POLYMAS_RESULTS_DIR", PROJECT_ROOT / "stash" / "results"))
+RESULTS_ROOT = Path(os.environ.get("POLYMAS_RESULTS_DIR", PROJECT_ROOT / "results" / "results"))
 RUN_TAG = datetime.now(tz=timezone.utc).strftime("%Y%m%d")
 OUT_DIR = RESULTS_ROOT / f"panel_expansion_{RUN_TAG}"
 # The Catalog 429s under sustained polling; 1.5s keeps whole runs error-free

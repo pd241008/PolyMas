@@ -1,0 +1,43 @@
+{
+  "run_date": "20260925",
+  "n_panel_loci": 99,
+  "n_resolved": 95,
+  "unresolvable": [
+    "rs73053335",
+    "rs707310",
+    "rs17087503",
+    "rs113980210",
+    "rs11768897",
+    "rs41276645",
+    "rs13209033"
+  ],
+  "n_samples": 2504,
+  "n_variants_typed": 91,
+  "super_pops": [
+    "EUR",
+    "AFR",
+    "EAS",
+    "SAS",
+    "AMR"
+  ],
+  "ld_validation": {
+    "n_pairs": 13,
+    "n_within_tolerance": 13,
+    "tolerance": 0.05,
+    "pass": true
+  },
+  "pc_variance_explained": [
+    0.08791260060432766,
+    0.050853457445819004,
+    0.030813438677256288,
+    0.022468569758620764,
+    0.02127045524236247,
+    0.019960888242606552
+  ],
+  "provenance": {
+    "vcf": "1000G phase3 v5b 20130502 (GRCh37, phased)",
+    "panel": "integrated_call_samples_v3.20130502.ALL.panel",
+    "position_resolution": "Ensembl REST /variation/human/ids",
+    "ld_reference": "Ensembl REST /ld/human 1000GENOMES:phase_3"
+  }
+}

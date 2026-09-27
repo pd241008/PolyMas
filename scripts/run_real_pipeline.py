@@ -41,7 +41,7 @@ logger = logging.getLogger(__name__)
 
 # Results root for this run; override with POLYMAS_RESULTS_DIR to write a
 # fresh run folder without touching previous runs.
-OUTPUTS_DIR = Path(os.environ.get("POLYMAS_RESULTS_DIR", PROJECT_ROOT / "stash" / "results"))
+OUTPUTS_DIR = Path(os.environ.get("POLYMAS_RESULTS_DIR", PROJECT_ROOT / "results" / "results"))
 GWAS_DIR = OUTPUTS_DIR / "raw" / "gwas"
 IMMPORT_DIR = OUTPUTS_DIR / "raw" / "immport"
 FEATURES_DIR = OUTPUTS_DIR / "features"
@@ -378,7 +378,7 @@ def build_real_dataset(
                 "Gudmundsson/Simmonds Graves' GWAS (GCST001200) curated associations, GWAS Catalog",
                 "Bujnis MN et al., Nat Genet 2026 hypothyroidism meta-analysis (N~1.1M), ThyroidOmics",
             ],
-            "summary_stats_archived": "stash/results/raw/gwas_sumstats/ (vitiligo per-chr full stats; curated CSVs)"
+            "summary_stats_archived": "results/results/raw/gwas_sumstats/ (vitiligo per-chr full stats; curated CSVs)"
         },
         "field_sources": {
             "sex": "real (ImmPort demographic.gender)",

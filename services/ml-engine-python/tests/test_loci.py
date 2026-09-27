@@ -48,7 +48,7 @@ def test_verification_manifest_if_present() -> None:
     verified + dropped + error + pending == total, and the F-09 verified
     bar (>=50) must hold for the manifest to be usable downstream."""
     csv_path = (
-        PROJECT_ROOT / "stash" / "results" / "panel_expansion_20260925"
+        PROJECT_ROOT / "results" / "panel_expansion_20260925"
         / "panel_verification.csv"
     )
     if not csv_path.exists():

@@ -1,0 +1,47 @@
+{
+  "diseases": [
+    "RA",
+    "SLE"
+  ],
+  "n_patients": 400,
+  "n_train": 320,
+  "n_val": 80,
+  "n_epochs": 5,
+  "elapsed_seconds": 343.565434217453,
+  "config": {
+    "d_model": 64,
+    "n_layers": 2,
+    "d_state": 8,
+    "d_conv": 4,
+    "expand": 2,
+    "batch_size": 2,
+    "lr": 0.001,
+    "weight_decay": 0.1,
+    "seed": 0
+  },
+  "train_metrics": {
+    "RA_auroc": 0.6367619047619049,
+    "RA_auprc": 0.3290375492182787,
+    "RA_f1": 0.0,
+    "SLE_auroc": 0.5688582251082251,
+    "SLE_auprc": 0.22884993760935213,
+    "SLE_f1": 0.0,
+    "hamming_loss": 0.2046875,
+    "macro_f1": 0.0,
+    "micro_f1": 0.0,
+    "accuracy": 0.66875
+  },
+  "val_metrics": {
+    "RA_auroc": 0.5211389128559103,
+    "RA_auprc": 0.2715396924032647,
+    "RA_f1": 0.0,
+    "SLE_auroc": 0.4934123847167325,
+    "SLE_auprc": 0.14468485689703287,
+    "SLE_f1": 0.0,
+    "hamming_loss": 0.1875,
+    "macro_f1": 0.0,
+    "micro_f1": 0.0,
+    "accuracy": 0.6875
+  },
+  "best_epoch": 3
+}

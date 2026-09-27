@@ -1,0 +1,35 @@
+{
+  "points": {
+    "1000": "stash/results_scaling_n1000",
+    "2500": "stash/results_scaling_n2500",
+    "5000": "stash/results_final_20260926",
+    "10000": "stash/results_scaling_n10000"
+  },
+  "auroc_max_reference": "n=10000 (largest point, pre-registered)",
+  "macro_curve": {
+    "1000": 0.5896,
+    "2500": 0.5895,
+    "5000": 0.6163,
+    "10000": 0.618
+  },
+  "macro_exponent_alpha": 1.658,
+  "per_disease_exponent": {
+    "MS": 5.125,
+    "RA": -6.7,
+    "SJOGRENS": 2.35,
+    "SLE": -1.324,
+    "T1D": -2.241,
+    "VITILIGO": 0.318
+  },
+  "note": "alpha = decay rate of the AUROC shortfall with n (AUROC_max - AUROC(n) ~ n^-alpha); larger = faster saturation",
+  "system_b": {
+    "merged": true,
+    "macro_curve": {
+      "1000": 0.4877,
+      "2500": 0.5124,
+      "5000": 0.5418,
+      "10000": 0.5359
+    },
+    "note": "retrained flat Mamba on corrected labels (Phase-3 re-scope); 5k point reuses F-03 flat arm; smaller-n points use protocol-shape split within first-n patients"
+  }
+}

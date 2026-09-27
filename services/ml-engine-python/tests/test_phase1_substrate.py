@@ -21,7 +21,7 @@ from polymas_ml.data.haplotypes import (
 )
 
 PROJECT_ROOT = Path(__file__).resolve().parents[3]
-SUBSTRATE_DIR = PROJECT_ROOT / "stash" / "results" / "real_genotypes_20260925"
+SUBSTRATE_DIR = PROJECT_ROOT / "results" / "real_genotypes_20260925"
 
 
 def _synthetic_dosages(n: int = 60) -> tuple[pd.DataFrame, pd.DataFrame]:

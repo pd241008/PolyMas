@@ -8,7 +8,7 @@ Builds the real-genotype foundation for the verified panel:
   4. Derives ancestry PCs from the real genotype matrix (F-07).
   5. Emits a provenance manifest.
 
-Outputs -> stash/results/real_genotypes_<date>/
+Outputs -> results/results/real_genotypes_<date>/
 Run:
   PYTHONPATH=services/ml-engine-python services/ml-engine-python/.venv/bin/python \
       scripts/build_real_genotype_substrate.py
@@ -41,7 +41,7 @@ from polymas_ml.data.genotypes import (  # noqa: E402
 )
 from polymas_ml.data.loci import unique_loci  # noqa: E402
 
-RESULTS_ROOT = Path(os.environ.get("POLYMAS_RESULTS_DIR", PROJECT_ROOT / "stash" / "results"))
+RESULTS_ROOT = Path(os.environ.get("POLYMAS_RESULTS_DIR", PROJECT_ROOT / "results" / "results"))
 RUN_TAG = datetime.now(tz=timezone.utc).strftime("%Y%m%d")
 OUT_DIR = RESULTS_ROOT / f"real_genotypes_{RUN_TAG}"
 CACHE_DIR = RESULTS_ROOT / "raw" / "1000g_cache"

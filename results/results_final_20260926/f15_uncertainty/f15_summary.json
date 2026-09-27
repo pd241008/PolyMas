@@ -1,0 +1,53 @@
+{
+  "gates": {
+    "ensemble_nll_lt_single": {
+      "delta_nll": -0.0009,
+      "pass": true
+    },
+    "mc_dropout_nll_lt_single": {
+      "delta_nll": 0.0,
+      "pass": false
+    }
+  },
+  "verdict": "PASS",
+  "mc_predictive_variance_mean": 0.000325,
+  "n_mc_passes": 30,
+  "macro_table": {
+    "ensemble5": {
+      "nll": 0.3782,
+      "ece": 0.0087,
+      "brier": 0.1109
+    },
+    "mc_dropout": {
+      "nll": 0.3791,
+      "ece": 0.0196,
+      "brier": 0.1111
+    },
+    "single_seed1": {
+      "nll": 0.3789,
+      "ece": 0.0132,
+      "brier": 0.1111
+    },
+    "single_seed2": {
+      "nll": 0.3791,
+      "ece": 0.0114,
+      "brier": 0.1111
+    },
+    "single_seed3": {
+      "nll": 0.3795,
+      "ece": 0.0154,
+      "brier": 0.1112
+    },
+    "single_seed4": {
+      "nll": 0.3783,
+      "ece": 0.0097,
+      "brier": 0.111
+    },
+    "single_seed42": {
+      "nll": 0.3791,
+      "ece": 0.0187,
+      "brier": 0.1112
+    }
+  },
+  "note": "gate is NLL-based per the pre-registered claim; ECE/Brier reported for calibration context. Null recorded if deltas >= 0."
+}

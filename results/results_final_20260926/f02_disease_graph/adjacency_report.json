@@ -1,0 +1,114 @@
+{
+  "RA|SLE": {
+    "init": 0.23999999463558197,
+    "learned": 0.242
+  },
+  "RA|SJOGRENS": {
+    "init": 0.32499998807907104,
+    "learned": 0.2917
+  },
+  "RA|AITD": {
+    "init": 0.25999999046325684,
+    "learned": 0.2215
+  },
+  "RA|MS": {
+    "init": -0.5,
+    "learned": -0.4711
+  },
+  "SLE|RA": {
+    "init": 0.23999999463558197,
+    "learned": 0.2522
+  },
+  "SLE|SJOGRENS": {
+    "init": 0.375,
+    "learned": 0.4227
+  },
+  "SLE|T1D": {
+    "init": 0.15000000596046448,
+    "learned": 0.1809
+  },
+  "SLE|VITILIGO": {
+    "init": 0.05000000074505806,
+    "learned": 0.0618
+  },
+  "SLE|MS": {
+    "init": 0.10000000149011612,
+    "learned": 0.144
+  },
+  "SJOGRENS|RA": {
+    "init": 0.32499998807907104,
+    "learned": 0.3633
+  },
+  "SJOGRENS|SLE": {
+    "init": 0.375,
+    "learned": 0.4038
+  },
+  "SJOGRENS|AITD": {
+    "init": 0.550000011920929,
+    "learned": 0.5549
+  },
+  "AITD|RA": {
+    "init": 0.25999999046325684,
+    "learned": 0.2986
+  },
+  "AITD|SJOGRENS": {
+    "init": 0.550000011920929,
+    "learned": 0.6003
+  },
+  "AITD|T1D": {
+    "init": 0.32499998807907104,
+    "learned": 0.2655
+  },
+  "AITD|VITILIGO": {
+    "init": 0.5249999761581421,
+    "learned": 0.5563
+  },
+  "AITD|MS": {
+    "init": 0.07500000298023224,
+    "learned": 0.1052
+  },
+  "T1D|SLE": {
+    "init": 0.15000000596046448,
+    "learned": 0.0264
+  },
+  "T1D|AITD": {
+    "init": 0.32499998807907104,
+    "learned": 0.3673
+  },
+  "T1D|VITILIGO": {
+    "init": 0.30000001192092896,
+    "learned": 0.243
+  },
+  "T1D|MS": {
+    "init": -0.5,
+    "learned": -0.4785
+  },
+  "VITILIGO|SLE": {
+    "init": 0.05000000074505806,
+    "learned": 0.0395
+  },
+  "VITILIGO|AITD": {
+    "init": 0.5249999761581421,
+    "learned": 0.5328
+  },
+  "VITILIGO|T1D": {
+    "init": 0.30000001192092896,
+    "learned": 0.5991
+  },
+  "MS|RA": {
+    "init": -0.5,
+    "learned": -0.3962
+  },
+  "MS|SLE": {
+    "init": 0.10000000149011612,
+    "learned": 0.2528
+  },
+  "MS|AITD": {
+    "init": 0.07500000298023224,
+    "learned": 0.0715
+  },
+  "MS|T1D": {
+    "init": -0.5,
+    "learned": -0.6744
+  }
+}

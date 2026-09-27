@@ -1,0 +1,16 @@
+{
+  "alpha": 0.1,
+  "nominal_coverage": 0.9,
+  "gate": 0.88,
+  "calibration_source": "test_predictions.csv, deterministic seeded 50/50 calibration/evaluation split of the held-out test set (predictions.csv REJECTED as in-sample; see protocol header)",
+  "n_cal": 500,
+  "n_eval": 500,
+  "gates": {
+    "all_diseases_ge_0.88": {
+      "pass": true,
+      "n_pass": 7
+    }
+  },
+  "verdict": "PASS",
+  "note": "coverage guarantee is marginal; ancestry miscoverage is descriptive only (pre-registered)"
+}
