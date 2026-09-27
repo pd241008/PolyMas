@@ -718,6 +718,250 @@ def plot_roadmap_overview():
     logger.info("Saved %s", out)
 
 
+def plot_f02_disease_graph():
+    """F-02: graph head vs control vs System A AUROC, plus adjacency drift."""
+    cmp_path = RESULTS_DIR / "f02_disease_graph" / "f02_comparison.csv"
+    adj_path = RESULTS_DIR / "f02_disease_graph" / "adjacency_report.json"
+    if not cmp_path.exists():
+        logger.warning("No F-02 comparison CSV — skipping")
+        return
+    df = pd.read_csv(cmp_path)
+    fig, axes = plt.subplots(1, 2, figsize=(14, 5.5), gridspec_kw={"width_ratios": [2.2, 1]})
+    ax = axes[0]
+    x = np.arange(len(df))
+    w = 0.27
+    ax.bar(x - w, df["auroc_system_a"], w, label="System A (independent GBM ensemble)", color="#2c3e50", edgecolor="black")
+    ax.bar(x, df["auroc_graph_head"], w, label="F-02 graph head (MAS adjacency)", color="#27ae60", edgecolor="black")
+    ax.bar(x + w, df["auroc_control_head"], w, label="F-02 control (no graph path)", color="#95a5a6", edgecolor="black")
+    ax.set_xticks(x, df["disease"])
+    ax.set_ylim(0.4, 0.85)
+    ax.set_ylabel("Test AUROC")
+    ax.set_title("F-02: Disease-Graph Head vs Controls")
+    ax.legend(fontsize=8.5)
+    ax2 = axes[1]
+    if adj_path.exists():
+        rep = json.loads(adj_path.read_text())
+        pairs = sorted(rep.items(), key=lambda kv: kv[1]["init"])
+        names = [k.replace("|", "\n") for k, _ in pairs]
+        init = [v["init"] for _, v in pairs]
+        learned = [v["learned"] for _, v in pairs]
+        y = np.arange(len(pairs))
+        ax2.barh(y + 0.2, init, 0.38, label="MAS-init", color="#2980b9", edgecolor="black")
+        ax2.barh(y - 0.2, learned, 0.38, label="learned", color="#e67e22", edgecolor="black")
+        ax2.set_yticks(y, names, fontsize=7)
+        ax2.axvline(0, color="gray", lw=0.8)
+        ax2.set_xlabel("adjacency weight")
+        ax2.set_title("Learned vs published adjacency")
+        ax2.legend(fontsize=8)
+    plt.tight_layout()
+    out = FIGURES_DIR / "f02_disease_graph.png"
+    fig.savefig(out)
+    plt.close(fig)
+    logger.info("Saved %s", out)
+
+
+def plot_f05_focal_loss():
+    """F-05: per-disease loss-arm deltas vs control with null/floor bands."""
+    path = RESULTS_DIR / "f05_focal_loss" / "f05_comparison.csv"
+    if not path.exists():
+        logger.warning("No F-05 comparison CSV — skipping")
+        return
+    df = pd.read_csv(path)
+    p = df.pivot(index="disease", columns="arm", values="auprc")
+    a = df.pivot(index="disease", columns="arm", values="auroc")
+    order = df[df["arm"] == "control"]["disease"].tolist()
+    fig, axes = plt.subplots(1, 2, figsize=(13, 5))
+    for ax, (pivot, metric) in zip(axes, [(p, "AUPRC"), (a, "AUROC")]):
+        d_f = (pivot["focal"] - pivot["control"]).loc[order]
+        d_c = (pivot["costsens"] - pivot["control"]).loc[order]
+        x = np.arange(len(order))
+        ax.bar(x - 0.2, d_f, 0.38, label="focal (α=0.25, γ=2)", color="#2980b9", edgecolor="black")
+        ax.bar(x + 0.2, d_c, 0.38, label="cost-sensitive", color="#e67e22", edgecolor="black")
+        ax.axhline(0, color="black", lw=0.8)
+        ax.axhspan(-0.005, 0.005, color="gray", alpha=0.15, label="null band (±0.005)")
+        ax.axhline(-0.01, color="#c0392b", ls=":", lw=1.2, label="AUROC floor (−0.01)")
+        ax.set_xticks(x, order, rotation=30, ha="right")
+        ax.set_ylabel(f"{metric} delta vs logloss control")
+    axes[0].set_title("F-05: Focal/cost-sensitive loss — AUPRC deltas")
+    axes[1].set_title("AUROC deltas (floor violations)")
+    axes[0].legend(fontsize=8)
+    plt.tight_layout()
+    out = FIGURES_DIR / "f05_focal_loss.png"
+    fig.savefig(out)
+    plt.close(fig)
+    logger.info("Saved %s", out)
+
+
+def plot_phase3_panel():
+    """Phase 3 close-out: 4-panel evidence figure (F-01..F-04 + curve arms)."""
+    fig, axes = plt.subplots(2, 2, figsize=(14, 10))
+
+    # (a) F-03: hier vs flat val curves + test bars
+    ax = axes[0][0]
+    try:
+        for mode, color in (("flat", "#95a5a6"), ("hierarchical", "#27ae60")):
+            arm = json.loads((RESULTS_DIR / "f03_hierarchical_mamba" / f"arm_{mode}.json").read_text())
+            ep = [h["epoch"] for h in arm["history"]]
+            ax.plot(ep, [h["val_macro_auroc"] for h in arm["history"]],
+                    marker="o", color=color, label=f"{mode} (val)")
+        ax.set_title("F-03: hierarchical vs flat Mamba (val AUROC)")
+        ax.set_xlabel("epoch")
+        ax.legend(fontsize=8)
+    except FileNotFoundError:
+        ax.text(0.5, 0.5, "F-03 missing", ha="center")
+
+    # (b) F-01: System C vs A per disease
+    ax = axes[0][1]
+    try:
+        df = pd.read_csv(RESULTS_DIR / "f01_ld_gnn" / "f01_comparison.csv")
+        x = np.arange(len(df))
+        ax.bar(x - 0.2, df["auroc_system_c"], 0.38, label="System C (LD-GNN)", color="#8e44ad", edgecolor="black")
+        ax.bar(x + 0.2, df["auroc_system_a"], 0.38, label="System A", color="#2c3e50", edgecolor="black")
+        ax.set_xticks(x, df["disease"], rotation=30, ha="right")
+        ax.set_ylim(0.4, 0.85)
+        ax.set_title("F-01: LD-GNN vs System A")
+        ax.legend(fontsize=8)
+    except FileNotFoundError:
+        ax.text(0.5, 0.5, "F-01 missing", ha="center")
+
+    # (c) F-18 both systems
+    ax = axes[1][0]
+    try:
+        n = pd.read_csv(RESULTS_DIR / "f18_noise_sweep" / "noise_curves.csv")
+        macro = n[n["disease"] == "MACRO"] if "MACRO" in set(n["disease"]) else None
+        for system, color in (("A", "#2980b9"), ("B", "#e67e22")):
+            g = n[n["system"] == system].groupby("rate")["auroc"].mean().sort_index()
+            ax.plot(g.index, g.values, marker="o", color=color, label=f"System {system} (macro)")
+        ax.set_xticks([0, 0.05, 0.1, 0.2], ["0%", "5%", "10%", "20%"])
+        ax.set_xlabel("label flip rate")
+        ax.set_title("F-18: noise robustness, both systems")
+        ax.legend(fontsize=8)
+    except Exception:
+        ax.text(0.5, 0.5, "F-18 missing", ha="center")
+
+    # (d) F-19 scaling, both systems
+    ax = axes[1][1]
+    try:
+        s = pd.read_csv(RESULTS_DIR / "f19_scaling_sweep" / "scaling_curves.csv")
+        for system, color in (("A", "#2980b9"), ("B", "#e67e22")):
+            g = s[(s["system"] == system) & (s["disease"] == "MACRO")].sort_values("n")
+            ax.plot(g["n"], g["auroc"], marker="o", color=color, label=f"System {system} (macro)")
+        ax.set_xscale("log")
+        ax.set_xticks([1000, 2500, 5000, 10000], ["1k", "2.5k", "5k", "10k"])
+        ax.minorticks_off()
+        ax.set_xlabel("n patients")
+        ax.set_title("F-19: scaling, both systems")
+        ax.legend(fontsize=8)
+    except Exception:
+        ax.text(0.5, 0.5, "F-19 missing", ha="center")
+
+    fig.suptitle("Phase 3 close-out — all verdicts recorded honestly", fontsize=13)
+    plt.tight_layout()
+    out = FIGURES_DIR / "phase3_closeout.png"
+    fig.savefig(out)
+    plt.close(fig)
+    logger.info("Saved %s", out)
+
+
+def plot_phase4_panel():
+    """Phase 4 close-out: 4-panel evidence figure (F-11, F-15, F-13, F-14)."""
+    fig, axes = plt.subplots(2, 2, figsize=(14, 10))
+
+    # (a) F-11: conformal coverage per disease x ancestry vs the 0.88 gate
+    ax = axes[0][0]
+    try:
+        df = pd.read_csv(RESULTS_DIR / "f11_conformal" / "f11_coverage_by_ancestry.csv")
+        diseases = df["disease"].unique().tolist()
+        anc_colors = {"EUR": "#2980b9", "AFR": "#e67e22", "EAS": "#27ae60"}
+        for i, anc in enumerate(("EUR", "AFR", "EAS")):
+            g = df[df["ancestry"] == anc].set_index("disease").loc[diseases]
+            ax.bar(np.arange(len(diseases)) + (i - 1) * 0.27, g["coverage"], 0.26,
+                   label=anc, color=anc_colors[anc], edgecolor="black", lw=0.4)
+        pooled = pd.read_csv(RESULTS_DIR / "f11_conformal" / "f11_coverage_by_disease.csv")
+        ax.plot(np.arange(len(diseases)), pooled.set_index("disease").loc[diseases, "coverage"],
+                "k_", markersize=14, label="pooled")
+        ax.axhline(0.88, color="#c0392b", ls=":", lw=1.3, label="gate 0.88")
+        ax.set_xticks(np.arange(len(diseases)), diseases, rotation=30, ha="right")
+        ax.set_ylim(0.6, 1.0)
+        ax.set_ylabel("empirical coverage @ nominal 0.90")
+        ax.set_title("F-11: split-conformal coverage (held-out)")
+        ax.legend(fontsize=7, ncol=2)
+    except FileNotFoundError:
+        ax.text(0.5, 0.5, "F-11 missing", ha="center")
+
+    # (b) F-15: NLL single vs ensemble vs MC-dropout
+    ax = axes[0][1]
+    try:
+        df = pd.read_csv(RESULTS_DIR / "f15_uncertainty" / "f15_uncertainty_table.csv")
+        diseases = df["disease"].unique().tolist()
+        arms = [("single_seed42", "#95a5a6", "single (seed 42)"),
+                ("ensemble5", "#27ae60", "deep ensemble (5)"),
+                ("mc_dropout", "#8e44ad", "MC-dropout (T=30)")]
+        for i, (model, color, label) in enumerate(arms):
+            g = df[df["model"] == model].set_index("disease").loc[diseases]
+            ax.bar(np.arange(len(diseases)) + (i - 1) * 0.27, g["nll"], 0.26,
+                   label=label, color=color, edgecolor="black", lw=0.4)
+        ax.set_xticks(np.arange(len(diseases)), diseases, rotation=30, ha="right")
+        ax.set_ylabel("test NLL (macro)")
+        ax.set_title("F-15: uncertainty arms (lower is better)")
+        ax.legend(fontsize=7)
+    except FileNotFoundError:
+        ax.text(0.5, 0.5, "F-15 missing", ha="center")
+
+    # (c) F-13: Optuna val/test macro, default vs tuned, both systems
+    ax = axes[1][0]
+    try:
+        a = pd.read_csv(RESULTS_DIR / "f13_optuna" / "f13_system_a_comparison.csv")
+        means = a.groupby("config")[["auroc_val", "auroc_test"]].mean()
+        b_sum = json.loads((RESULTS_DIR / "f13_optuna" / "f13_system_b_retrain.json").read_text())
+        x = np.arange(4)
+        vals = [means.loc["default", "auroc_val"], means.loc["tuned", "auroc_val"],
+                b_sum["default_flat_val_macro"], b_sum["tuned_val_macro"]]
+        tests = [means.loc["default", "auroc_test"], means.loc["tuned", "auroc_test"],
+                 b_sum["default_flat_test_macro"], b_sum["tuned_test_macro"]]
+        labels = ["A default", "A tuned", "B default (F-03)", "B tuned"]
+        colors = ["#95a5a6", "#2980b9", "#e67e22", "#d35400"]
+        ax.bar(x - 0.2, vals, 0.38, color=colors, edgecolor="black",
+               label="val (selection)")
+        ax.bar(x + 0.2, tests, 0.38, color=colors, edgecolor="black", alpha=0.45,
+               hatch="//", label="test")
+        ax.set_xticks(x, labels, fontsize=8)
+        ax.set_ylim(0.45, 0.70)
+        ax.set_ylabel("macro AUROC")
+        ax.set_title("F-13: HPO helps GBMs; short-budget signal fails at\nfull budget for the SSM (B: honest FAIL)")
+        ax.legend(fontsize=7)
+    except FileNotFoundError:
+        ax.text(0.5, 0.5, "F-13 missing", ha="center")
+
+    # (d) F-14: SSL pretrain vs scratch, per seed
+    ax = axes[1][1]
+    try:
+        per = pd.read_csv(RESULTS_DIR / "f14_ssl" / "f14_per_seed.csv")
+        piv = per.pivot(index="seed", columns="arm", values="val")
+        seeds = piv.index.tolist()
+        x = np.arange(len(seeds))
+        ax.bar(x - 0.2, piv["scratch"], 0.38, label="scratch", color="#95a5a6",
+               edgecolor="black")
+        ax.bar(x + 0.2, piv["pretrained"], 0.38, label="SSL-pretrained",
+               color="#27ae60", edgecolor="black")
+        md = (piv["pretrained"] - piv["scratch"]).mean()
+        ax.axhline(0, color="black", lw=0.8)
+        ax.set_xticks(x, [f"seed {s}" for s in seeds])
+        ax.set_ylabel("val macro AUROC")
+        ax.set_ylim(0.4, 0.65)
+        ax.set_title(f"F-14: masked k-mer pretraining (mean paired delta {md:+.4f})")
+        ax.legend(fontsize=8)
+    except (FileNotFoundError, KeyError):
+        ax.text(0.5, 0.5, "F-14 pending", ha="center")
+
+    fig.suptitle("Phase 4 close-out — calibration & uncertainty", fontsize=13)
+    plt.tight_layout()
+    out = FIGURES_DIR / "phase4_closeout.png"
+    fig.savefig(out)
+    plt.close(fig)
+    logger.info("Saved %s", out)
+
+
 def main():
     logger.info("=== Generating result visualizations ===")
     plot_gwas_pvalue_distribution()
@@ -741,6 +985,10 @@ def main():
     plot_f20_direction_agreement()
     plot_f12_threshold_verification()
     plot_roadmap_overview()
+    plot_f02_disease_graph()
+    plot_f05_focal_loss()
+    plot_phase3_panel()
+    plot_phase4_panel()
     logger.info("=== All figures saved to %s ===", FIGURES_DIR)
 
 

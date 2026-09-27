@@ -1,0 +1,84 @@
+"""F-14: masked k-mer modeling pretraining for the sequence encoder (ROADMAP Phase 4).
+
+Pre-registered protocol (written before any run):
+  - Claim: masked-token pretraining of the Mamba encoder on the SAME 5,000
+    genotypes (no external data) improves downstream val AUROC vs training
+    from scratch, under an IDENTICAL fine-tune schedule (3 seeds, paired).
+  - Pretrain: mask 15% of the 504 k-mer tokens, predict the original token
+    id from the contextual representation (cross-entropy, masked positions
+    only). 8 epochs, lr 1e-3, AdamW. The encoder (embedding + SSM stack +
+    final norm) transfers; the SSM stack is causal — masking is handled by
+    predicting from the causal prefix, the standard GPT-style protocol.
+  - Fine-tune: identical hyperparameters for both arms (the flat recipe,
+    6 epochs, lr 1e-3, batch 64); the ONLY difference is encoder
+    initialization (pretrained vs fresh).
+  - Gates (pre-registered): paired val AUROC delta >= +0.01 for the SSL arm
+    (mean over 3 seeds) AND no per-seed regression > 0.01.
+  - Either arm failing its gate is recorded honestly; a null result is an
+    acceptable outcome (SSL with no external data at n=5,000 is expected to
+    be weak — the claim tests whether genotype self-supervision helps at
+    all in this regime).
+
+The pretraining objective predicts the ORIGINAL token id at masked
+positions (never the mask token) so the encoder learns genotype context,
+not mask-token detection.
+"""
+
+from __future__ import annotations
+
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+
+from polymas_ml.sequence.dataset import VOCAB_SIZE
+
+MASK_TOKEN_ID = VOCAB_SIZE          # 4099; embedding row added for pretraining only
+PRETRAIN_VOCAB = VOCAB_SIZE + 1     # 4100
+MASK_FRACTION = 0.15
+
+
+def mask_tokens(input_ids: torch.Tensor, mask_fraction: float = MASK_FRACTION,
+                mask_token_id: int = MASK_TOKEN_ID, generator: torch.Generator | None = None
+                ) -> tuple[torch.Tensor, torch.Tensor]:
+    """Replace a random subset of tokens with MASK; return (masked, targets).
+
+    targets hold ORIGINAL ids at masked positions and -100 elsewhere, so
+    F.cross_entropy with ignore_index=-100 scores exactly the masked set.
+    """
+    masked = input_ids.clone()
+    mask = (
+        torch.rand(input_ids.shape, generator=generator, device=input_ids.device)
+        < mask_fraction
+    )
+    targets = input_ids.masked_fill(mask, -100)
+    masked[mask] = mask_token_id
+    return masked, targets
+
+
+class MambaMLM(nn.Module):
+    """Wraps a MambaSequenceClassifier's encoder with a token-prediction head.
+
+    The head is a tied-weight linear projection of d_model -> vocab that is
+    discarded after pretraining; the encoder transfers exactly.
+    """
+
+    def __init__(self, classifier: nn.Module, vocab_size: int = PRETRAIN_VOCAB) -> None:
+        super().__init__()
+        # MASK token id (VOCAB_SIZE) needs one embedding row past the
+        # classifier's supervised vocab — grow the table before training.
+        if hasattr(classifier, "ensure_vocab"):
+            classifier.ensure_vocab(vocab_size)
+        self.classifier = classifier
+        self.lm_head = nn.Linear(classifier.d_model, vocab_size, bias=False)
+
+    def forward(self, input_ids: torch.Tensor) -> torch.Tensor:  # (B, L)
+        h = self.classifier.embed(input_ids)                    # (B, L, d)
+        return self.lm_head(h)                                  # (B, L, vocab)
+
+    def pretrain_loss(self, input_ids: torch.Tensor, generator: torch.Generator | None = None
+                      ) -> torch.Tensor:
+        masked, targets = mask_tokens(input_ids, generator=generator)
+        logits = self(masked)
+        return F.cross_entropy(
+            logits.reshape(-1, logits.size(-1)), targets.reshape(-1), ignore_index=-100
+        )

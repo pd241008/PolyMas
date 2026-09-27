@@ -157,11 +157,128 @@ class MambaSequenceClassifier(nn.Module):
         )
         self.d_model = d_model
 
-    def forward(self, input_ids: torch.Tensor) -> torch.Tensor:
-        """input_ids: (B, L) int. Returns logits (B, n_diseases)."""
+    def ensure_vocab(self, new_size: int) -> None:
+        """Grow the embedding table in place (F-14: MASK token row).
+
+        Existing rows are preserved exactly; the added rows keep the default
+        nn.Embedding init so masked-token embeddings start untrained.
+        """
+        old = self.embedding.num_embeddings
+        if new_size <= old:
+            return
+        new_emb = nn.Embedding(new_size, self.d_model)
+        with torch.no_grad():
+            new_emb.weight[:old] = self.embedding.weight
+        self.embedding = new_emb
+
+    def embed(self, input_ids: torch.Tensor) -> torch.Tensor:
+        """Contextual hidden states (B, L, d) — pooling input of the head."""
         x = self.embedding(input_ids)
         for block in self.blocks:
             x = block(x)
-        x = self.norm_f(x)
-        pooled = x.mean(dim=1)  # mean-pool over sequence length
+        return self.norm_f(x)
+
+    def forward(self, input_ids: torch.Tensor) -> torch.Tensor:
+        """input_ids: (B, L) int. Returns logits (B, n_diseases)."""
+        pooled = self.embed(input_ids).mean(dim=1)  # mean-pool over sequence length
         return self.head(pooled)
+
+
+class HierarchicalMamba(nn.Module):
+    """F-03: per-locus local encoders pooled by attention, then one global
+    cross-locus pass (ROADMAP Phase 3).
+
+    Input convention: the token row is the CONCATENATION of n_loci fixed-
+    size blocks (dataset.build_patient_tokens: per locus, context tokens
+    then the genotype token), so the sequence reshapes losslessly to
+    (B, n_loci, block_len) with NO dataset rebuild.
+
+    Architecture:
+      token embed -> LOCAL: shared 2x SelectiveSSM over each locus block
+                  -> attention pool per locus (one-head, additive)
+                  -> GLOBAL: 1x SelectiveSSM across the 8 locus vectors
+                  -> attention head pool -> shared per-disease head.
+
+    mode='flat' consumes the SAME parameters as a flat mean-pool Mamba
+    (embedding -> local blocks -> global block over the full length ->
+    norm -> mean pool -> head), giving the pre-registered comparison a
+    parameter-matched baseline from one class."""
+
+    def __init__(
+        self,
+        vocab_size: int,
+        n_diseases: int,
+        n_loci: int = 8,
+        d_model: int = 64,
+        n_local_layers: int = 2,
+        d_state: int = 8,
+        d_conv: int = 4,
+        expand: int = 2,
+        dropout: float = 0.1,
+        mode: str = "hierarchical",
+    ) -> None:
+        super().__init__()
+        if mode not in ("hierarchical", "flat"):
+            raise ValueError(f"unknown mode {mode!r}")
+        self.mode = mode
+        self.n_loci = n_loci
+        self.d_model = d_model
+        self.embedding = nn.Embedding(vocab_size, d_model)
+        self.local_blocks = nn.ModuleList(
+            [SelectiveSSM(d_model, d_state=d_state, d_conv=d_conv, expand=expand)
+             for _ in range(n_local_layers)]
+        )
+        self.global_block = SelectiveSSM(d_model, d_state=d_state, d_conv=d_conv, expand=expand)
+        self.norm_f = nn.LayerNorm(d_model)
+        self.drop = nn.Dropout(dropout)
+        # Additive attention scores for the per-locus pool and the head pool.
+        self.locus_attn = nn.Linear(d_model, 1)
+        self.head_attn = nn.Linear(d_model, 1)
+        self.head = nn.Linear(d_model, n_diseases)
+
+    def embed(self, input_ids: torch.Tensor) -> torch.Tensor:
+        """Pooled representation BEFORE the head (F-04 fusion input)."""
+        if self.mode == "flat":
+            x = self.embedding(input_ids)
+            for block in self.local_blocks:
+                x = block(x)
+            x = self.global_block(x)
+            x = self.norm_f(x)
+            return x.mean(dim=1)
+        if input_ids.dim() == 3:
+            b, n_loci_in, block = input_ids.shape
+        else:
+            b, L = input_ids.shape
+            n_loci_in, block = self.n_loci, L // self.n_loci
+        x = self.embedding(input_ids)
+        x = x.reshape(b * n_loci_in, block, self.d_model)
+        for block in self.local_blocks:
+            x = block(x)
+        w = torch.softmax(self.locus_attn(x), dim=1)
+        pooled = (w * x).sum(dim=1).reshape(b, n_loci_in, self.d_model)
+        pooled = self.global_block(pooled)
+        pooled = self.norm_f(pooled)
+        w2 = torch.softmax(self.head_attn(pooled), dim=1)
+        return (w2 * pooled).sum(dim=1)
+
+    def forward(self, input_ids: torch.Tensor) -> torch.Tensor:
+        if self.mode == "flat":
+            pooled = self.embed(input_ids)             # shared embedding path
+            return self.head(self.drop(pooled))
+        if input_ids.dim() == 3:
+            b, n_loci_in, block = input_ids.shape
+        else:
+            b, L = input_ids.shape
+            n_loci_in, block = self.n_loci, L // self.n_loci
+        x = self.embedding(input_ids)                  # (B, n_loci, block, d)
+        x = x.reshape(b * n_loci_in, block, self.d_model)
+        for block in self.local_blocks:                # shared local encoder
+            x = block(x)
+        # One-head additive attention pool per locus.
+        w = torch.softmax(self.locus_attn(x), dim=1)   # (B*8, block, 1)
+        pooled = (w * x).sum(dim=1).reshape(b, n_loci_in, self.d_model)
+        pooled = self.global_block(pooled)             # cross-locus pass
+        pooled = self.norm_f(pooled)
+        w2 = torch.softmax(self.head_attn(pooled), dim=1)  # (B, 8, 1)
+        pooled = (w2 * pooled).sum(dim=1)              # (B, d)
+        return self.head(self.drop(pooled))

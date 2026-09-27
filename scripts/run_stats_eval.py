@@ -48,7 +48,19 @@ logger = logging.getLogger("run_stats_eval")
 
 
 def load_pipeline_outputs():
-    """Load the saved pipeline artifacts needed for the statistical eval."""
+    """Load the saved pipeline artifacts needed for the statistical eval.
+
+    TWO prediction matrices exist in models/ and they are NOT the same
+    thing (reconciliation note, 2026-09-26):
+      - test_predictions.csv: HELD-OUT probabilities from the ensemble fit
+        on the train split (the numbers per_disease_metrics.csv reports).
+        All held-out inference (bootstrap CIs, ancestry stratification)
+        MUST use this.
+      - predictions.csv: IN-SAMPLE full-cohort probabilities from a
+        separate full-data refit, used for clustering/SHAP. Its rows are
+        optimistic for the fitting patients and must never be mixed into
+        held-out statistics.
+    """
     preds_all = pd.read_csv(MODELS_DIR / "predictions.csv", index_col=0)
     clinical = pd.read_csv(FEATURES_DIR / "clinical_features.csv").set_index("patient_id")
     labels = pd.read_csv(FEATURES_DIR / "labels.csv").set_index("patient_id")
@@ -57,8 +69,11 @@ def load_pipeline_outputs():
     # Held-out split = patients with saved test predictions (written by
     # run_metrics on the composite-stratified 20% split).
     test_preds_path = MODELS_DIR / "test_predictions.csv"
+    test_preds = None
     if test_preds_path.exists():
-        test_ids = pd.read_csv(test_preds_path, index_col=0).index.astype(str)
+        test_preds = pd.read_csv(test_preds_path, index_col=0)
+        test_preds.index = test_preds.index.astype(str)
+        test_ids = test_preds.index
     else:
         logger.warning("test_predictions.csv missing - falling back to all patients")
         test_ids = preds_all.index.astype(str)
@@ -68,7 +83,7 @@ def load_pipeline_outputs():
     labels.index = labels.index.astype(str)
     assignments["patient_id"] = assignments["patient_id"].astype(str)
 
-    return preds_all, clinical, labels, assignments, test_ids
+    return preds_all, test_preds, clinical, labels, assignments, test_ids
 
 
 def main() -> None:
@@ -76,6 +91,11 @@ def main() -> None:
     parser.add_argument("--n-boot", type=int, default=2000)
     parser.add_argument("--n-permutations", type=int, default=500)
     parser.add_argument("--seed", type=int, default=123)
+    parser.add_argument("--only-perm", action="store_true",
+                        help="run ONLY the silhouette permutation test (it needs ~1.1 s/perm "
+                             "at n=5000; split into its own call so it can finish)")
+    parser.add_argument("--skip-perm", action="store_true",
+                        help="reuse the existing silhouette_permutation_test.json")
     args = parser.parse_args()
 
     from polymas_ml.data.patients import label_structure_report
@@ -90,10 +110,12 @@ def main() -> None:
     )
 
     STATS_DIR.mkdir(parents=True, exist_ok=True)
-    preds_all, clinical, labels, assignments, test_ids = load_pipeline_outputs()
+    preds_all, preds_test, clinical, labels, assignments, test_ids = load_pipeline_outputs()
 
     y_test = labels.loc[test_ids, [d for d in DISEASE_LABELS if d in labels.columns]]
-    preds_test = preds_all.loc[test_ids]
+    if preds_test is None:
+        preds_test = preds_all.loc[test_ids]
+    preds_test = preds_test.loc[test_ids]
     ancestry_test = clinical.loc[test_ids, "ethnicity"]
     diseases = [d for d in DISEASE_LABELS if d in preds_test.columns]
     logger.info("Held-out split: %d patients; diseases: %s", len(test_ids), diseases)
@@ -109,17 +131,24 @@ def main() -> None:
         print(table.to_string(index=False))
 
     # ---- 2. Silhouette permutation test ------------------------------------
-    clusterer_labels = (
-        assignments.set_index("patient_id").loc[preds_all.index, "cluster_label"].to_numpy()
-    )
-    perm = silhouette_permutation_test(
-        preds_all.to_numpy(dtype=float),
-        clusterer_labels,
-        n_permutations=args.n_permutations,
-        seed=args.seed,
-    )
-    (STATS_DIR / "silhouette_permutation_test.json").write_text(json.dumps(perm, indent=2))
-    logger.info("Silhouette permutation test: %s", perm)
+    perm_path = STATS_DIR / "silhouette_permutation_test.json"
+    if args.skip_perm and perm_path.exists():
+        perm = json.loads(perm_path.read_text())
+        logger.info("Silhouette permutation test: reused %s", perm_path)
+    else:
+        clusterer_labels = (
+            assignments.set_index("patient_id").loc[preds_all.index, "cluster_label"].to_numpy()
+        )
+        perm = silhouette_permutation_test(
+            preds_all.to_numpy(dtype=float),
+            clusterer_labels,
+            n_permutations=args.n_permutations,
+            seed=args.seed,
+        )
+        perm_path.write_text(json.dumps(perm, indent=2))
+        logger.info("Silhouette permutation test: %s", perm)
+    if args.only_perm:
+        return
 
     # ---- 3. Ancestry-stratified results ------------------------------------
     strat = ancestry_stratified_metrics(y_test, preds_test, ancestry_test, diseases)
