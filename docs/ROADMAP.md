@@ -10,9 +10,9 @@
 >
 > Living rules (from Design-Dungeons §ml-and-research):
 > - **Honesty-first:** every number traces to a real file from a real run.
-> - **P3 historical ≠ canonical:** superseded runs live under `results/results_pilot_*`; the canonical run is whatever `RUN_INFO.md` in the newest `results/results_*` folder names as such.
+> - **P3 historical ≠ canonical:** superseded runs live under `results/results_pilot_*` and archived System A runs under `results/system_a_run_<date>/`; the canonical run for all Phase 2–4 evaluations is `results/results_final_20260926/`.
 > - **P4 typed reproducibility:** every verification below carries an R1–R4 label and, for R3, a tolerance **pre-registered before the check runs**.
-> - **Fresh outputs never overwrite archives:** new runs target `POLYMAS_RESULTS_DIR=results/results_<name>_<date>`.
+> - **Fresh outputs never overwrite archives:** new runs target `POLYMAS_RESULTS_DIR=results/<run_name>_<date>` (System A default: `results/system_a_run_current/`); accepted runs are archived by renaming with their date.
 
 ---
 
@@ -87,10 +87,10 @@
 
 | ID | Feature | Goal (claim form) | Verification | Files | Status |
 |----|---------|-------------------|--------------|-------|--------|
-| **F-21** | **Dashboard integration** | *The Next.js dashboard renders live per-disease metrics, SHAP beeswarms, and the cluster explorer from canonical run artifacts (R4 — re-derived from archived results).* | Dashboard pages read canonical `results/results_*` exports; numbers match `per_disease_metrics.csv` (exact for R4). | `apps/dashboard-nextjs/` | ⬜ Not started |
+| **F-21** | **Dashboard integration** | *The Next.js dashboard renders live per-disease metrics, SHAP beeswarms, and the cluster explorer from canonical run artifacts (R4 — re-derived from archived results).* | Dashboard pages read canonical `results/results_final_20260926/` exports; numbers match `per_disease_metrics.csv` (exact for R4). | `apps/dashboard-nextjs/` | ⬜ Not started |
 | **F-22** | **gRPC serving** | *The trained ensemble serves predictions through the existing proto/gRPC scaffolding with a round-trip contract test (R2).* | `proto/polymas/v1` serving test: request → prediction matches offline `predict_proba` within float tolerance (1e-6). | `polymas_ml/serving/grpc_server.py`, `services/` | ⬜ Not started |
 | **F-23** | **Experiment tracking (MLflow)** | *Every run (configs, metrics, artifacts) is logged; any two runs are diffable (e.g. the 09-24 vs 09-25 e2e comparison becomes automatic) (R2).* | Two recorded runs diffed via MLflow API; seeds/config/metrics present for both. | `polymas_ml/tracking.py` (new), all run scripts | ⬜ Not started |
-| **F-24** | **One-command reproducibility (Makefile e2e)** | *`make e2e RESULTS_DIR=results/results_<name>_<date>` runs the full chain (A → k-mer → B → stats → figures → PDF) into a fresh folder; `make verify` does the fast R4 re-check (R2 for the target, R3 for the comparison).* | Fresh-folder e2e via make matches the 2026-09-25 run: System A bit-identical (R1), System B within pre-registered tolerance (R3, per-disease AUROC ±0.02); figures regenerate. | `Makefile`, `scripts/run_e2e.sh` (new) | 🔶 In progress — `POLYMAS_RESULTS_DIR` override landed (2026-09-25) and verified by the e2e run; make targets + verify path remain |
+| **F-24** | **One-command reproducibility (Makefile e2e)** | *`make e2e RESULTS_DIR=results/<run_name>_<date>` runs the full chain (A → k-mer → B → stats → figures → PDF) into a fresh folder; `make verify` does the fast R4 re-check (R2 for the target, R3 for the comparison).* | Fresh-folder e2e via make matches the 2026-09-25 run: System A bit-identical (R1), System B within pre-registered tolerance (R3, per-disease AUROC ±0.02); figures regenerate. | `Makefile`, `scripts/run_e2e.sh` (new) | 🔶 In progress — `POLYMAS_RESULTS_DIR` override landed (2026-09-25) and verified by the e2e run; make targets + verify path remain |
 
 ---
 

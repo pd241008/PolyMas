@@ -182,11 +182,13 @@ for program decisions live in `docs/adr/`.
 
 ## Artifacts & what gets committed
 
-`results/` is the home for all pipeline artifacts — run outputs (`results/results/`,
-`results/results_final_20260926/`, pilot runs), publication figures (`results/figures/`),
-generated reports (`results/results.pdf`), and phase bundle zips. A fresh run recreates
-any missing subdirectory automatically; `POLYMAS_RESULTS_DIR` overrides the root in
-every run/reader script.
+`results/` is the home for all pipeline artifacts — the canonical run
+(`results/results_final_20260926/`), archived System A runs
+(`results/system_a_run_<date>/`; fresh runs write `system_a_run_current/`),
+phase bundle exports (`results/bundles/`), publication figures
+(`results/figures/`), and generated reports (`results/results.pdf`). A fresh
+run recreates any missing subdirectory automatically; `POLYMAS_RESULTS_DIR`
+overrides the root in every run/reader script.
 
 **Commit policy (see `results/README.md`):** summary/metrics JSONs ≤ 300 KB are
 tracked — the auditable numeric record (~13 MB, 400+ files). CSVs, parquet/model

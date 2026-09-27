@@ -13,7 +13,7 @@ feature machinery BEFORE it is wired into the production label simulation
 which real-dosage features would be null by construction — documented in
 ROADMAP F-06).
 
-Outputs -> results/results/f06_ablation_<date>/
+Outputs -> results/system_a_run_current/f06_ablation_<date>/
 """
 
 from __future__ import annotations
@@ -38,7 +38,7 @@ from polymas_ml.data.haplotypes import (  # noqa: E402
 )
 from polymas_ml.models.ensemble import MultiLabelEnsemble  # noqa: E402
 
-RESULTS_ROOT = Path(os.environ.get("POLYMAS_RESULTS_DIR", PROJECT_ROOT / "results" / "results"))
+RESULTS_ROOT = Path(os.environ.get("POLYMAS_RESULTS_DIR", PROJECT_ROOT / "results" / "system_a_run_current"))
 RUN_TAG = datetime.now(tz=timezone.utc).strftime("%Y%m%d")
 OUT_DIR = RESULTS_ROOT / f"f06_ablation_{RUN_TAG}"
 SEED = 123

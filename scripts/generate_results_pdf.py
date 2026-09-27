@@ -15,7 +15,7 @@ from weasyprint import HTML
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 RESULTS_ROOT_DIR = PROJECT_ROOT / "results"
 # Results root; override with POLYMAS_RESULTS_DIR to read a specific run folder.
-RESULTS_DIR = Path(os.environ.get("POLYMAS_RESULTS_DIR", PROJECT_ROOT / "results" / "results"))
+RESULTS_DIR = Path(os.environ.get("POLYMAS_RESULTS_DIR", PROJECT_ROOT / "results" / "system_a_run_current"))
 FIGURES_DIR = RESULTS_ROOT_DIR / "figures"
 REPORT_PATH = RESULTS_ROOT_DIR / "results.pdf"
 
@@ -138,7 +138,7 @@ if not ancestry_df.empty:
 </table>
 <div class="figure">
   <img src="results/figures/ancestry_stratified_auroc.png" alt="Ancestry-stratified AUROC">
-  <div class="caption">Figure 6c: Ancestry-stratified held-out AUROC. Pooled numbers can hide group-level heterogeneity; this split makes the per-ancestry evidence (and its limits) explicit. Stratified bootstrap CIs for the pooled estimate are in results/results/stats/bootstrap_ci_ancestry_stratified.csv.</div>
+  <div class="caption">Figure 6c: Ancestry-stratified held-out AUROC. Pooled numbers can hide group-level heterogeneity; this split makes the per-ancestry evidence (and its limits) explicit. Stratified bootstrap CIs for the pooled estimate are in results/system_a_run_current/stats/bootstrap_ci_ancestry_stratified.csv.</div>
 </div>
 """
 else:
