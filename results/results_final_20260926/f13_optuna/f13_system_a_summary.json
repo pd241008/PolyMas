@@ -1,0 +1,36 @@
+{
+  "n_trials": 50,
+  "best_params": {
+    "n_estimators": 295,
+    "max_depth": 4,
+    "num_leaves": 64,
+    "learning_rate": 0.010555186352524447,
+    "min_child_samples": 15,
+    "subsample": 0.6719569295188207,
+    "colsample_bytree": 0.9039271969245536,
+    "reg_lambda": 0.0033386858403199305
+  },
+  "best_trial_val_macro": 0.6446,
+  "macro": {
+    "default_val": 0.6054,
+    "tuned_val": 0.6446,
+    "default_test": 0.6036,
+    "tuned_test": 0.6486
+  },
+  "gates": {
+    "val_beats_default": {
+      "delta_val": 0.0392,
+      "pass": true
+    },
+    "test_delta_reported": {
+      "delta_test": 0.045,
+      "pass": true
+    },
+    "stability_spread_2refits": {
+      "spread": 0.0,
+      "pass": true
+    }
+  },
+  "verdict": "PASS",
+  "note": "single-family LightGBM sweep for comparability with F-05; test evaluated once at the end; Mamba sweep is a separate pre-registered run"
+}

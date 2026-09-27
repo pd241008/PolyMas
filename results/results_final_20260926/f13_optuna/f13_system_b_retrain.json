@@ -1,0 +1,80 @@
+{
+  "best_params": {
+    "d_model": 96,
+    "n_local_layers": 1,
+    "d_state": 4,
+    "lr": 0.0013811146846643206,
+    "dropout": 0.1793363651669237,
+    "weight_decay": 0.00255091680175084
+  },
+  "n_epochs": 12,
+  "tuned_val_macro": 0.5601,
+  "default_flat_val_macro": 0.575,
+  "delta_val": -0.0149,
+  "tuned_test_macro": 0.5363,
+  "default_flat_test_macro": 0.5464,
+  "history": [
+    {
+      "epoch": 1,
+      "val_macro_auroc": 0.5421,
+      "train_loss": 0.3979
+    },
+    {
+      "epoch": 2,
+      "val_macro_auroc": 0.5521,
+      "train_loss": 0.3824
+    },
+    {
+      "epoch": 3,
+      "val_macro_auroc": 0.5601,
+      "train_loss": 0.3814
+    },
+    {
+      "epoch": 4,
+      "val_macro_auroc": 0.5564,
+      "train_loss": 0.3806
+    },
+    {
+      "epoch": 5,
+      "val_macro_auroc": 0.5543,
+      "train_loss": 0.3818
+    },
+    {
+      "epoch": 6,
+      "val_macro_auroc": 0.5433,
+      "train_loss": 0.3804
+    },
+    {
+      "epoch": 7,
+      "val_macro_auroc": 0.5426,
+      "train_loss": 0.3799
+    },
+    {
+      "epoch": 8,
+      "val_macro_auroc": 0.5436,
+      "train_loss": 0.3793
+    },
+    {
+      "epoch": 9,
+      "val_macro_auroc": 0.5429,
+      "train_loss": 0.3799
+    },
+    {
+      "epoch": 10,
+      "val_macro_auroc": 0.544,
+      "train_loss": 0.3798
+    },
+    {
+      "epoch": 11,
+      "val_macro_auroc": 0.5449,
+      "train_loss": 0.3787
+    },
+    {
+      "epoch": 12,
+      "val_macro_auroc": 0.5446,
+      "train_loss": 0.379
+    }
+  ],
+  "stable": true,
+  "gate": "FAIL"
+}

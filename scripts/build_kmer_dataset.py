@@ -1,8 +1,8 @@
 """Build the k-mer sequence dataset (System B) from System A's features.
 
 Run with: python build_kmer_dataset.py [--n-patients 50]
-Reads stash/results/features/prs_features.csv written by the System A pipeline and
-stash/results/raw/ensembl/{reference_windows,variant_info}.json.
+Reads results/system_a_run_current/features/prs_features.csv written by the System A pipeline and
+results/system_a_run_current/raw/ensembl/{reference_windows,variant_info}.json.
 """
 import argparse
 import json
@@ -19,13 +19,13 @@ from polymas_ml.sequence.dataset import build_dataset  # noqa: E402
 
 # Results root for this run; override with POLYMAS_RESULTS_DIR to write a
 # fresh run folder without touching previous runs.
-results_dir = Path(os.environ.get("POLYMAS_RESULTS_DIR", PROJECT_ROOT / "stash" / "results"))
+results_dir = Path(os.environ.get("POLYMAS_RESULTS_DIR", PROJECT_ROOT / "results" / "system_a_run_current"))
 
 parser = argparse.ArgumentParser(description="Build System B k-mer dataset")
 parser.add_argument("--n-patients", type=int, default=None,
                     help="Optional: subsample the first N patients (default: all)")
 parser.add_argument("--out", type=str, default="smoke_kmer",
-                    help="Output dir name under stash/results/sequence/ (default: smoke_kmer)")
+                    help="Output dir name under results/system_a_run_current/sequence/ (default: smoke_kmer)")
 parser.add_argument("--max-context", type=int, default=None,
                     help="Optional: stride-subsample reference context to at most N k-mers per locus "
                          "(genotype tokens always kept). E.g. 64 -> 8x65=520 tokens/patient.")

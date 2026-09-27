@@ -67,14 +67,27 @@ proto/gen/
 .scala-build/
 
 # === Proprietary / NDA-protected ===
-docs/
+# docs/ IS tracked (ADR-001 ledger discipline); the generated report PDFs stay local
 
-# === Stash: all local gitignored artifacts live under stash/ ===
-# (results, figures, result PDFs, bundle zips, earlier pilot runs — see stash/README.md)
-stash/
+# === Results: tracked whitelist — summary JSONs only ===
+# Everything under results/ is local by default; small summary/metrics JSONs are
+# committed for auditability. CSVs, parquet, model checkpoints, figures, PDFs,
+# bundle zips and the two heavy JSON classes (OpenGWAS gwasinfo cache,
+# patient-level dendrograms) stay local — figures ship with the paper when it
+# is finalised (see results/README.md).
+results/**
+!results/
+!results/README.md
+!results/report.md
+!results/**/
+!results/**/*.json
+results/**/gwasinfo.json
+results/**/dendrogram.json
+results/**/*.pdf
+results/**/*.zip
+results/**/*.sha256
 
-# Legacy root-level locations (kept so old runs never get tracked)
-results/
+# Legacy root-level generated report (withheld until paper finalisation)
 results.pdf
 
 # Local artifact bundles (results exports, never commit)

@@ -37,7 +37,7 @@ logger = logging.getLogger("f13_tune_b")
 from polymas_ml.data.patients import DISEASE_LABELS  # noqa: E402
 
 RESULTS = Path(os.environ.get(
-    "POLYMAS_RESULTS_DIR", ROOT / "stash/results_final_20260926"))
+    "POLYMAS_RESULTS_DIR", ROOT / "results/results_final_20260926"))
 OUT = RESULTS / "f13_optuna"
 OUT.mkdir(parents=True, exist_ok=True)
 DB = OUT / "system_b.db"

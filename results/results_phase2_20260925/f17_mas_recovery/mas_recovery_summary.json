@@ -1,0 +1,11 @@
+{
+  "n_pairs_evaluated": 21,
+  "n_embedded_pairs": 19,
+  "n_sign_agreement": 10,
+  "sign_agreement_rate": 0.5263,
+  "binomial_p_vs_chance": 0.5,
+  "bonferroni_x21_p": 1.0,
+  "pass_pre_registered": false,
+  "n_full_recovery_sign_and_significant": 8,
+  "tolerance": "sign agreement > chance at binomial p < 0.05, Bonferroni x21"
+}

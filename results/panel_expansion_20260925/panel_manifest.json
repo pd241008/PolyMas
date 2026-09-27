@@ -1,0 +1,427 @@
+{
+  "run_date": "20260925",
+  "api": "https://www.ebi.ac.uk/gwas/rest/api",
+  "n_candidates": 99,
+  "n_verified": 54,
+  "n_dropped": 45,
+  "n_error": 0,
+  "n_pending": 0,
+  "verified_rs_ids": [
+    "rs2187668",
+    "rs9272346",
+    "rs2476601",
+    "rs3087243",
+    "rs2292239",
+    "rs11209026",
+    "rs2104286",
+    "rs7574865",
+    "rs6920220",
+    "rs2240340",
+    "rs874040",
+    "rs934734",
+    "rs10985068",
+    "rs3790566",
+    "rs2288904",
+    "rs3757247",
+    "rs227584",
+    "rs17264332",
+    "rs1143679",
+    "rs4963128",
+    "rs10036748",
+    "rs2269369",
+    "rs9270986",
+    "rs1480380",
+    "rs13277113",
+    "rs2298428",
+    "rs729302",
+    "rs10488631",
+    "rs4938573",
+    "rs1800450",
+    "rs17266594",
+    "rs2736340",
+    "rs9271366",
+    "rs9271597",
+    "rs3135388",
+    "rs6897932",
+    "rs2243123",
+    "rs12101255",
+    "rs653178",
+    "rs10774679",
+    "rs1990760",
+    "rs2304256",
+    "rs34536443",
+    "rs610604",
+    "rs2004640",
+    "rs10516487",
+    "rs6445975",
+    "rs763361",
+    "rs1800693",
+    "rs6498169",
+    "rs3213094",
+    "rs11117432",
+    "rs11889341",
+    "rs26232"
+  ],
+  "dropped": [
+    {
+      "rs_id": "rs28412772",
+      "gene": "PXK",
+      "disease": "RA",
+      "status": "DROPPED",
+      "note": "rsID not found in GWAS Catalog (404)"
+    },
+    {
+      "rs_id": "rs12530595",
+      "gene": "ANKRD55",
+      "disease": "RA",
+      "status": "DROPPED",
+      "note": "rsID not found in GWAS Catalog (404)"
+    },
+    {
+      "rs_id": "rs4648889",
+      "gene": "CCL21",
+      "disease": "RA",
+      "status": "DROPPED",
+      "note": "rsID not found in GWAS Catalog (404)"
+    },
+    {
+      "rs_id": "rs4910604",
+      "gene": "CD2",
+      "disease": "RA",
+      "status": "DROPPED",
+      "note": "rsID not found in GWAS Catalog (404)"
+    },
+    {
+      "rs_id": "rs116054204",
+      "gene": "DEF6",
+      "disease": "RA",
+      "status": "DROPPED",
+      "note": "rsID not found in GWAS Catalog (404)"
+    },
+    {
+      "rs_id": "rs73053335",
+      "gene": "CIITA",
+      "disease": "RA",
+      "status": "DROPPED",
+      "note": "rsID not found in GWAS Catalog (404)"
+    },
+    {
+      "rs_id": "rs13140453",
+      "gene": "PXK",
+      "disease": "RA",
+      "status": "DROPPED",
+      "note": "rsID not found in GWAS Catalog (404)"
+    },
+    {
+      "rs_id": "rs16893456",
+      "gene": "GSDMB",
+      "disease": "RA",
+      "status": "DROPPED",
+      "note": "rsID not found in GWAS Catalog (404)"
+    },
+    {
+      "rs_id": "rs6657047",
+      "gene": "IL6R",
+      "disease": "RA",
+      "status": "DROPPED",
+      "note": "rsID not found in GWAS Catalog (404)"
+    },
+    {
+      "rs_id": "rs17362609",
+      "gene": "IRF4",
+      "disease": "RA",
+      "status": "DROPPED",
+      "note": "rsID not found in GWAS Catalog (404)"
+    },
+    {
+      "rs_id": "rs4687598",
+      "gene": "REL",
+      "disease": "RA",
+      "status": "DROPPED",
+      "note": "rsID not found in GWAS Catalog (404)"
+    },
+    {
+      "rs_id": "rs10514469",
+      "gene": "TNRC6B",
+      "disease": "RA",
+      "status": "DROPPED",
+      "note": "rsID not found in GWAS Catalog (404)"
+    },
+    {
+      "rs_id": "rs707310",
+      "gene": "TAGAP",
+      "disease": "RA",
+      "status": "DROPPED",
+      "note": "rsID not found in GWAS Catalog (404)"
+    },
+    {
+      "rs_id": "rs6884941",
+      "gene": "RASGRP1",
+      "disease": "RA",
+      "status": "DROPPED",
+      "note": "rsID not found in GWAS Catalog (404)"
+    },
+    {
+      "rs_id": "rs7593176",
+      "gene": "TBC1D2C",
+      "disease": "RA",
+      "status": "DROPPED",
+      "note": "rsID not found in GWAS Catalog (404)"
+    },
+    {
+      "rs_id": "rs12933217",
+      "gene": "TNFAIP3",
+      "disease": "SLE",
+      "status": "DROPPED",
+      "note": "rsID not found in GWAS Catalog (404)"
+    },
+    {
+      "rs_id": "rs2288914",
+      "gene": "BANK1",
+      "disease": "SLE",
+      "status": "DROPPED",
+      "note": "rsID not found in GWAS Catalog (404)"
+    },
+    {
+      "rs_id": "rs4932173",
+      "gene": "PXK",
+      "disease": "SLE",
+      "status": "DROPPED",
+      "note": "rsID not found in GWAS Catalog (404)"
+    },
+    {
+      "rs_id": "rs17087503",
+      "gene": "TNIP1",
+      "disease": "SLE",
+      "status": "DROPPED",
+      "note": "rsID not found in GWAS Catalog (404)"
+    },
+    {
+      "rs_id": "rs2054443",
+      "gene": "BLK",
+      "disease": "SLE",
+      "status": "DROPPED",
+      "note": "rsID not found in GWAS Catalog (404)"
+    },
+    {
+      "rs_id": "rs11209032",
+      "gene": "IL23R",
+      "disease": "SLE",
+      "status": "DROPPED",
+      "note": "rsID not found in GWAS Catalog (404)"
+    },
+    {
+      "rs_id": "rs10882301",
+      "gene": "RAD51B",
+      "disease": "SLE",
+      "status": "DROPPED",
+      "note": "rsID not found in GWAS Catalog (404)"
+    },
+    {
+      "rs_id": "rs10415627",
+      "gene": "EP300",
+      "disease": "SLE",
+      "status": "DROPPED",
+      "note": "rsID not found in GWAS Catalog (404)"
+    },
+    {
+      "rs_id": "rs2292783",
+      "gene": "DPP4",
+      "disease": "SLE",
+      "status": "DROPPED",
+      "note": "rsID not found in GWAS Catalog (404)"
+    },
+    {
+      "rs_id": "rs113980210",
+      "gene": "BCL2L12",
+      "disease": "SLE",
+      "status": "DROPPED",
+      "note": "rsID not found in GWAS Catalog (404)"
+    },
+    {
+      "rs_id": "rs11768897",
+      "gene": "GTF2I",
+      "disease": "SJOGRENS",
+      "status": "DROPPED",
+      "note": "rsID not found in GWAS Catalog (404)"
+    },
+    {
+      "rs_id": "rs41276645",
+      "gene": "IFIH1",
+      "disease": "T1D",
+      "status": "DROPPED",
+      "note": "rsID not found in GWAS Catalog (404)"
+    },
+    {
+      "rs_id": "rs705184",
+      "gene": "PTPN2",
+      "disease": "T1D",
+      "status": "DROPPED",
+      "note": "rsID not found in GWAS Catalog (404)"
+    },
+    {
+      "rs_id": "rs12720365",
+      "gene": "CCR5",
+      "disease": "T1D",
+      "status": "DROPPED",
+      "note": "rsID not found in GWAS Catalog (404)"
+    },
+    {
+      "rs_id": "rs1131720",
+      "gene": "CCR6",
+      "disease": "VITILIGO",
+      "status": "DROPPED",
+      "note": "rsID not found in GWAS Catalog (404)"
+    },
+    {
+      "rs_id": "rs613731",
+      "gene": "CASP7",
+      "disease": "VITILIGO",
+      "status": "DROPPED",
+      "note": "rsID not found in GWAS Catalog (404)"
+    },
+    {
+      "rs_id": "rs760906",
+      "gene": "FOXP1",
+      "disease": "VITILIGO",
+      "status": "DROPPED",
+      "note": "rsID not found in GWAS Catalog (404)"
+    },
+    {
+      "rs_id": "rs116817414",
+      "gene": "RERE",
+      "disease": "VITILIGO",
+      "status": "DROPPED",
+      "note": "rsID not found in GWAS Catalog (404)"
+    },
+    {
+      "rs_id": "rs1109695",
+      "gene": "CLEC16A",
+      "disease": "MS",
+      "status": "DROPPED",
+      "note": "rsID not found in GWAS Catalog (404)"
+    },
+    {
+      "rs_id": "rs12487066",
+      "gene": "CD40",
+      "disease": "MS",
+      "status": "DROPPED",
+      "note": "rsID not found in GWAS Catalog (404)"
+    },
+    {
+      "rs_id": "rs179247",
+      "gene": "TSHR",
+      "disease": "AITD",
+      "status": "DROPPED",
+      "note": "rsID not found in GWAS Catalog (404)"
+    },
+    {
+      "rs_id": "rs3762179",
+      "gene": "CD226",
+      "disease": "AITD",
+      "status": "DROPPED",
+      "note": "rsID not found in GWAS Catalog (404)"
+    },
+    {
+      "rs_id": "rs13209033",
+      "gene": "BLK",
+      "disease": "SLE",
+      "status": "DROPPED",
+      "note": "rsID not found in GWAS Catalog (404)"
+    },
+    {
+      "rs_id": "rs3772",
+      "gene": "TNIP1",
+      "disease": "SLE",
+      "status": "DROPPED",
+      "note": "rsID not found in GWAS Catalog (404)"
+    },
+    {
+      "rs_id": "rs10777067",
+      "gene": "EVI5",
+      "disease": "MS",
+      "status": "DROPPED",
+      "note": "rsID not found in GWAS Catalog (404)"
+    },
+    {
+      "rs_id": "rs13426847",
+      "gene": "IL21",
+      "disease": "RA",
+      "status": "DROPPED",
+      "note": "rsID not found in GWAS Catalog (404)"
+    },
+    {
+      "rs_id": "rs4762874",
+      "gene": "MMEL1",
+      "disease": "RA",
+      "status": "DROPPED",
+      "note": "rsID not found in GWAS Catalog (404)"
+    },
+    {
+      "rs_id": "rs340670",
+      "gene": "CCL21",
+      "disease": "RA",
+      "status": "DROPPED",
+      "note": "rsID not found in GWAS Catalog (404)"
+    },
+    {
+      "rs_id": "rs8052641",
+      "gene": "RASGRP1",
+      "disease": "RA",
+      "status": "DROPPED",
+      "note": "rsID not found in GWAS Catalog (404)"
+    },
+    {
+      "rs_id": "rs932905",
+      "gene": "C5orf30",
+      "disease": "RA",
+      "status": "DROPPED",
+      "note": "rsID not found in GWAS Catalog (404)"
+    }
+  ],
+  "panel_sources": [
+    "Barrett 2009 (GCST000940)",
+    "Bentham 2015 (GCST003156)",
+    "Brand 2009 Graves' TSHR (GCST001200)",
+    "Chu 2011 TSHR (GCST002120)",
+    "Eyre 2012 C5orf30 (canonical)",
+    "Gateva 2009 TNIP1 (canonical)",
+    "Graham 2006 IRF5 SLE (canonical)",
+    "Graham 2008 TNFAIP3 RA (canonical)",
+    "Gudmundsson 2012 (GCST001201)",
+    "Hafler 2009 CD226 (canonical)",
+    "Harley 2008 PXK (canonical)",
+    "Hom 2008 BLK SLE (canonical)",
+    "IIBDGC 2011 CLEC16A (canonical)",
+    "IIBDGC 2011 EVI5 (canonical)",
+    "IIBDGC 2011 IL12B, Crohn's/T1D shared",
+    "IIBDGC 2011 IL21 RA (canonical)",
+    "IIBDGC 2011 IRF8 (canonical)",
+    "IIBDGC 2011 TNFRSF1A (canonical)",
+    "IIBDGC 2015 (GCST002741)",
+    "Jin 2016 (GCST004785)",
+    "Kozyrev 2008 BANK1 (canonical)",
+    "Lessard 2013 (GCST002398)",
+    "Lessard 2013 C2 deficiency",
+    "Liu 2009 IFIH1 Ala946Val (canonical)",
+    "Liu 2015 (GCST003944)",
+    "Okada 2014 (GCST002507)",
+    "Remmers 2007 STAT4 SLE (canonical)",
+    "Simmonds 2015 CD226",
+    "TYK2 P1104A protective, autoimmune panel",
+    "Tyk2 2015 / multiple autoimmune traits",
+    "Vang 2007 PTPN22 auxiliary (canonical)",
+    "Yamada 2015 FKBP5",
+    "Zhernakova 2011 CCL21 (canonical)",
+    "Zhernakova 2011 MMEL1 (canonical)",
+    "Zhernakova 2011 RASGRP1 (canonical)",
+    "legacy panel / Bottini 2004 PTPN22 C1858T",
+    "legacy panel / Chen 2015 ERBB3",
+    "legacy panel / Duerr 2006 IL23R",
+    "legacy panel / HLA-DQB1 autoimmune cluster",
+    "legacy panel / Remmers 2007 STAT4",
+    "legacy panel / Stahl 2010 RA HLA",
+    "legacy panel / Ueda 2003 CTLA4",
+    "legacy panel / Vella 2005 IL2RA"
+  ]
+}

@@ -43,7 +43,7 @@ from polymas_ml.data.patients import DISEASE_LABELS, DISEASE_RISK_LOCI  # noqa: 
 
 ROOT = Path(__file__).resolve().parents[1]
 RESULTS = Path(os.environ.get(
-    "POLYMAS_RESULTS_DIR", ROOT / "stash/results_final_20260926"))
+    "POLYMAS_RESULTS_DIR", ROOT / "results/results_final_20260926"))
 GWS_P = 5e-8
 PASS_RATE = 0.70
 

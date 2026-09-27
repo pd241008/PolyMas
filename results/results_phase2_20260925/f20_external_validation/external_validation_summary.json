@@ -1,0 +1,12 @@
+{
+  "n_pairs_tested": 12,
+  "n_sign_agreement": 3,
+  "sign_agreement_rate": 0.25,
+  "pre_registered_pass": false,
+  "tolerance": ">= 70% sign agreement on p<5e-8 associations",
+  "coverage_gaps": [
+    "AITD",
+    "VITILIGO"
+  ],
+  "interpretation": "FAIL recorded as-is. Root cause identified, not patched: the real-mode label polygenic term in simulate_labels uses UNALIGNED VCF dosages, which is sign-inverted vs published biology at loci where the VCF alt is the common protective allele (PTPN22 rs2476601, STAT4 rs7574865 \u2014 the ADR-004 calibration trap, still present in the label term). The models faithfully learned the inverted simulation signal. Fixing the label term changes the simulation generative model and requires a new ADR cycle; the rejected ADR-005 label design (allele-aligned published betas) already contained the correct mechanism."
+}

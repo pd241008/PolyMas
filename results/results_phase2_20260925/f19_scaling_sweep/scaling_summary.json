@@ -1,0 +1,24 @@
+{
+  "points": {
+    "1000": "stash/results_scaling_n1000",
+    "2500": "stash/results_scaling_n2500",
+    "5000": "stash/results_phase2_20260925",
+    "10000": "stash/results_scaling_n10000"
+  },
+  "auroc_max_reference": "n=10000 (largest point, pre-registered)",
+  "macro_curve": {
+    "1000": 0.5525,
+    "2500": 0.6089,
+    "5000": 0.6052,
+    "10000": 0.6231
+  },
+  "macro_exponent_alpha": 0.9,
+  "per_disease_exponent": {
+    "AITD": -0.397,
+    "MS": -0.348,
+    "SJOGRENS": 0.587,
+    "SLE": 0.523,
+    "T1D": 0.964
+  },
+  "note": "alpha = decay rate of the AUROC shortfall with n (AUROC_max - AUROC(n) ~ n^-alpha); larger = faster saturation"
+}

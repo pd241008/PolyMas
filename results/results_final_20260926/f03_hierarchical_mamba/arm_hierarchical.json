@@ -1,0 +1,98 @@
+{
+  "mode": "hierarchical",
+  "n_params": 352137,
+  "best_val_macro_auroc": 0.575,
+  "test": {
+    "RA": {
+      "auroc": 0.5354,
+      "auprc": 0.2196
+    },
+    "SLE": {
+      "auroc": 0.5307,
+      "auprc": 0.1964
+    },
+    "SJOGRENS": {
+      "auroc": 0.5529,
+      "auprc": 0.1385
+    },
+    "AITD": {
+      "auroc": 0.4822,
+      "auprc": 0.0944
+    },
+    "T1D": {
+      "auroc": 0.5531,
+      "auprc": 0.1811
+    },
+    "VITILIGO": {
+      "auroc": 0.5816,
+      "auprc": 0.11
+    },
+    "MS": {
+      "auroc": 0.5193,
+      "auprc": 0.0938
+    }
+  },
+  "history": [
+    {
+      "epoch": 1,
+      "train_loss": 0.3896,
+      "val_macro_auroc": 0.5375
+    },
+    {
+      "epoch": 2,
+      "train_loss": 0.381,
+      "val_macro_auroc": 0.5311
+    },
+    {
+      "epoch": 3,
+      "train_loss": 0.3808,
+      "val_macro_auroc": 0.5368
+    },
+    {
+      "epoch": 4,
+      "train_loss": 0.3802,
+      "val_macro_auroc": 0.5509
+    },
+    {
+      "epoch": 5,
+      "train_loss": 0.3811,
+      "val_macro_auroc": 0.5371
+    },
+    {
+      "epoch": 6,
+      "train_loss": 0.3799,
+      "val_macro_auroc": 0.5243
+    },
+    {
+      "epoch": 7,
+      "train_loss": 0.3798,
+      "val_macro_auroc": 0.575
+    },
+    {
+      "epoch": 8,
+      "train_loss": 0.3792,
+      "val_macro_auroc": 0.5599
+    },
+    {
+      "epoch": 9,
+      "train_loss": 0.3786,
+      "val_macro_auroc": 0.5264
+    },
+    {
+      "epoch": 10,
+      "train_loss": 0.3783,
+      "val_macro_auroc": 0.5465
+    },
+    {
+      "epoch": 11,
+      "train_loss": 0.3776,
+      "val_macro_auroc": 0.5433
+    },
+    {
+      "epoch": 12,
+      "train_loss": 0.3782,
+      "val_macro_auroc": 0.5408
+    }
+  ],
+  "macro_test_auroc": 0.5365
+}

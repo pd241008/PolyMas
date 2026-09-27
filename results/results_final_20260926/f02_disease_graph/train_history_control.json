@@ -1,0 +1,8 @@
+{
+  "best_val_macro_auroc": 0.583022088751255,
+  "last_epoch": {
+    "epoch": 80,
+    "train_loss": 0.37929314374923706,
+    "val_macro_auroc": 0.583022088751255
+  }
+}

@@ -1,0 +1,2576 @@
+{
+  "datasets": {
+    "RA": "ieu-a-833",
+    "SLE": "ebi-a-GCST003156",
+    "SJOGRENS": "finn-b-M13_SJOGREN",
+    "AITD": "ieu-a-1082",
+    "T1D": "ebi-a-GCST005536",
+    "MS": "ieu-a-1025",
+    "VITILIGO": "local:jin2016"
+  },
+  "loci": {
+    "RA": [
+      {
+        "rs_id": "rs2240340",
+        "beta": -0.0861777,
+        "effect_allele": "C",
+        "pvalue": 1.20005e-11,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs3790566",
+        "beta": -0.0582689,
+        "effect_allele": "C",
+        "pvalue": 6.69993e-05,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs6657047",
+        "beta": 0.0,
+        "effect_allele": "A",
+        "pvalue": 0.88,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs2476601",
+        "beta": -0.593327,
+        "effect_allele": "G",
+        "pvalue": 1e-149,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs2104286",
+        "beta": -0.0676586,
+        "effect_allele": "C",
+        "pvalue": 9.69996e-05,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs1131720",
+        "beta": 0.0,
+        "effect_allele": "T",
+        "pvalue": 0.96,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs4963128",
+        "beta": 0.0202027,
+        "effect_allele": "C",
+        "pvalue": 0.33,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs4910604",
+        "beta": 0.0202027,
+        "effect_allele": "C",
+        "pvalue": 0.27,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs12933217",
+        "beta": 0.0198026,
+        "effect_allele": "A",
+        "pvalue": 0.12,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs227584",
+        "beta": 0.0202027,
+        "effect_allele": "C",
+        "pvalue": 0.24,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs763361",
+        "beta": -0.0676586,
+        "effect_allele": "C",
+        "pvalue": 2.1e-06,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs4407141",
+        "beta": 0.0,
+        "effect_allele": "C",
+        "pvalue": 0.88,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs11889341",
+        "beta": 0.131028,
+        "effect_allele": "T",
+        "pvalue": 6.70039e-19,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs13426847",
+        "beta": -0.0100503,
+        "effect_allele": "T",
+        "pvalue": 0.69,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs3213094",
+        "beta": -0.0304592,
+        "effect_allele": "T",
+        "pvalue": 0.0589997,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs9271366",
+        "beta": 0.371564,
+        "effect_allele": "A",
+        "pvalue": 1.59993e-61,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs2187668",
+        "beta": -0.430783,
+        "effect_allele": "T",
+        "pvalue": 5.60015e-54,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs1480380",
+        "beta": -0.356675,
+        "effect_allele": "T",
+        "pvalue": 3.10027e-32,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs3757247",
+        "beta": 0.0295588,
+        "effect_allele": "T",
+        "pvalue": 0.0490004,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs17264332",
+        "beta": 0.162519,
+        "effect_allele": "G",
+        "pvalue": 6.70039e-19,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs1636454",
+        "beta": 0.0100503,
+        "effect_allele": "T",
+        "pvalue": 0.7,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs10488631",
+        "beta": 0.162519,
+        "effect_allele": "C",
+        "pvalue": 1.29987e-11,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs13277113",
+        "beta": 0.0953102,
+        "effect_allele": "A",
+        "pvalue": 2.49977e-11,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs11209026",
+        "beta": 0.0,
+        "effect_allele": "A",
+        "pvalue": 0.89,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs4938573",
+        "beta": 0.139762,
+        "effect_allele": "T",
+        "pvalue": 4.00037e-14,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs2292239",
+        "beta": 0.0618754,
+        "effect_allele": "G",
+        "pvalue": 1.29999e-05,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs10777067",
+        "beta": 0.0100503,
+        "effect_allele": "G",
+        "pvalue": 0.37,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs179247",
+        "beta": 0.0100503,
+        "effect_allele": "G",
+        "pvalue": 0.649999,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs6498169",
+        "beta": -0.0304592,
+        "effect_allele": "A",
+        "pvalue": 0.032,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs1143679",
+        "beta": 0.0198026,
+        "effect_allele": "A",
+        "pvalue": 0.52,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs11117432",
+        "beta": -0.0512933,
+        "effect_allele": "A",
+        "pvalue": 0.00439997,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs34536443",
+        "beta": -0.378436,
+        "effect_allele": "C",
+        "pvalue": 4.40048e-16,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs2304256",
+        "beta": -0.0833816,
+        "effect_allele": "A",
+        "pvalue": 1.29999e-08,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs934734",
+        "beta": -0.105361,
+        "effect_allele": "A",
+        "pvalue": 2.09991e-13,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs1990760",
+        "beta": 0.0295588,
+        "effect_allele": "T",
+        "pvalue": 0.0560003,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs2292783",
+        "beta": 0.0,
+        "effect_allele": "G",
+        "pvalue": 0.87,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs6445975",
+        "beta": -0.0512933,
+        "effect_allele": "T",
+        "pvalue": 0.000290001,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs874040",
+        "beta": 0.139262,
+        "effect_allele": "C",
+        "pvalue": 1.99986e-16,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs10036748",
+        "beta": 0.0487902,
+        "effect_allele": "T",
+        "pvalue": 0.000690001,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs760906",
+        "beta": 0.0,
+        "effect_allele": "C",
+        "pvalue": 0.87,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs9272346",
+        "beta": 0.392042,
+        "effect_allele": "A",
+        "pvalue": 7.00003e-90,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs729302",
+        "beta": -0.076961,
+        "effect_allele": "C",
+        "pvalue": 1e-06,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs1109695",
+        "beta": 0.0,
+        "effect_allele": "G",
+        "pvalue": 0.87,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs2736340",
+        "beta": 0.0953102,
+        "effect_allele": "T",
+        "pvalue": 1.99986e-11,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs4648889",
+        "beta": 0.00995033,
+        "effect_allele": "A",
+        "pvalue": 0.64,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs11209032",
+        "beta": -0.0202027,
+        "effect_allele": "A",
+        "pvalue": 0.0879995,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs1800450",
+        "beta": -0.0202027,
+        "effect_allele": "T",
+        "pvalue": 0.31,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs10882301",
+        "beta": 0.0202027,
+        "effect_allele": "C",
+        "pvalue": 0.22,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs653178",
+        "beta": -0.0833816,
+        "effect_allele": "T",
+        "pvalue": 5.49997e-07,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs4932173",
+        "beta": 0.0295588,
+        "effect_allele": "T",
+        "pvalue": 0.0649995,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs3762179",
+        "beta": -0.0100503,
+        "effect_allele": "T",
+        "pvalue": 0.55,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs2288904",
+        "beta": -0.0487902,
+        "effect_allele": "G",
+        "pvalue": 0.000629999,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs324089",
+        "beta": 0.0295588,
+        "effect_allele": "T",
+        "pvalue": 0.0929994,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs7574865",
+        "beta": -0.131028,
+        "effect_allele": "G",
+        "pvalue": 4.60045e-18,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs3087243",
+        "beta": -0.139262,
+        "effect_allele": "A",
+        "pvalue": 1.69981e-22,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs932905",
+        "beta": 0.0198026,
+        "effect_allele": "A",
+        "pvalue": 0.25,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs2298428",
+        "beta": 0.0676586,
+        "effect_allele": "T",
+        "pvalue": 1.2e-05,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs4687598",
+        "beta": 0.0487902,
+        "effect_allele": "T",
+        "pvalue": 0.15,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs12487066",
+        "beta": 0.040822,
+        "effect_allele": "C",
+        "pvalue": 0.00580003,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs2243123",
+        "beta": -0.0198026,
+        "effect_allele": "C",
+        "pvalue": 0.17,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs17266594",
+        "beta": -0.0392207,
+        "effect_allele": "C",
+        "pvalue": 0.0219999,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs9271597",
+        "beta": 0.444686,
+        "effect_allele": "A",
+        "pvalue": 5.00035e-156,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs10985068",
+        "beta": 0.0304592,
+        "effect_allele": "C",
+        "pvalue": 0.14,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs1800693",
+        "beta": -0.0198026,
+        "effect_allele": "C",
+        "pvalue": 0.12,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs10774679",
+        "beta": 0.00995033,
+        "effect_allele": "T",
+        "pvalue": 0.62,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs12101255",
+        "beta": -0.0100503,
+        "effect_allele": "T",
+        "pvalue": 0.41,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs2288914",
+        "beta": -0.0295588,
+        "effect_allele": "C",
+        "pvalue": 0.0340001,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs10516487",
+        "beta": -0.0304592,
+        "effect_allele": "A",
+        "pvalue": 0.0230001,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs6897932",
+        "beta": -0.0304592,
+        "effect_allele": "T",
+        "pvalue": 0.0560003,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs3135388",
+        "beta": 0.430783,
+        "effect_allele": "G",
+        "pvalue": 7.19946e-67,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs9270986",
+        "beta": 0.371064,
+        "effect_allele": "C",
+        "pvalue": 5.10035e-59,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs6920220",
+        "beta": 0.157004,
+        "effect_allele": "A",
+        "pvalue": 7.10068e-19,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs610604",
+        "beta": 0.0676586,
+        "effect_allele": "T",
+        "pvalue": 2.39999e-05,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs2004640",
+        "beta": 0.0861777,
+        "effect_allele": "T",
+        "pvalue": 2.69998e-09,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs17362609",
+        "beta": 0.0295588,
+        "effect_allele": "T",
+        "pvalue": 0.22,
+        "aligned_to": "alt"
+      }
+    ],
+    "SLE": [
+      {
+        "rs_id": "rs2240340",
+        "beta": -0.00995033,
+        "effect_allele": "C",
+        "pvalue": 0.809173,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs3790566",
+        "beta": -0.131028,
+        "effect_allele": "C",
+        "pvalue": 0.000118664,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs2476601",
+        "beta": -0.329304,
+        "effect_allele": "G",
+        "pvalue": 8.38301e-13,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs2104286",
+        "beta": 0.0392207,
+        "effect_allele": "C",
+        "pvalue": 0.211549,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs1131720",
+        "beta": -0.0198026,
+        "effect_allele": "T",
+        "pvalue": 0.588625,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs4963128",
+        "beta": 0.174353,
+        "effect_allele": "C",
+        "pvalue": 2.57312e-08,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs4910604",
+        "beta": 0.0304592,
+        "effect_allele": "C",
+        "pvalue": 0.338876,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs12933217",
+        "beta": -0.0512933,
+        "effect_allele": "A",
+        "pvalue": 0.0666316,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs227584",
+        "beta": -0.0304592,
+        "effect_allele": "C",
+        "pvalue": 0.361492,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs763361",
+        "beta": -0.113329,
+        "effect_allele": "C",
+        "pvalue": 7.43618e-05,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs11889341",
+        "beta": 0.559616,
+        "effect_allele": "T",
+        "pvalue": 1.12383e-65,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs13426847",
+        "beta": -0.0295588,
+        "effect_allele": "T",
+        "pvalue": 0.290497,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs3213094",
+        "beta": -0.0304592,
+        "effect_allele": "T",
+        "pvalue": 0.4717,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs3757247",
+        "beta": 0.10436,
+        "effect_allele": "T",
+        "pvalue": 0.00041205,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs17264332",
+        "beta": 0.14842,
+        "effect_allele": "G",
+        "pvalue": 1.16657e-05,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs1636454",
+        "beta": -0.0304592,
+        "effect_allele": "T",
+        "pvalue": 0.267856,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs10488631",
+        "beta": 0.582216,
+        "effect_allele": "C",
+        "pvalue": 9.39723e-45,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs13277113",
+        "beta": 0.262364,
+        "effect_allele": "A",
+        "pvalue": 4.07568e-16,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs11209026",
+        "beta": -0.040822,
+        "effect_allele": "A",
+        "pvalue": 0.529874,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs4938573",
+        "beta": 0.127833,
+        "effect_allele": "T",
+        "pvalue": 0.000426776,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs2292239",
+        "beta": -0.0861777,
+        "effect_allele": "G",
+        "pvalue": 0.003764,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs10777067",
+        "beta": -0.00995033,
+        "effect_allele": "G",
+        "pvalue": 0.748102,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs179247",
+        "beta": 0.0198026,
+        "effect_allele": "G",
+        "pvalue": 0.502619,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs6498169",
+        "beta": -0.139762,
+        "effect_allele": "A",
+        "pvalue": 3.10806e-06,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs1143679",
+        "beta": 0.582216,
+        "effect_allele": "A",
+        "pvalue": 5.0269e-48,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs11117432",
+        "beta": -0.223144,
+        "effect_allele": "A",
+        "pvalue": 1.12481e-07,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs34536443",
+        "beta": -0.673345,
+        "effect_allele": "C",
+        "pvalue": 2.02535e-11,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs2304256",
+        "beta": -0.235722,
+        "effect_allele": "A",
+        "pvalue": 1.53957e-12,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs934734",
+        "beta": -0.0943097,
+        "effect_allele": "A",
+        "pvalue": 0.00265228,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs1990760",
+        "beta": 0.139262,
+        "effect_allele": "T",
+        "pvalue": 2.47622e-06,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs2292783",
+        "beta": 0.0676586,
+        "effect_allele": "G",
+        "pvalue": 0.0557751,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs6445975",
+        "beta": -0.122218,
+        "effect_allele": "T",
+        "pvalue": 9.01094e-05,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs874040",
+        "beta": -0.0202027,
+        "effect_allele": "C",
+        "pvalue": 0.480614,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs10036748",
+        "beta": 0.277632,
+        "effect_allele": "T",
+        "pvalue": 2.80092e-18,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs760906",
+        "beta": 0.0198026,
+        "effect_allele": "C",
+        "pvalue": 0.528255,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs9272346",
+        "beta": 0.105361,
+        "effect_allele": "A",
+        "pvalue": 0.000236048,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs729302",
+        "beta": -0.274437,
+        "effect_allele": "C",
+        "pvalue": 3.00746e-17,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs1109695",
+        "beta": 0.0304592,
+        "effect_allele": "G",
+        "pvalue": 0.489535,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs2736340",
+        "beta": 0.262364,
+        "effect_allele": "T",
+        "pvalue": 2.13944e-16,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs4648889",
+        "beta": 0.0618474,
+        "effect_allele": "A",
+        "pvalue": 0.0419402,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs11209032",
+        "beta": -0.0512933,
+        "effect_allele": "A",
+        "pvalue": 0.102132,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs10882301",
+        "beta": 0.0100503,
+        "effect_allele": "C",
+        "pvalue": 0.70738,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs653178",
+        "beta": -0.150831,
+        "effect_allele": "T",
+        "pvalue": 1.20091e-07,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs3762179",
+        "beta": -0.0100503,
+        "effect_allele": "T",
+        "pvalue": 0.816083,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs2288904",
+        "beta": 0.0304592,
+        "effect_allele": "G",
+        "pvalue": 0.346304,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs324089",
+        "beta": -0.0295588,
+        "effect_allele": "T",
+        "pvalue": 0.397063,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs7574865",
+        "beta": -0.559616,
+        "effect_allele": "G",
+        "pvalue": 9.80393e-66,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs3087243",
+        "beta": -0.0833816,
+        "effect_allele": "A",
+        "pvalue": 0.00897057,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs2298428",
+        "beta": 0.239017,
+        "effect_allele": "T",
+        "pvalue": 1.93731e-12,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs4687598",
+        "beta": 0.00995033,
+        "effect_allele": "T",
+        "pvalue": 0.918731,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs12487066",
+        "beta": 0.0582689,
+        "effect_allele": "C",
+        "pvalue": 0.0422678,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs2243123",
+        "beta": -0.105361,
+        "effect_allele": "C",
+        "pvalue": 0.000941629,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs17266594",
+        "beta": -0.174353,
+        "effect_allele": "C",
+        "pvalue": 1.4773e-08,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs9271597",
+        "beta": -0.274437,
+        "effect_allele": "A",
+        "pvalue": 1.38676e-20,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs10985068",
+        "beta": -0.0100503,
+        "effect_allele": "C",
+        "pvalue": 0.875004,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs1800693",
+        "beta": 0.0582689,
+        "effect_allele": "C",
+        "pvalue": 0.0549718,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs10774679",
+        "beta": 0.0304592,
+        "effect_allele": "T",
+        "pvalue": 0.274857,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs12101255",
+        "beta": -0.0202027,
+        "effect_allele": "T",
+        "pvalue": 0.514218,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs2288914",
+        "beta": -0.0304592,
+        "effect_allele": "C",
+        "pvalue": 0.393976,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs10516487",
+        "beta": -0.174353,
+        "effect_allele": "A",
+        "pvalue": 8.64829e-09,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs13140453",
+        "beta": -0.0618754,
+        "effect_allele": "A",
+        "pvalue": 0.0922763,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs6897932",
+        "beta": -0.0943107,
+        "effect_allele": "T",
+        "pvalue": 0.00869441,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs3135388",
+        "beta": -0.262364,
+        "effect_allele": "G",
+        "pvalue": 6.10394e-10,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs9270986",
+        "beta": -0.239017,
+        "effect_allele": "C",
+        "pvalue": 2.57211e-10,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs6920220",
+        "beta": 0.14842,
+        "effect_allele": "A",
+        "pvalue": 1.27803e-05,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs610604",
+        "beta": 0.105361,
+        "effect_allele": "T",
+        "pvalue": 0.00176758,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs17362609",
+        "beta": 0.076961,
+        "effect_allele": "T",
+        "pvalue": 0.0389583,
+        "aligned_to": "alt"
+      }
+    ],
+    "SJOGRENS": [
+      {
+        "rs_id": "rs2240340",
+        "beta": 0.0721,
+        "effect_allele": "C",
+        "pvalue": 0.0772307,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs3790566",
+        "beta": -0.0553,
+        "effect_allele": "C",
+        "pvalue": 0.3312,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs6657047",
+        "beta": -0.0431,
+        "effect_allele": "A",
+        "pvalue": 0.3842,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs2476601",
+        "beta": -0.1162,
+        "effect_allele": "G",
+        "pvalue": 0.03788,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs2104286",
+        "beta": 0.0387,
+        "effect_allele": "C",
+        "pvalue": 0.432,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs1131720",
+        "beta": 0.0577,
+        "effect_allele": "T",
+        "pvalue": 0.3721,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs4963128",
+        "beta": 0.0318,
+        "effect_allele": "C",
+        "pvalue": 0.4649,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs4910604",
+        "beta": -0.0464,
+        "effect_allele": "C",
+        "pvalue": 0.2938,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs12933217",
+        "beta": 0.0499,
+        "effect_allele": "A",
+        "pvalue": 0.2165,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs227584",
+        "beta": -0.0262,
+        "effect_allele": "C",
+        "pvalue": 0.5401,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs763361",
+        "beta": -0.0494,
+        "effect_allele": "C",
+        "pvalue": 0.2192,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs4407141",
+        "beta": -0.0305,
+        "effect_allele": "C",
+        "pvalue": 0.600701,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs11889341",
+        "beta": 0.2201,
+        "effect_allele": "T",
+        "pvalue": 4.29497e-06,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs13426847",
+        "beta": -0.0698,
+        "effect_allele": "T",
+        "pvalue": 0.0999908,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs3213094",
+        "beta": -0.0093,
+        "effect_allele": "T",
+        "pvalue": 0.8602,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs9271366",
+        "beta": -0.1082,
+        "effect_allele": "A",
+        "pvalue": 0.0580497,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs1480380",
+        "beta": 0.5247,
+        "effect_allele": "T",
+        "pvalue": 1.74381e-11,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs3757247",
+        "beta": 0.0518,
+        "effect_allele": "T",
+        "pvalue": 0.2132,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs17264332",
+        "beta": 0.0482,
+        "effect_allele": "G",
+        "pvalue": 0.3441,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs1636454",
+        "beta": 0.0497,
+        "effect_allele": "T",
+        "pvalue": 0.2706,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs10488631",
+        "beta": 0.3107,
+        "effect_allele": "C",
+        "pvalue": 4.39805e-08,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs13277113",
+        "beta": 0.1236,
+        "effect_allele": "A",
+        "pvalue": 0.0159001,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs11209026",
+        "beta": 0.0495,
+        "effect_allele": "A",
+        "pvalue": 0.606801,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs4938573",
+        "beta": 0.0459,
+        "effect_allele": "T",
+        "pvalue": 0.3897,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs2292239",
+        "beta": 0.0226,
+        "effect_allele": "G",
+        "pvalue": 0.6034,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs10777067",
+        "beta": -0.0253,
+        "effect_allele": "G",
+        "pvalue": 0.528901,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs179247",
+        "beta": 0.0208,
+        "effect_allele": "G",
+        "pvalue": 0.6089,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs6498169",
+        "beta": 0.0235,
+        "effect_allele": "A",
+        "pvalue": 0.5629,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs1143679",
+        "beta": 0.1381,
+        "effect_allele": "A",
+        "pvalue": 0.0272502,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs34536443",
+        "beta": -0.1042,
+        "effect_allele": "C",
+        "pvalue": 0.3692,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs2304256",
+        "beta": -0.043,
+        "effect_allele": "A",
+        "pvalue": 0.3509,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs934734",
+        "beta": -0.0924,
+        "effect_allele": "A",
+        "pvalue": 0.0220399,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs1990760",
+        "beta": 0.0529,
+        "effect_allele": "T",
+        "pvalue": 0.1929,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs2292783",
+        "beta": 0.002,
+        "effect_allele": "G",
+        "pvalue": 0.9661,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs6445975",
+        "beta": -0.0016,
+        "effect_allele": "T",
+        "pvalue": 0.9704,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs874040",
+        "beta": 0.0883,
+        "effect_allele": "C",
+        "pvalue": 0.0466198,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs10036748",
+        "beta": 0.1008,
+        "effect_allele": "T",
+        "pvalue": 0.0250202,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs760906",
+        "beta": 0.0033,
+        "effect_allele": "C",
+        "pvalue": 0.9346,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs729302",
+        "beta": -0.2513,
+        "effect_allele": "C",
+        "pvalue": 2.27201e-09,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs1109695",
+        "beta": -0.0504,
+        "effect_allele": "G",
+        "pvalue": 0.2918,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs2736340",
+        "beta": 0.127,
+        "effect_allele": "T",
+        "pvalue": 0.01337,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs4648889",
+        "beta": 0.0216,
+        "effect_allele": "A",
+        "pvalue": 0.591701,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs11209032",
+        "beta": 0.0374,
+        "effect_allele": "A",
+        "pvalue": 0.364,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs1800450",
+        "beta": 0.0861,
+        "effect_allele": "T",
+        "pvalue": 0.1457,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs10882301",
+        "beta": 0.0225,
+        "effect_allele": "C",
+        "pvalue": 0.577,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs653178",
+        "beta": -0.0371,
+        "effect_allele": "T",
+        "pvalue": 0.3611,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs3762179",
+        "beta": 0.0267,
+        "effect_allele": "T",
+        "pvalue": 0.5644,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs2288904",
+        "beta": 0.0088,
+        "effect_allele": "G",
+        "pvalue": 0.8674,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs324089",
+        "beta": 0.0667,
+        "effect_allele": "T",
+        "pvalue": 0.1171,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs7574865",
+        "beta": -0.212,
+        "effect_allele": "G",
+        "pvalue": 9.00098e-06,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs3087243",
+        "beta": -0.0176,
+        "effect_allele": "A",
+        "pvalue": 0.6799,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs932905",
+        "beta": -0.0447,
+        "effect_allele": "A",
+        "pvalue": 0.2872,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs2298428",
+        "beta": 0.0115,
+        "effect_allele": "T",
+        "pvalue": 0.7945,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs4687598",
+        "beta": 0.023,
+        "effect_allele": "T",
+        "pvalue": 0.7828,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs12487066",
+        "beta": 0.0014,
+        "effect_allele": "C",
+        "pvalue": 0.9754,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs2243123",
+        "beta": -0.0199,
+        "effect_allele": "C",
+        "pvalue": 0.655399,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs17266594",
+        "beta": -0.0492,
+        "effect_allele": "C",
+        "pvalue": 0.2581,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs9271597",
+        "beta": -0.3124,
+        "effect_allele": "A",
+        "pvalue": 9.49511e-14,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs10985068",
+        "beta": 0.0978,
+        "effect_allele": "C",
+        "pvalue": 0.1724,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs1800693",
+        "beta": -0.0148,
+        "effect_allele": "C",
+        "pvalue": 0.715599,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs10774679",
+        "beta": 0.017,
+        "effect_allele": "T",
+        "pvalue": 0.706801,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs12101255",
+        "beta": -0.0533,
+        "effect_allele": "T",
+        "pvalue": 0.227,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs2288914",
+        "beta": 0.0295,
+        "effect_allele": "C",
+        "pvalue": 0.4619,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs10516487",
+        "beta": -0.0503,
+        "effect_allele": "A",
+        "pvalue": 0.2477,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs13140453",
+        "beta": -0.0509,
+        "effect_allele": "A",
+        "pvalue": 0.3916,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs6897932",
+        "beta": -0.049,
+        "effect_allele": "T",
+        "pvalue": 0.249,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs3135388",
+        "beta": -0.1109,
+        "effect_allele": "G",
+        "pvalue": 0.0522601,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs9270986",
+        "beta": -0.1115,
+        "effect_allele": "C",
+        "pvalue": 0.0455397,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs6920220",
+        "beta": 0.0471,
+        "effect_allele": "A",
+        "pvalue": 0.3548,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs610604",
+        "beta": -0.0021,
+        "effect_allele": "T",
+        "pvalue": 0.9606,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs3772",
+        "beta": 0.6267,
+        "effect_allele": "C",
+        "pvalue": 0.2257,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs2004640",
+        "beta": 0.2764,
+        "effect_allele": "T",
+        "pvalue": 6.35624e-12,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs17362609",
+        "beta": 0.0212,
+        "effect_allele": "T",
+        "pvalue": 0.6959,
+        "aligned_to": "alt"
+      }
+    ],
+    "AITD": [
+      {
+        "rs_id": "rs3790566",
+        "beta": -0.0246926,
+        "effect_allele": "C",
+        "pvalue": 0.7804,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs6657047",
+        "beta": 0.001998,
+        "effect_allele": "A",
+        "pvalue": 0.9798,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs4963128",
+        "beta": -0.0843411,
+        "effect_allele": "C",
+        "pvalue": 0.3274,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs4910604",
+        "beta": -0.0889262,
+        "effect_allele": "C",
+        "pvalue": 0.361,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs227584",
+        "beta": 0.00895974,
+        "effect_allele": "C",
+        "pvalue": 0.9231,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs763361",
+        "beta": -0.00150113,
+        "effect_allele": "C",
+        "pvalue": 0.9857,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs11889341",
+        "beta": 0.0916672,
+        "effect_allele": "T",
+        "pvalue": 0.3393,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs3213094",
+        "beta": 0.0430595,
+        "effect_allele": "T",
+        "pvalue": 0.646399,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs9271366",
+        "beta": 0.145835,
+        "effect_allele": "A",
+        "pvalue": 0.3766,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs2187668",
+        "beta": -0.164403,
+        "effect_allele": "T",
+        "pvalue": 0.2613,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs1480380",
+        "beta": -0.0325232,
+        "effect_allele": "T",
+        "pvalue": 0.8626,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs3757247",
+        "beta": 0.0682788,
+        "effect_allele": "T",
+        "pvalue": 0.4119,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs10488631",
+        "beta": 0.217528,
+        "effect_allele": "C",
+        "pvalue": 0.1169,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs13277113",
+        "beta": -0.118784,
+        "effect_allele": "A",
+        "pvalue": 0.2257,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs11209026",
+        "beta": -0.0270629,
+        "effect_allele": "A",
+        "pvalue": 0.8692,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs4938573",
+        "beta": 0.0429075,
+        "effect_allele": "T",
+        "pvalue": 0.6901,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs2292239",
+        "beta": 0.110485,
+        "effect_allele": "G",
+        "pvalue": 0.2184,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs179247",
+        "beta": -0.195567,
+        "effect_allele": "G",
+        "pvalue": 0.01882,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs1143679",
+        "beta": 0.0305292,
+        "effect_allele": "A",
+        "pvalue": 0.7842,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs2304256",
+        "beta": 0.0516432,
+        "effect_allele": "A",
+        "pvalue": 0.5863,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs1990760",
+        "beta": -0.0843411,
+        "effect_allele": "T",
+        "pvalue": 0.313,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs6445975",
+        "beta": -0.00796817,
+        "effect_allele": "T",
+        "pvalue": 0.9383,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs10036748",
+        "beta": -0.0481404,
+        "effect_allele": "T",
+        "pvalue": 0.602101,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs760906",
+        "beta": 0.0843411,
+        "effect_allele": "C",
+        "pvalue": 0.3201,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs729302",
+        "beta": -0.0979436,
+        "effect_allele": "C",
+        "pvalue": 0.2744,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs2736340",
+        "beta": -0.107585,
+        "effect_allele": "T",
+        "pvalue": 0.2712,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs11209032",
+        "beta": -0.15759,
+        "effect_allele": "A",
+        "pvalue": 0.0702506,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs3762179",
+        "beta": -0.185366,
+        "effect_allele": "T",
+        "pvalue": 0.1345,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs2288904",
+        "beta": -0.132781,
+        "effect_allele": "G",
+        "pvalue": 0.1643,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs7574865",
+        "beta": -0.0907544,
+        "effect_allele": "G",
+        "pvalue": 0.3474,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs3087243",
+        "beta": 0.101701,
+        "effect_allele": "A",
+        "pvalue": 0.2221,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs932905",
+        "beta": 0.0411419,
+        "effect_allele": "A",
+        "pvalue": 0.6709,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs2298428",
+        "beta": 0.127513,
+        "effect_allele": "T",
+        "pvalue": 0.2349,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs12487066",
+        "beta": 0.0889262,
+        "effect_allele": "C",
+        "pvalue": 0.3577,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs2243123",
+        "beta": -0.00190181,
+        "effect_allele": "C",
+        "pvalue": 0.985,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs1800693",
+        "beta": 0.0372958,
+        "effect_allele": "C",
+        "pvalue": 0.6586,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs10774679",
+        "beta": -0.0676586,
+        "effect_allele": "T",
+        "pvalue": 0.4259,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs6897932",
+        "beta": -0.0153167,
+        "effect_allele": "T",
+        "pvalue": 0.8792,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs3135388",
+        "beta": 0.110932,
+        "effect_allele": "G",
+        "pvalue": 0.5472,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs9270986",
+        "beta": 0.0259334,
+        "effect_allele": "C",
+        "pvalue": 0.8361,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs6920220",
+        "beta": -0.0335568,
+        "effect_allele": "A",
+        "pvalue": 0.7678,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs610604",
+        "beta": -0.0667236,
+        "effect_allele": "T",
+        "pvalue": 0.4516,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs17362609",
+        "beta": -0.217037,
+        "effect_allele": "T",
+        "pvalue": 0.0777607,
+        "aligned_to": "alt"
+      }
+    ],
+    "T1D": [
+      {
+        "rs_id": "rs2240340",
+        "beta": -0.0130149,
+        "effect_allele": "C",
+        "pvalue": 0.493842,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs3790566",
+        "beta": 0.00501254,
+        "effect_allele": "C",
+        "pvalue": 0.820212,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs2476601",
+        "beta": -0.635995,
+        "effect_allele": "G",
+        "pvalue": 1.10154e-122,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs2104286",
+        "beta": -0.217037,
+        "effect_allele": "C",
+        "pvalue": 5.98412e-23,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs4963128",
+        "beta": 0.0010005,
+        "effect_allele": "C",
+        "pvalue": 0.960122,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs763361",
+        "beta": -0.116983,
+        "effect_allele": "C",
+        "pvalue": 8.03156e-11,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs11889341",
+        "beta": 0.0739937,
+        "effect_allele": "T",
+        "pvalue": 0.000769237,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs3213094",
+        "beta": 0.0169554,
+        "effect_allele": "T",
+        "pvalue": 0.459828,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs3757247",
+        "beta": 0.10598,
+        "effect_allele": "T",
+        "pvalue": 2.4198e-08,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs17264332",
+        "beta": 0.0950374,
+        "effect_allele": "G",
+        "pvalue": 1.57319e-05,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs10488631",
+        "beta": 0.0460244,
+        "effect_allele": "C",
+        "pvalue": 0.112692,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs13277113",
+        "beta": -0.026036,
+        "effect_allele": "A",
+        "pvalue": 0.237278,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs11209026",
+        "beta": -0.0610247,
+        "effect_allele": "A",
+        "pvalue": 0.108436,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs4938573",
+        "beta": -0.0579858,
+        "effect_allele": "T",
+        "pvalue": 0.0116775,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs2292239",
+        "beta": -0.215998,
+        "effect_allele": "G",
+        "pvalue": 6.0062e-30,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs179247",
+        "beta": 0.00796817,
+        "effect_allele": "G",
+        "pvalue": 0.656721,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs6498169",
+        "beta": -0.107957,
+        "effect_allele": "A",
+        "pvalue": 1.3142e-08,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs1143679",
+        "beta": 0.0219572,
+        "effect_allele": "A",
+        "pvalue": 0.463355,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs2304256",
+        "beta": -0.139032,
+        "effect_allele": "A",
+        "pvalue": 3.61493e-11,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs934734",
+        "beta": -0.00803217,
+        "effect_allele": "A",
+        "pvalue": 0.656721,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs1990760",
+        "beta": 0.158996,
+        "effect_allele": "T",
+        "pvalue": 5.83983e-17,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs6445975",
+        "beta": -0.0100493,
+        "effect_allele": "T",
+        "pvalue": 0.617075,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs10036748",
+        "beta": -0.0160278,
+        "effect_allele": "T",
+        "pvalue": 0.467059,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs10036748",
+        "beta": -0.0150121,
+        "effect_allele": "T",
+        "pvalue": 0.495354,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs729302",
+        "beta": -0.0229616,
+        "effect_allele": "C",
+        "pvalue": 0.250144,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs729302",
+        "beta": -0.0220411,
+        "effect_allele": "C",
+        "pvalue": 0.271332,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs2736340",
+        "beta": -0.0320068,
+        "effect_allele": "T",
+        "pvalue": 0.127556,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs11209032",
+        "beta": 0.0149871,
+        "effect_allele": "A",
+        "pvalue": 0.453254,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs653178",
+        "beta": -0.266051,
+        "effect_allele": "T",
+        "pvalue": 1.55883e-44,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs2288904",
+        "beta": 0.0100503,
+        "effect_allele": "G",
+        "pvalue": 0.649437,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs7574865",
+        "beta": -0.0739937,
+        "effect_allele": "G",
+        "pvalue": 0.000769237,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs3087243",
+        "beta": -0.178051,
+        "effect_allele": "A",
+        "pvalue": 7.36207e-21,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs2298428",
+        "beta": 0.0620354,
+        "effect_allele": "T",
+        "pvalue": 0.00978498,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs12487066",
+        "beta": -0.0150121,
+        "effect_allele": "C",
+        "pvalue": 0.453254,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs2243123",
+        "beta": 0.00697561,
+        "effect_allele": "C",
+        "pvalue": 0.726338,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs17266594",
+        "beta": 0.0330479,
+        "effect_allele": "C",
+        "pvalue": 0.0989418,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs1800693",
+        "beta": 0.0209784,
+        "effect_allele": "C",
+        "pvalue": 0.269046,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs12101255",
+        "beta": -0.00501254,
+        "effect_allele": "T",
+        "pvalue": 0.792428,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs10516487",
+        "beta": 0.034981,
+        "effect_allele": "A",
+        "pvalue": 0.080118,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs6897932",
+        "beta": -0.0929929,
+        "effect_allele": "T",
+        "pvalue": 9.48593e-06,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs6920220",
+        "beta": 0.0950374,
+        "effect_allele": "A",
+        "pvalue": 1.57319e-05,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs610604",
+        "beta": 0.018979,
+        "effect_allele": "T",
+        "pvalue": 0.342113,
+        "aligned_to": "alt"
+      }
+    ],
+    "MS": [
+      {
+        "rs_id": "rs2240340",
+        "beta": 0.00498754,
+        "effect_allele": "C",
+        "pvalue": 0.768,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs3790566",
+        "beta": -0.0497421,
+        "effect_allele": "C",
+        "pvalue": 0.0109999,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs2476601",
+        "beta": 0.0217615,
+        "effect_allele": "G",
+        "pvalue": 0.432,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs2104286",
+        "beta": -0.189794,
+        "effect_allele": "C",
+        "pvalue": 7.61027e-23,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs4963128",
+        "beta": 0.0178399,
+        "effect_allele": "C",
+        "pvalue": 0.322,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs763361",
+        "beta": -0.0563803,
+        "effect_allele": "C",
+        "pvalue": 0.000632004,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs11889341",
+        "beta": -0.0497421,
+        "effect_allele": "T",
+        "pvalue": 0.0126999,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs3213094",
+        "beta": -0.0563803,
+        "effect_allele": "T",
+        "pvalue": 0.00762992,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs9271366",
+        "beta": -1.02676,
+        "effect_allele": "A",
+        "pvalue": 1e-200,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs2187668",
+        "beta": 0.0440169,
+        "effect_allele": "T",
+        "pvalue": 0.0688002,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs1480380",
+        "beta": -0.0178399,
+        "effect_allele": "T",
+        "pvalue": 0.556,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs3757247",
+        "beta": 0.0401818,
+        "effect_allele": "T",
+        "pvalue": 0.0159001,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs17264332",
+        "beta": -0.0421012,
+        "effect_allele": "G",
+        "pvalue": 0.0389,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs10488631",
+        "beta": 0.079735,
+        "effect_allele": "C",
+        "pvalue": 0.00176999,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs13277113",
+        "beta": -0.0324672,
+        "effect_allele": "A",
+        "pvalue": 0.0894994,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs11209026",
+        "beta": -0.0372958,
+        "effect_allele": "A",
+        "pvalue": 0.276,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs4938573",
+        "beta": 0.112435,
+        "effect_allele": "T",
+        "pvalue": 1.12001e-07,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs2292239",
+        "beta": 0.0256677,
+        "effect_allele": "G",
+        "pvalue": 0.148,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs179247",
+        "beta": -0.00498754,
+        "effect_allele": "G",
+        "pvalue": 0.781,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs6498169",
+        "beta": -0.134531,
+        "effect_allele": "A",
+        "pvalue": 3.99025e-15,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs1143679",
+        "beta": 0.0421012,
+        "effect_allele": "A",
+        "pvalue": 0.114,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs34536443",
+        "beta": 0.248421,
+        "effect_allele": "C",
+        "pvalue": 1.24e-08,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs2304256",
+        "beta": -0.0880109,
+        "effect_allele": "A",
+        "pvalue": 1.83e-06,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs934734",
+        "beta": -0.0324672,
+        "effect_allele": "A",
+        "pvalue": 0.0476003,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs1990760",
+        "beta": -0.0334348,
+        "effect_allele": "T",
+        "pvalue": 0.0454999,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs6445975",
+        "beta": -0.001998,
+        "effect_allele": "T",
+        "pvalue": 0.896,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs874040",
+        "beta": -0.00796817,
+        "effect_allele": "C",
+        "pvalue": 0.658999,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs10036748",
+        "beta": -0.0217615,
+        "effect_allele": "T",
+        "pvalue": 0.253,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs729302",
+        "beta": -0.0639133,
+        "effect_allele": "C",
+        "pvalue": 0.000318002,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs2736340",
+        "beta": -0.0305292,
+        "effect_allele": "T",
+        "pvalue": 0.105,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs11209032",
+        "beta": 0.00796817,
+        "effect_allele": "A",
+        "pvalue": 0.671001,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs653178",
+        "beta": -0.0506931,
+        "effect_allele": "T",
+        "pvalue": 0.00237001,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs2288904",
+        "beta": 0.128393,
+        "effect_allele": "G",
+        "pvalue": 9.56996e-10,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs7574865",
+        "beta": 0.0459289,
+        "effect_allele": "G",
+        "pvalue": 0.0213,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs3087243",
+        "beta": 0.0188218,
+        "effect_allele": "A",
+        "pvalue": 0.259,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs2298428",
+        "beta": -0.0554347,
+        "effect_allele": "T",
+        "pvalue": 0.0107999,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs12487066",
+        "beta": 0.0,
+        "effect_allele": "C",
+        "pvalue": 0.988,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs2243123",
+        "beta": 0.0459289,
+        "effect_allele": "C",
+        "pvalue": 0.0106999,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs17266594",
+        "beta": 0.0334348,
+        "effect_allele": "C",
+        "pvalue": 0.0649995,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs1800693",
+        "beta": 0.134531,
+        "effect_allele": "C",
+        "pvalue": 6.9199e-16,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs12101255",
+        "beta": -0.00995033,
+        "effect_allele": "T",
+        "pvalue": 0.574,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs10516487",
+        "beta": 0.0305292,
+        "effect_allele": "A",
+        "pvalue": 0.0879995,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs6897932",
+        "beta": -0.109751,
+        "effect_allele": "T",
+        "pvalue": 5.72994e-09,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs3135388",
+        "beta": -1.05675,
+        "effect_allele": "G",
+        "pvalue": 1e-200,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs6920220",
+        "beta": -0.0421012,
+        "effect_allele": "A",
+        "pvalue": 0.0425001,
+        "aligned_to": "alt"
+      },
+      {
+        "rs_id": "rs610604",
+        "beta": 0.0392207,
+        "effect_allele": "T",
+        "pvalue": 0.0258,
+        "aligned_to": "alt"
+      }
+    ],
+    "VITILIGO": [
+      {
+        "rs_id": "rs9272346",
+        "beta": 0.572,
+        "effect_allele": "G",
+        "pvalue": null,
+        "aligned_to": "ref"
+      },
+      {
+        "rs_id": "rs2476601",
+        "beta": 0.324,
+        "effect_allele": "A",
+        "pvalue": null,
+        "aligned_to": "ref"
+      }
+    ]
+  },
+  "dropped": {
+    "RA": {
+      "rs26232": "vcf alt unidentified"
+    },
+    "SLE": {
+      "rs26232": "vcf alt unidentified"
+    },
+    "SJOGRENS": {
+      "rs26232": "vcf alt unidentified"
+    },
+    "AITD": {},
+    "T1D": {
+      "rs26232": "vcf alt unidentified"
+    },
+    "MS": {
+      "rs26232": "vcf alt unidentified"
+    },
+    "VITILIGO": {}
+  },
+  "vcf_alt_alleles": {
+    "rs3213094": "T",
+    "rs4963128": "C",
+    "rs2187668": "T",
+    "rs13277113": "A",
+    "rs17264332": "G",
+    "rs1636454": "T",
+    "rs9271366": "A",
+    "rs2104286": "C",
+    "rs4407141": "C",
+    "rs4910604": "C",
+    "rs13426847": "T",
+    "rs3757247": "T",
+    "rs16893456": "A",
+    "rs11889341": "T",
+    "rs12530595": "A",
+    "rs1131720": "T",
+    "rs10488631": "C",
+    "rs227584": "C",
+    "rs763361": "C",
+    "rs3790566": "C",
+    "rs6657047": "A",
+    "rs2240340": "C",
+    "rs12933217": "A",
+    "rs1480380": "T",
+    "rs2476601": "G",
+    "rs10415627": "",
+    "rs2736340": "T",
+    "rs2292239": "G",
+    "rs10036748": "T",
+    "rs340670": "A",
+    "rs760906": "C",
+    "rs1109695": "G",
+    "rs7593176": "G",
+    "rs729302": "C",
+    "rs11209026": "A",
+    "rs1990760": "T",
+    "rs9272346": "A",
+    "rs874040": "C",
+    "rs6445975": "T",
+    "rs11117432": "A",
+    "rs10514469": "T",
+    "rs10777067": "G",
+    "rs34536443": "C",
+    "rs2304256": "A",
+    "rs2292783": "G",
+    "rs934734": "A",
+    "rs179247": "G",
+    "rs1143679": "A",
+    "rs4938573": "T",
+    "rs6498169": "A",
+    "rs324089": "T",
+    "rs4932173": "T",
+    "rs2269369": "",
+    "rs932905": "A",
+    "rs4648889": "A",
+    "rs116054204": "G",
+    "rs2243123": "C",
+    "rs3762179": "T",
+    "rs2298428": "T",
+    "rs1800450": "T",
+    "rs10882301": "C",
+    "rs116817414": "C",
+    "rs10985068": "C",
+    "rs4762874": "G",
+    "rs12487066": "C",
+    "rs6884941": "T",
+    "rs7574865": "G",
+    "rs4687598": "T",
+    "rs2288904": "G",
+    "rs11209032": "A",
+    "rs705184": "A",
+    "rs653178": "T",
+    "rs17266594": "C",
+    "rs3087243": "A",
+    "rs9271597": "A",
+    "rs610604": "T",
+    "rs10516487": "A",
+    "rs1800693": "C",
+    "rs10774679": "T",
+    "rs2288914": "C",
+    "rs17362609": "T",
+    "rs6897932": "T",
+    "rs13140453": "A",
+    "rs2054443": "C",
+    "rs26232": "",
+    "rs3135388": "G",
+    "rs9270986": "C",
+    "rs3772": "C",
+    "rs12101255": "T",
+    "rs2004640": "T",
+    "rs6920220": "A"
+  },
+  "ea_audit_datasets": {}
+}

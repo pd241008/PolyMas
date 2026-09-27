@@ -54,7 +54,7 @@ logger = logging.getLogger("f02_disease_graph")
 from polymas_ml.data.patients import DISEASE_LABELS, MAS_EXCLUSIONS, MAS_PAIRWISE_ODDS  # noqa: E402
 
 RESULTS = Path(os.environ.get(
-    "POLYMAS_RESULTS_DIR", ROOT / "stash/results_final_20260926"))
+    "POLYMAS_RESULTS_DIR", ROOT / "results/results_final_20260926"))
 OUT = RESULTS / "f02_disease_graph"
 N_FOLDS = 3
 SEED = 42

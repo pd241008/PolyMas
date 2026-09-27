@@ -1,0 +1,30 @@
+[
+  {
+    "studyAccession": "SDY180",
+    "actualCompletionDate": null,
+    "actualEnrollment": 46,
+    "actualStartDate": null,
+    "ageUnit": "Years",
+    "briefDescription": "Systems approach to study immune response to seasonal influenza and 23-valent pneumoccocal vaccination in healthy adults.",
+    "briefTitle": "Systems scale interactive exploration reveals quantitative and qualitative differences in response to 2009-2010 Fluzone influenza vaccine and pneumococcal vaccine",
+    "clinicalTrial": "N",
+    "description": "Systems immunology approaches were employed to investigate innate and adaptive immune responses to influenza and pneumococcal vaccines. These two non-live vaccines show different magnitudes of transcriptional responses at different time points af- ter vaccination. Software solutions were developed to explore correlates of vaccine efficacy measured as antibody titers at day 28. These enabled a further dissection of transcriptional responses. Thus, the innate response, measured within hours in the peripheral blood, was dominated by an interferon transcriptional signature after influenza vaccination and by an inflammation signature after pneumo- coccal vaccination. Day 7 plasmablast responses induced by both vaccines was more pronounced after pneumococcal vaccination. Together, these results suggest that comparing global immune responses elicited by different vaccines will be critical to our understanding of the immune mechanisms underpinning successful vaccination.",
+    "dclId": 2,
+    "doi": "10.21430/M3I44H8R17",
+    "endpoints": "Serological outcome",
+    "genderIncluded": "Female, Male",
+    "hypothesis": "Systems biology approaches will permit us to gain a comprehensive view of the immunobiology associated with a potent response to vaccination. This will lead to the identification of biomarker signatures indicative of the quality of vaccine-induced antibody responses.",
+    "initialDataReleaseDate": "2013-12-18",
+    "initialDataReleaseVersion": "DR6",
+    "interventionAgent": "TIV Fluzone, Pneumovax",
+    "latestDataReleaseDate": "2025-10-30",
+    "latestDataReleaseVersion": "DR58",
+    "maximumAge": "  49.00",
+    "minimumAge": "  22.00",
+    "objectives": "Our aim is to apply systems biology approaches to study immune responses to vaccination with seasonal influenza and 23-valent pneumococcal vaccine in healthy adults. This in turn will permit us to define vaccine responders and non-responders and develop biomarker signatures predictive of vaccine response.",
+    "officialTitle": "Systems scale interactive exploration reveals quantitative and qualitative differences in response to 2009-2010 Fluzone influenza vaccine and pneumococcal vaccine",
+    "sharedStudy": "Y",
+    "sponsoringOrganization": "NIAID",
+    "targetEnrollment": null
+  }
+]

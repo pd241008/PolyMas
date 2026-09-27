@@ -55,7 +55,7 @@ logger = logging.getLogger("f04_fusion")
 from polymas_ml.data.patients import DISEASE_LABELS  # noqa: E402
 
 RESULTS = Path(os.environ.get(
-    "POLYMAS_RESULTS_DIR", ROOT / "stash/results_final_20260926"))
+    "POLYMAS_RESULTS_DIR", ROOT / "results/results_final_20260926"))
 OUT = RESULTS / "f04_fusion"
 SEED = 42
 

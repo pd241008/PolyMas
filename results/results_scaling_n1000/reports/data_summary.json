@@ -1,0 +1,23 @@
+{
+  "raw_gwas_associations": 331,
+  "prs_rows": 8000,
+  "clinical_records": 1000,
+  "label_records": 1000,
+  "feature_matrix_shape": [
+    1000,
+    23
+  ],
+  "immport_unique_subjects": 948,
+  "clinical_source": "immport_real_demographics + modeled bmi/family_history",
+  "real_cohort_diseases": [
+    "RA",
+    "SLE",
+    "SJOGRENS",
+    "T1D",
+    "MS"
+  ],
+  "modeled_diseases": [
+    "AITD",
+    "VITILIGO"
+  ]
+}

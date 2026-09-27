@@ -10,15 +10,15 @@ then evaluates the pre-registered gates from ADR-005:
       flagged).
   G2  label structure preserved: overdispersion >= 1.05 and 2+ rate >= 0.20.
   G3  marginals preserved: per-disease prevalence within +/-0.03 of the
-      no-coupling real run (stash/results_real_20260925).
+      no-coupling real run (results/results_real_20260925).
 
 Adoption rule (ADR-005): G1 PASS for >= 3 of {RA, SLE, T1D, MS, SJOGRENS}
 (remainder PASS or SKIP) AND G2 AND G3.
 
-Writes stash/results_real_20260925/adr005_gates/gate_report.json (R2).
+Writes results/results_real_20260925/adr005_gates/gate_report.json (R2).
 
 Usage:
-    POLYMAS_RESULTS_DIR=stash/results_real_20260925 \
+    POLYMAS_RESULTS_DIR=results/results_real_20260925 \
         services/ml-engine-python/.venv/bin/python scripts/coupling_gates.py
 """
 from __future__ import annotations
@@ -52,7 +52,7 @@ from polymas_ml.data.patients import (  # noqa: E402
 from polymas_ml.data.haplotypes import load_substrate  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[1]
-RESULTS = Path(os.environ.get("POLYMAS_RESULTS_DIR", ROOT / "stash/results_real_20260925"))
+RESULTS = Path(os.environ.get("POLYMAS_RESULTS_DIR", ROOT / "results/results_real_20260925"))
 N_PATIENTS = 5000
 SEED = 42
 COHORT_PREV = {"RA": 0.50, "SLE": 0.45, "SJOGRENS": 0.40, "T1D": 0.45, "MS": 0.40}

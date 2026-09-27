@@ -1,0 +1,94 @@
+{
+  "adr": "ADR-006",
+  "run": "stash/results_final_20260926",
+  "formula": "p += 0.50 * (mean_loci beta * aligned_effect_dosage - panel_mean), own-anchor loci only",
+  "G1_alignment": {
+    "status": "PASS",
+    "own_anchor_loci": 14,
+    "resolved": 11,
+    "dropped_with_reason": 3,
+    "sign_flips": 0,
+    "per_disease": {
+      "RA": "2/2",
+      "SLE": "2/2",
+      "SJOGRENS": "1/2",
+      "AITD": "1/2",
+      "T1D": "1/2",
+      "MS": "2/2",
+      "VITILIGO": "2/2"
+    }
+  },
+  "G2_marginals": {
+    "status": "PASS",
+    "tolerance": 0.03,
+    "max_abs_delta": 0.024,
+    "per_disease": {
+      "RA": {
+        "before": 0.1914,
+        "after": 0.198,
+        "delta": 0.0066
+      },
+      "SLE": {
+        "before": 0.1816,
+        "after": 0.1704,
+        "delta": -0.0112
+      },
+      "SJOGRENS": {
+        "before": 0.1306,
+        "after": 0.1174,
+        "delta": -0.0132
+      },
+      "AITD": {
+        "before": 0.1206,
+        "after": 0.0966,
+        "delta": -0.024
+      },
+      "T1D": {
+        "before": 0.142,
+        "after": 0.1332,
+        "delta": -0.0088
+      },
+      "VITILIGO": {
+        "before": 0.0942,
+        "after": 0.0904,
+        "delta": -0.0038
+      },
+      "MS": {
+        "before": 0.1144,
+        "after": 0.0952,
+        "delta": -0.0192
+      }
+    }
+  },
+  "G3_structure": {
+    "status": "PASS",
+    "overdispersion": {
+      "before": 1.093,
+      "after": 1.063
+    },
+    "rate_2plus": {
+      "before": 0.251,
+      "after": 0.232
+    }
+  },
+  "G4_f20": {
+    "status": "PASS",
+    "n_pairs": 4,
+    "agreement": 1.0,
+    "ci95": [
+      0.3976,
+      1.0
+    ]
+  },
+  "G5_model_sanity": {
+    "status": "PASS",
+    "macro_auroc": {
+      "before": 0.6052,
+      "after": 0.6163,
+      "delta": 0.0111,
+      "hold_band": 0.02
+    }
+  },
+  "verdict": "ADOPTED - all gates pass",
+  "note": "A first implementation attempt used the per-SD standardized term (label_prs_term) in the 0.50-coefficient slot; G2/G3/G5 failed (prevalence drift up to +0.20, macro +0.105). Re-run with the pre-registered raw-scale centered formula; all gates pass. Both attempts recorded per no-silent-drops."
+}

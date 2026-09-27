@@ -1,0 +1,60 @@
+{
+  "protocol": "single-family LightGBM paired ablation; only the loss differs; focal alpha=0.25 gamma=2 (paper defaults, not tuned)",
+  "low_prevalence_set": [
+    "AITD",
+    "VITILIGO",
+    "MS"
+  ],
+  "null_bound_auprc": 0.005,
+  "auroc_floor": -0.01,
+  "focal_arm": {
+    "mean_auprc_delta_low_prev": -0.0045,
+    "min_auroc_delta": -0.023,
+    "gates": {
+      "G1_auprc_gain_pass": false,
+      "G2_auroc_floor_pass": false
+    }
+  },
+  "costsens_arm_context": {
+    "mean_auprc_delta_low_prev": -0.0102,
+    "min_auroc_delta": -0.029
+  },
+  "per_disease": {
+    "RA": {
+      "focal_auprc_delta": 0.0047,
+      "focal_auroc_delta": -0.0037,
+      "costsens_auprc_delta": 0.0086
+    },
+    "SLE": {
+      "focal_auprc_delta": 0.0017,
+      "focal_auroc_delta": -0.0053,
+      "costsens_auprc_delta": 0.0094
+    },
+    "SJOGRENS": {
+      "focal_auprc_delta": -0.005,
+      "focal_auroc_delta": -0.023,
+      "costsens_auprc_delta": -0.0042
+    },
+    "AITD": {
+      "focal_auprc_delta": 0.0026,
+      "focal_auroc_delta": 0.0022,
+      "costsens_auprc_delta": -0.0009
+    },
+    "T1D": {
+      "focal_auprc_delta": -0.0013,
+      "focal_auroc_delta": -0.001,
+      "costsens_auprc_delta": -0.019
+    },
+    "VITILIGO": {
+      "focal_auprc_delta": -0.014,
+      "focal_auroc_delta": -0.002,
+      "costsens_auprc_delta": -0.0155
+    },
+    "MS": {
+      "focal_auprc_delta": -0.0021,
+      "focal_auroc_delta": 0.0084,
+      "costsens_auprc_delta": -0.0143
+    }
+  },
+  "verdict": "FAIL"
+}

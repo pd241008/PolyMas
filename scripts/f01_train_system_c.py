@@ -40,7 +40,7 @@ logger = logging.getLogger("f01_ldgnn")
 from polymas_ml.data.patients import DISEASE_LABELS, DISEASE_RISK_LOCI  # noqa: E402
 
 RESULTS = Path(os.environ.get(
-    "POLYMAS_RESULTS_DIR", ROOT / "stash/results_final_20260926"))
+    "POLYMAS_RESULTS_DIR", ROOT / "results/results_final_20260926"))
 OUT = RESULTS / "f01_ld_gnn"
 SEED = 42
 EPOCHS = 30

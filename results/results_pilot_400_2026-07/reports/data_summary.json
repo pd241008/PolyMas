@@ -1,0 +1,9 @@
+{
+  "raw_gwas_records": 3200,
+  "clinical_records": 400,
+  "label_records": 400,
+  "feature_matrix_shape": [
+    400,
+    23
+  ]
+}

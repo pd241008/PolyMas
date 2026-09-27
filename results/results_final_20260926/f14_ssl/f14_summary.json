@@ -1,0 +1,47 @@
+{
+  "per_seed": [
+    {
+      "arm": "pretrained",
+      "seed": 1,
+      "val": 0.5211,
+      "test": 0.5126
+    },
+    {
+      "arm": "pretrained",
+      "seed": 2,
+      "val": 0.5199,
+      "test": 0.5195
+    },
+    {
+      "arm": "pretrained",
+      "seed": 3,
+      "val": 0.5095,
+      "test": 0.5209
+    },
+    {
+      "arm": "scratch",
+      "seed": 1,
+      "val": 0.5257,
+      "test": 0.5247
+    },
+    {
+      "arm": "scratch",
+      "seed": 2,
+      "val": 0.5435,
+      "test": 0.5424
+    },
+    {
+      "arm": "scratch",
+      "seed": 3,
+      "val": 0.538,
+      "test": 0.5322
+    }
+  ],
+  "mean_val_delta_pre_minus_scratch": -0.0189,
+  "worst_seed_delta": -0.0285,
+  "gates": {
+    "G1_mean_delta_ge_0.01": false,
+    "G2_no_seed_regression_gt_0.01": false
+  },
+  "verdict": "FAIL"
+}

@@ -1,0 +1,26 @@
+{
+  "n_patients": 400,
+  "n_tokens": 80008,
+  "n_windows": 8,
+  "window_size": 10001,
+  "vocab_size": 8,
+  "diseases": [
+    "RA",
+    "SLE",
+    "SJOGRENS",
+    "AITD",
+    "T1D",
+    "VITILIGO",
+    "MS"
+  ],
+  "genotype_mapping": {
+    "0": "hom_ref",
+    "1": "het",
+    "2": "hom_alt"
+  },
+  "genotype_counts": {
+    "0": 2223,
+    "1": 911,
+    "2": 66
+  }
+}

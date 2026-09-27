@@ -1,0 +1,43 @@
+{
+  "thresholds": {
+    "RA": "p<5e-8",
+    "SLE": "p<5e-8",
+    "SJOGRENS": "p<5e-8",
+    "AITD": "p<1e-4 (fallback: <3 genome-wide loci)",
+    "T1D": "p<5e-8",
+    "VITILIGO": "curated anchors (no published p-values)",
+    "MS": "p<5e-8"
+  },
+  "n_loci": {
+    "RA": 23,
+    "SLE": 18,
+    "SJOGRENS": 5,
+    "AITD": 0,
+    "T1D": 10,
+    "VITILIGO": 2,
+    "MS": 8
+  },
+  "dropped": {
+    "RA": {
+      "rs26232": "vcf alt unidentified"
+    },
+    "SLE": {
+      "rs26232": "vcf alt unidentified"
+    },
+    "SJOGRENS": {
+      "rs26232": "vcf alt unidentified"
+    },
+    "AITD": {},
+    "T1D": {
+      "rs26232": "vcf alt unidentified"
+    },
+    "VITILIGO": {},
+    "MS": {
+      "rs26232": "vcf alt unidentified"
+    }
+  },
+  "notes": {
+    "AITD": "no panel association under C+T thresholds; curated anchors are HLA-proxy loci (allele-unresolvable onto panel variants)"
+  },
+  "results_root": "stash/results_phase2_20260925"
+}

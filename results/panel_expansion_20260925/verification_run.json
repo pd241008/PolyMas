@@ -1,0 +1,5 @@
+{
+  "script": "scripts/expand_panel.py",
+  "finished_utc": "2026-09-25T06:40:44.430204+00:00",
+  "honesty_note": "Dropped rsIDs are recorded with reasons in panel_manifest.json; nothing is silently removed from the candidate list."
+}

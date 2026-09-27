@@ -72,6 +72,20 @@ class TestMambaMLM:
         loss = model.pretrain_loss(x, generator=torch.Generator().manual_seed(3))
         assert torch.isfinite(loss)
 
+    def test_pretrain_loss_matches_manual_masked_ce(self) -> None:
+        # Masked-only scoring equals CE over the full grid with ignore_index.
+        import torch.nn.functional as F
+        clf = _tiny_classifier()
+        model = MambaMLM(clf)
+        x = torch.randint(0, VOCAB_SIZE, (2, 504))
+        gen = torch.Generator().manual_seed(11)
+        loss_sel = model.pretrain_loss(x, generator=gen)
+        masked, targets = mask_tokens(x, generator=torch.Generator().manual_seed(11))
+        logits = model(masked)
+        loss_full = F.cross_entropy(
+            logits.reshape(-1, logits.size(-1)), targets.reshape(-1), ignore_index=-100)
+        assert torch.allclose(loss_sel, loss_full, rtol=1e-4, atol=1e-5)
+
     def test_mask_token_embedding_created_on_demand(self) -> None:
         clf = _tiny_classifier()
         assert clf.embedding.num_embeddings == VOCAB_SIZE

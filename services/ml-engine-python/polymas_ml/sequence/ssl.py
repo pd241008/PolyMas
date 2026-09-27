@@ -77,8 +77,15 @@ class MambaMLM(nn.Module):
 
     def pretrain_loss(self, input_ids: torch.Tensor, generator: torch.Generator | None = None
                       ) -> torch.Tensor:
+        """CE over masked positions only (scores just those rows' logits).
+
+        Masking ~15% of 504 tokens leaves ~76 scored positions per batch
+        element, so logits are gathered to (n_masked, vocab) before the
+        softmax — the full (B, L, vocab) tensor is never materialized.
+        """
         masked, targets = mask_tokens(input_ids, generator=generator)
-        logits = self(masked)
-        return F.cross_entropy(
-            logits.reshape(-1, logits.size(-1)), targets.reshape(-1), ignore_index=-100
-        )
+        h = self.classifier.embed(masked)                       # (B, L, d)
+        sel = targets != -100
+        h_sel = h[sel]                                          # (M, d)
+        logits = self.lm_head(h_sel)                            # (M, vocab)
+        return F.cross_entropy(logits, targets[sel], ignore_index=-100)

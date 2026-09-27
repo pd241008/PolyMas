@@ -1,0 +1,11 @@
+{
+  "macro_system_c": 0.5401,
+  "macro_system_a": 0.6163,
+  "delta": -0.0763,
+  "tolerance": -0.02,
+  "ld_threshold": 0.2,
+  "n_nodes": 91,
+  "n_edges": 7,
+  "verdict": "FAIL",
+  "note": "graph = substrate LD r2 >= 0.2 (real 1000G haplotypes); 14 typed nodes, rest LD relays; best-val checkpoint test eval"
+}

@@ -1,0 +1,82 @@
+{
+  "rs2187668": {
+    "rs_id": "rs2187668",
+    "gene": "HLA-DRB1",
+    "seq_region": "6",
+    "start": 32638107,
+    "end": 32638107,
+    "strand": 1,
+    "allele_string": "C/T",
+    "ancestral_allele": "C"
+  },
+  "rs9272346": {
+    "rs_id": "rs9272346",
+    "gene": "HLA-DQB1",
+    "seq_region": "6",
+    "start": 32636595,
+    "end": 32636595,
+    "strand": 1,
+    "allele_string": "G/A/T",
+    "ancestral_allele": null
+  },
+  "rs2476601": {
+    "rs_id": "rs2476601",
+    "gene": "PTPN22",
+    "seq_region": "1",
+    "start": 113834946,
+    "end": 113834946,
+    "strand": 1,
+    "allele_string": "A/G/T",
+    "ancestral_allele": "G"
+  },
+  "rs3087243": {
+    "rs_id": "rs3087243",
+    "gene": "CTLA4",
+    "seq_region": "2",
+    "start": 203874196,
+    "end": 203874196,
+    "strand": 1,
+    "allele_string": "G/A/T",
+    "ancestral_allele": "G"
+  },
+  "rs2292239": {
+    "rs_id": "rs2292239",
+    "gene": "ERBB3",
+    "seq_region": "12",
+    "start": 56088396,
+    "end": 56088396,
+    "strand": 1,
+    "allele_string": "T/C/G",
+    "ancestral_allele": "T"
+  },
+  "rs11209026": {
+    "rs_id": "rs11209026",
+    "gene": "IL23R",
+    "seq_region": "1",
+    "start": 67240275,
+    "end": 67240275,
+    "strand": 1,
+    "allele_string": "G/A",
+    "ancestral_allele": "G"
+  },
+  "rs2104286": {
+    "rs_id": "rs2104286",
+    "gene": "IL2RA",
+    "seq_region": "10",
+    "start": 6057082,
+    "end": 6057082,
+    "strand": 1,
+    "allele_string": "T/C",
+    "ancestral_allele": "T"
+  },
+  "rs7574865": {
+    "rs_id": "rs7574865",
+    "gene": "STAT4",
+    "seq_region": "2",
+    "start": 191099907,
+    "end": 191099907,
+    "strand": 1,
+    "allele_string": "T/A/G",
+    "ancestral_allele": "T"
+  }
+}

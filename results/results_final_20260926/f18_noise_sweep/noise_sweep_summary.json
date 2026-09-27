@@ -1,0 +1,84 @@
+{
+  "protocol": "labels flipped 1<->0 with prob r on all splits; seed 42; System A ensemble retrained per rate on the canonical train split",
+  "rates": [
+    0.0,
+    0.05,
+    0.1,
+    0.2
+  ],
+  "monotone_tolerance": 0.01,
+  "checks": {
+    "AITD": {
+      "curve": [
+        0.5832,
+        0.5113,
+        0.5095,
+        0.4533
+      ],
+      "monotone_within_tol": true,
+      "total_drop": 0.1299
+    },
+    "MS": {
+      "curve": [
+        0.6147,
+        0.5218,
+        0.5195,
+        0.5023
+      ],
+      "monotone_within_tol": true,
+      "total_drop": 0.1124
+    },
+    "RA": {
+      "curve": [
+        0.6046,
+        0.5679,
+        0.5427,
+        0.5307
+      ],
+      "monotone_within_tol": true,
+      "total_drop": 0.0739
+    },
+    "SJOGRENS": {
+      "curve": [
+        0.5767,
+        0.5324,
+        0.5164,
+        0.5188
+      ],
+      "monotone_within_tol": true,
+      "total_drop": 0.0579
+    },
+    "SLE": {
+      "curve": [
+        0.6336,
+        0.5687,
+        0.5867,
+        0.5328
+      ],
+      "monotone_within_tol": false,
+      "total_drop": 0.1008
+    },
+    "T1D": {
+      "curve": [
+        0.7601,
+        0.7041,
+        0.6584,
+        0.5677
+      ],
+      "monotone_within_tol": true,
+      "total_drop": 0.1924
+    },
+    "VITILIGO": {
+      "curve": [
+        0.5415,
+        0.4913,
+        0.524,
+        0.5142
+      ],
+      "monotone_within_tol": false,
+      "total_drop": 0.0273
+    }
+  },
+  "system_b_pending": false,
+  "system_b": "merged into noise_curves.csv (system='B'); retrained on ADR-006-corrected labels, Phase-3 re-scope"
+}

@@ -12,7 +12,7 @@ Steps:
   4. Emit a decision table: panel variants with usable beta per disease.
 
 Usage:
-    POLYMAS_RESULTS_DIR=stash/results_real_20260925 \
+    POLYMAS_RESULTS_DIR=results/results_real_20260925 \
         services/ml-engine-python/.venv/bin/python scripts/ogwas_probe.py
 """
 from __future__ import annotations
@@ -25,7 +25,7 @@ from pathlib import Path
 import requests
 
 ROOT = Path(__file__).resolve().parents[1]
-RESULTS_ROOT = Path(os.environ.get("POLYMAS_RESULTS_DIR", ROOT / "stash/results_real_20260925"))
+RESULTS_ROOT = Path(os.environ.get("POLYMAS_RESULTS_DIR", ROOT / "results/results_real_20260925"))
 OUT_DIR = RESULTS_ROOT / "adr005_probe"
 OUT_DIR.mkdir(parents=True, exist_ok=True)
 

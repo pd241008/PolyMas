@@ -1,0 +1,763 @@
+{
+  "rs3213094": {
+    "rs_id": "rs3213094",
+    "chrom": "5",
+    "pos": 158750769,
+    "ref": "",
+    "alt": "",
+    "consequence": "intron_variant"
+  },
+  "rs4963128": {
+    "rs_id": "rs4963128",
+    "chrom": "11",
+    "pos": 589564,
+    "ref": "",
+    "alt": "",
+    "consequence": "intron_variant"
+  },
+  "rs2187668": {
+    "rs_id": "rs2187668",
+    "chrom": "6",
+    "pos": 32605884,
+    "ref": "",
+    "alt": "",
+    "consequence": "intron_variant"
+  },
+  "rs13277113": {
+    "rs_id": "rs13277113",
+    "chrom": "8",
+    "pos": 11349186,
+    "ref": "",
+    "alt": "",
+    "consequence": "regulatory_region_variant"
+  },
+  "rs17264332": {
+    "rs_id": "rs17264332",
+    "chrom": "6",
+    "pos": 138005515,
+    "ref": "",
+    "alt": "",
+    "consequence": "intergenic_variant"
+  },
+  "rs1636454": {
+    "rs_id": "rs1636454",
+    "chrom": "7",
+    "pos": 101283366,
+    "ref": "",
+    "alt": "",
+    "consequence": "intergenic_variant"
+  },
+  "rs9271366": {
+    "rs_id": "rs9271366",
+    "chrom": "6",
+    "pos": 32586854,
+    "ref": "",
+    "alt": "",
+    "consequence": "intergenic_variant"
+  },
+  "rs2104286": {
+    "rs_id": "rs2104286",
+    "chrom": "10",
+    "pos": 6099045,
+    "ref": "",
+    "alt": "",
+    "consequence": "intron_variant"
+  },
+  "rs4407141": {
+    "rs_id": "rs4407141",
+    "chrom": "18",
+    "pos": 71080406,
+    "ref": "",
+    "alt": "",
+    "consequence": "intergenic_variant"
+  },
+  "rs4910604": {
+    "rs_id": "rs4910604",
+    "chrom": "11",
+    "pos": 4231825,
+    "ref": "",
+    "alt": "",
+    "consequence": "non_coding_transcript_exon_variant"
+  },
+  "rs13426847": {
+    "rs_id": "rs13426847",
+    "chrom": "2",
+    "pos": 222151971,
+    "ref": "",
+    "alt": "",
+    "consequence": "intergenic_variant"
+  },
+  "rs3757247": {
+    "rs_id": "rs3757247",
+    "chrom": "6",
+    "pos": 90957463,
+    "ref": "",
+    "alt": "",
+    "consequence": "intron_variant"
+  },
+  "rs16893456": {
+    "rs_id": "rs16893456",
+    "chrom": "8",
+    "pos": 121049480,
+    "ref": "",
+    "alt": "",
+    "consequence": "intron_variant"
+  },
+  "rs11889341": {
+    "rs_id": "rs11889341",
+    "chrom": "2",
+    "pos": 191943742,
+    "ref": "",
+    "alt": "",
+    "consequence": "intron_variant"
+  },
+  "rs12530595": {
+    "rs_id": "rs12530595",
+    "chrom": "7",
+    "pos": 133319916,
+    "ref": "",
+    "alt": "",
+    "consequence": "intron_variant"
+  },
+  "rs12720365": {
+    "rs_id": "rs12720365",
+    "chrom": "11",
+    "pos": 636198,
+    "ref": "",
+    "alt": "",
+    "consequence": "intergenic_variant"
+  },
+  "rs1131720": {
+    "rs_id": "rs1131720",
+    "chrom": "10",
+    "pos": 135085321,
+    "ref": "",
+    "alt": "",
+    "consequence": "synonymous_variant"
+  },
+  "rs10488631": {
+    "rs_id": "rs10488631",
+    "chrom": "7",
+    "pos": 128594183,
+    "ref": "",
+    "alt": "",
+    "consequence": "intergenic_variant"
+  },
+  "rs227584": {
+    "rs_id": "rs227584",
+    "chrom": "17",
+    "pos": 42225547,
+    "ref": "",
+    "alt": "",
+    "consequence": "missense_variant"
+  },
+  "rs763361": {
+    "rs_id": "rs763361",
+    "chrom": "18",
+    "pos": 67531642,
+    "ref": "",
+    "alt": "",
+    "consequence": "missense_variant"
+  },
+  "rs3790566": {
+    "rs_id": "rs3790566",
+    "chrom": "1",
+    "pos": 67814440,
+    "ref": "",
+    "alt": "",
+    "consequence": "intron_variant"
+  },
+  "rs6657047": {
+    "rs_id": "rs6657047",
+    "chrom": "1",
+    "pos": 88001013,
+    "ref": "",
+    "alt": "",
+    "consequence": "intergenic_variant"
+  },
+  "rs2240340": {
+    "rs_id": "rs2240340",
+    "chrom": "1",
+    "pos": 17662639,
+    "ref": "",
+    "alt": "",
+    "consequence": "splice_polypyrimidine_tract_variant"
+  },
+  "rs12933217": {
+    "rs_id": "rs12933217",
+    "chrom": "16",
+    "pos": 11528428,
+    "ref": "",
+    "alt": "",
+    "consequence": "intron_variant"
+  },
+  "rs1480380": {
+    "rs_id": "rs1480380",
+    "chrom": "6",
+    "pos": 32913246,
+    "ref": "",
+    "alt": "",
+    "consequence": "intron_variant"
+  },
+  "rs2476601": {
+    "rs_id": "rs2476601",
+    "chrom": "1",
+    "pos": 114377568,
+    "ref": "",
+    "alt": "",
+    "consequence": "missense_variant"
+  },
+  "rs10415627": {
+    "rs_id": "rs10415627",
+    "chrom": "19",
+    "pos": 42382729,
+    "ref": "",
+    "alt": "",
+    "consequence": "intron_variant"
+  },
+  "rs2736340": {
+    "rs_id": "rs2736340",
+    "chrom": "8",
+    "pos": 11343973,
+    "ref": "",
+    "alt": "",
+    "consequence": "intergenic_variant"
+  },
+  "rs2292239": {
+    "rs_id": "rs2292239",
+    "chrom": "12",
+    "pos": 56482180,
+    "ref": "",
+    "alt": "",
+    "consequence": "intron_variant"
+  },
+  "rs10036748": {
+    "rs_id": "rs10036748",
+    "chrom": "5",
+    "pos": 150458146,
+    "ref": "",
+    "alt": "",
+    "consequence": "intron_variant"
+  },
+  "rs340670": {
+    "rs_id": "rs340670",
+    "chrom": "5",
+    "pos": 8436947,
+    "ref": "",
+    "alt": "",
+    "consequence": "intron_variant"
+  },
+  "rs760906": {
+    "rs_id": "rs760906",
+    "chrom": "6",
+    "pos": 24479845,
+    "ref": "",
+    "alt": "",
+    "consequence": "intron_variant"
+  },
+  "rs1109695": {
+    "rs_id": "rs1109695",
+    "chrom": "7",
+    "pos": 151595788,
+    "ref": "",
+    "alt": "",
+    "consequence": "intergenic_variant"
+  },
+  "rs7593176": {
+    "rs_id": "rs7593176",
+    "chrom": "2",
+    "pos": 123884751,
+    "ref": "",
+    "alt": "",
+    "consequence": "intergenic_variant"
+  },
+  "rs729302": {
+    "rs_id": "rs729302",
+    "chrom": "7",
+    "pos": 128568960,
+    "ref": "",
+    "alt": "",
+    "consequence": "intergenic_variant"
+  },
+  "rs11209026": {
+    "rs_id": "rs11209026",
+    "chrom": "1",
+    "pos": 67705958,
+    "ref": "",
+    "alt": "",
+    "consequence": "missense_variant"
+  },
+  "rs1990760": {
+    "rs_id": "rs1990760",
+    "chrom": "2",
+    "pos": 163124051,
+    "ref": "",
+    "alt": "",
+    "consequence": "missense_variant"
+  },
+  "rs9272346": {
+    "rs_id": "rs9272346",
+    "chrom": "6",
+    "pos": 32604372,
+    "ref": "",
+    "alt": "",
+    "consequence": "intron_variant"
+  },
+  "rs874040": {
+    "rs_id": "rs874040",
+    "chrom": "4",
+    "pos": 26108197,
+    "ref": "",
+    "alt": "",
+    "consequence": "regulatory_region_variant"
+  },
+  "rs8052641": {
+    "rs_id": "rs8052641",
+    "chrom": "16",
+    "pos": 9091689,
+    "ref": "",
+    "alt": "",
+    "consequence": "intergenic_variant"
+  },
+  "rs6445975": {
+    "rs_id": "rs6445975",
+    "chrom": "3",
+    "pos": 58370177,
+    "ref": "",
+    "alt": "",
+    "consequence": "intron_variant"
+  },
+  "rs11117432": {
+    "rs_id": "rs11117432",
+    "chrom": "16",
+    "pos": 86019271,
+    "ref": "",
+    "alt": "",
+    "consequence": "intergenic_variant"
+  },
+  "rs10514469": {
+    "rs_id": "rs10514469",
+    "chrom": "16",
+    "pos": 79904029,
+    "ref": "",
+    "alt": "",
+    "consequence": "intergenic_variant"
+  },
+  "rs10777067": {
+    "rs_id": "rs10777067",
+    "chrom": "12",
+    "pos": 88249987,
+    "ref": "",
+    "alt": "",
+    "consequence": "intergenic_variant"
+  },
+  "rs34536443": {
+    "rs_id": "rs34536443",
+    "chrom": "19",
+    "pos": 10463118,
+    "ref": "",
+    "alt": "",
+    "consequence": "missense_variant"
+  },
+  "rs2304256": {
+    "rs_id": "rs2304256",
+    "chrom": "19",
+    "pos": 10475652,
+    "ref": "",
+    "alt": "",
+    "consequence": "missense_variant"
+  },
+  "rs2292783": {
+    "rs_id": "rs2292783",
+    "chrom": "2",
+    "pos": 169019907,
+    "ref": "",
+    "alt": "",
+    "consequence": "intron_variant"
+  },
+  "rs934734": {
+    "rs_id": "rs934734",
+    "chrom": "2",
+    "pos": 65595586,
+    "ref": "",
+    "alt": "",
+    "consequence": "intron_variant"
+  },
+  "rs179247": {
+    "rs_id": "rs179247",
+    "chrom": "14",
+    "pos": 81432546,
+    "ref": "",
+    "alt": "",
+    "consequence": "intron_variant"
+  },
+  "rs1143679": {
+    "rs_id": "rs1143679",
+    "chrom": "16",
+    "pos": 31276811,
+    "ref": "",
+    "alt": "",
+    "consequence": "missense_variant"
+  },
+  "rs4938573": {
+    "rs_id": "rs4938573",
+    "chrom": "11",
+    "pos": 118741842,
+    "ref": "",
+    "alt": "",
+    "consequence": "regulatory_region_variant"
+  },
+  "rs6498169": {
+    "rs_id": "rs6498169",
+    "chrom": "16",
+    "pos": 11249329,
+    "ref": "",
+    "alt": "",
+    "consequence": "intron_variant"
+  },
+  "rs324089": {
+    "rs_id": "rs324089",
+    "chrom": "19",
+    "pos": 52879583,
+    "ref": "",
+    "alt": "",
+    "consequence": "intron_variant"
+  },
+  "rs4932173": {
+    "rs_id": "rs4932173",
+    "chrom": "15",
+    "pos": 90799884,
+    "ref": "",
+    "alt": "",
+    "consequence": "intron_variant"
+  },
+  "rs2269369": {
+    "rs_id": "rs2269369",
+    "chrom": "X",
+    "pos": 153192433,
+    "ref": "",
+    "alt": "",
+    "consequence": "intron_variant"
+  },
+  "rs932905": {
+    "rs_id": "rs932905",
+    "chrom": "20",
+    "pos": 48796131,
+    "ref": "",
+    "alt": "",
+    "consequence": "regulatory_region_variant"
+  },
+  "rs4648889": {
+    "rs_id": "rs4648889",
+    "chrom": "1",
+    "pos": 25293829,
+    "ref": "",
+    "alt": "",
+    "consequence": "intergenic_variant"
+  },
+  "rs116054204": {
+    "rs_id": "rs116054204",
+    "chrom": "2",
+    "pos": 19278779,
+    "ref": "",
+    "alt": "",
+    "consequence": "intron_variant"
+  },
+  "rs2243123": {
+    "rs_id": "rs2243123",
+    "chrom": "3",
+    "pos": 159709651,
+    "ref": "",
+    "alt": "",
+    "consequence": "intron_variant"
+  },
+  "rs3762179": {
+    "rs_id": "rs3762179",
+    "chrom": "16",
+    "pos": 87325912,
+    "ref": "",
+    "alt": "",
+    "consequence": "non_coding_transcript_exon_variant"
+  },
+  "rs2298428": {
+    "rs_id": "rs2298428",
+    "chrom": "22",
+    "pos": 21982892,
+    "ref": "",
+    "alt": "",
+    "consequence": "missense_variant"
+  },
+  "rs1800450": {
+    "rs_id": "rs1800450",
+    "chrom": "10",
+    "pos": 54531235,
+    "ref": "",
+    "alt": "",
+    "consequence": "missense_variant"
+  },
+  "rs10882301": {
+    "rs_id": "rs10882301",
+    "chrom": "10",
+    "pos": 95445638,
+    "ref": "",
+    "alt": "",
+    "consequence": "intron_variant"
+  },
+  "rs116817414": {
+    "rs_id": "rs116817414",
+    "chrom": "4",
+    "pos": 127279194,
+    "ref": "",
+    "alt": "",
+    "consequence": "intergenic_variant"
+  },
+  "rs10985068": {
+    "rs_id": "rs10985068",
+    "chrom": "9",
+    "pos": 123629724,
+    "ref": "",
+    "alt": "",
+    "consequence": "intron_variant"
+  },
+  "rs4762874": {
+    "rs_id": "rs4762874",
+    "chrom": "12",
+    "pos": 22221472,
+    "ref": "",
+    "alt": "",
+    "consequence": "intron_variant"
+  },
+  "rs12487066": {
+    "rs_id": "rs12487066",
+    "chrom": "3",
+    "pos": 105912130,
+    "ref": "",
+    "alt": "",
+    "consequence": "intergenic_variant"
+  },
+  "rs6884941": {
+    "rs_id": "rs6884941",
+    "chrom": "5",
+    "pos": 4409045,
+    "ref": "",
+    "alt": "",
+    "consequence": "intergenic_variant"
+  },
+  "rs7574865": {
+    "rs_id": "rs7574865",
+    "chrom": "2",
+    "pos": 191964633,
+    "ref": "",
+    "alt": "",
+    "consequence": "intron_variant"
+  },
+  "rs4687598": {
+    "rs_id": "rs4687598",
+    "chrom": "3",
+    "pos": 54007112,
+    "ref": "",
+    "alt": "",
+    "consequence": "intergenic_variant"
+  },
+  "rs2288904": {
+    "rs_id": "rs2288904",
+    "chrom": "19",
+    "pos": 10742170,
+    "ref": "",
+    "alt": "",
+    "consequence": "missense_variant"
+  },
+  "rs11209032": {
+    "rs_id": "rs11209032",
+    "chrom": "1",
+    "pos": 67740092,
+    "ref": "",
+    "alt": "",
+    "consequence": "intergenic_variant"
+  },
+  "rs705184": {
+    "rs_id": "rs705184",
+    "chrom": "10",
+    "pos": 125384986,
+    "ref": "",
+    "alt": "",
+    "consequence": "intergenic_variant"
+  },
+  "rs653178": {
+    "rs_id": "rs653178",
+    "chrom": "12",
+    "pos": 112007756,
+    "ref": "",
+    "alt": "",
+    "consequence": "intron_variant"
+  },
+  "rs17266594": {
+    "rs_id": "rs17266594",
+    "chrom": "4",
+    "pos": 102750922,
+    "ref": "",
+    "alt": "",
+    "consequence": "intron_variant"
+  },
+  "rs3087243": {
+    "rs_id": "rs3087243",
+    "chrom": "2",
+    "pos": 204738919,
+    "ref": "",
+    "alt": "",
+    "consequence": "regulatory_region_variant"
+  },
+  "rs9271597": {
+    "rs_id": "rs9271597",
+    "chrom": "6",
+    "pos": 32591291,
+    "ref": "",
+    "alt": "",
+    "consequence": "regulatory_region_variant"
+  },
+  "rs613731": {
+    "rs_id": "rs613731",
+    "chrom": "10",
+    "pos": 16562998,
+    "ref": "",
+    "alt": "",
+    "consequence": "stop_gained"
+  },
+  "rs610604": {
+    "rs_id": "rs610604",
+    "chrom": "6",
+    "pos": 138199417,
+    "ref": "",
+    "alt": "",
+    "consequence": "intron_variant"
+  },
+  "rs10516487": {
+    "rs_id": "rs10516487",
+    "chrom": "4",
+    "pos": 102751076,
+    "ref": "",
+    "alt": "",
+    "consequence": "missense_variant"
+  },
+  "rs1800693": {
+    "rs_id": "rs1800693",
+    "chrom": "12",
+    "pos": 6440009,
+    "ref": "",
+    "alt": "",
+    "consequence": "non_coding_transcript_exon_variant"
+  },
+  "rs28412772": {
+    "rs_id": "rs28412772",
+    "chrom": "X",
+    "pos": 2381752,
+    "ref": "",
+    "alt": "",
+    "consequence": "intron_variant"
+  },
+  "rs10774679": {
+    "rs_id": "rs10774679",
+    "chrom": "12",
+    "pos": 113374748,
+    "ref": "",
+    "alt": "",
+    "consequence": "intron_variant"
+  },
+  "rs2288914": {
+    "rs_id": "rs2288914",
+    "chrom": "19",
+    "pos": 46984095,
+    "ref": "",
+    "alt": "",
+    "consequence": "3_prime_UTR_variant"
+  },
+  "rs17362609": {
+    "rs_id": "rs17362609",
+    "chrom": "8",
+    "pos": 5534086,
+    "ref": "",
+    "alt": "",
+    "consequence": "regulatory_region_variant"
+  },
+  "rs13209033": null,
+  "rs6897932": {
+    "rs_id": "rs6897932",
+    "chrom": "5",
+    "pos": 35874575,
+    "ref": "",
+    "alt": "",
+    "consequence": "missense_variant"
+  },
+  "rs13140453": {
+    "rs_id": "rs13140453",
+    "chrom": "4",
+    "pos": 155423764,
+    "ref": "",
+    "alt": "",
+    "consequence": "regulatory_region_variant"
+  },
+  "rs2054443": {
+    "rs_id": "rs2054443",
+    "chrom": "5",
+    "pos": 58477076,
+    "ref": "",
+    "alt": "",
+    "consequence": "intron_variant"
+  },
+  "rs26232": {
+    "rs_id": "rs26232",
+    "chrom": "5",
+    "pos": 102596720,
+    "ref": "",
+    "alt": "",
+    "consequence": "intron_variant"
+  },
+  "rs3135388": {
+    "rs_id": "rs3135388",
+    "chrom": "6",
+    "pos": 32413051,
+    "ref": "",
+    "alt": "",
+    "consequence": "intergenic_variant"
+  },
+  "rs9270986": {
+    "rs_id": "rs9270986",
+    "chrom": "6",
+    "pos": 32574060,
+    "ref": "",
+    "alt": "",
+    "consequence": "intron_variant"
+  },
+  "rs3772": {
+    "rs_id": "rs3772",
+    "chrom": "7",
+    "pos": 23347216,
+    "ref": "",
+    "alt": "",
+    "consequence": "intron_variant"
+  },
+  "rs12101255": {
+    "rs_id": "rs12101255",
+    "chrom": "14",
+    "pos": 81451052,
+    "ref": "",
+    "alt": "",
+    "consequence": "intron_variant"
+  },
+  "rs2004640": {
+    "rs_id": "rs2004640",
+    "chrom": "7",
+    "pos": 128578301,
+    "ref": "",
+    "alt": "",
+    "consequence": "splice_donor_variant"
+  },
+  "rs6920220": {
+    "rs_id": "rs6920220",
+    "chrom": "6",
+    "pos": 138006504,
+    "ref": "",
+    "alt": "",
+    "consequence": "intergenic_variant"
+  }
+}
