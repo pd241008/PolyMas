@@ -1,6 +1,6 @@
 # PM-007: F-17 MAS-pair recovery — weak signal vs noise
 
-- **Status:** Closed (negative result recorded, 2026-09-26)
+- **Status:** Closed (negative result recorded, 2026-09-26); **amended 2026-09-28** — F-17a executed (FAIL) and the aggregate metric shown to be structurally biased
 - **Item:** F-17 — MAS pairwise-structure recovery
 - **Category:** 📉 Regime absence (weak signal)
 - **Related:** F-20 (own-anchor protocol, ADR-006), ⏸ Deferred register (F-17a), 🧯 Failure Taxonomy in docs/ROADMAP.md
@@ -35,6 +35,19 @@ So the failure is not "the model learned nothing about MAS structure" but
 "the test demanded uniform recovery across pairs of wildly different anchor
 strength".
 
+### 2026-09-28 amendment (F-17a): the aggregate was structurally biased
+
+The F-17a re-test (own-anchor restriction, 3/7 = 42.9%, p = 0.77 — FAIL)
+surfaced something better than the anchor-strength story: **7 of the 19
+embedded pairs have embedded_log_or = 0.0**, and `sign(0)` can never equal
+`sign(phi)` in {+1,−1} — those 7 "disagreements" are DETERMINISTIC artifacts
+of the scoring rule, not evidence about the model. F-17's effective
+denominator was 12, not 19. Restricted to planted-affinity pairs: **9/12 =
+75%, binomial p = 0.073** — consistent with the pre-registered bar rate but
+still short of the 0.05 gate. Also corrected in this pass: T1D–MS / RA–MS
+are NOT own-anchor pairs (no shared anchor locus); the sharp negative-phi
+recovery stands as separate F-17 evidence.
+
 ## Contributing factors
 
 - The pre-registration counted all 19 pairs equally; no anchor-strength
@@ -59,7 +72,13 @@ strength".
 ## Action items
 
 - Recorded negative.
-- **F-17a deferred** (⏸ register): anchor-pair-restricted re-test using the
-  F-20 own-anchor protocol on the existing tables (~10 min CPU) — *decide
-  later*; manuscript-relevant if the MAS-recovery section needs a positive
-  angle.
+- **F-17a EXECUTED 2026-09-28**: pre-registered gate FAIL (3/7 anchor pairs,
+  p = 0.77), but the post-hoc decomposition (clearly labeled descriptive in
+  `f17a_summary.json`) converts this from "model at chance" to "metric
+  biased by construction + signal recoverable where planted". Manuscript
+  framing: report the planted-affinity stratum (9/12 = 75%, p = 0.073) as a
+  descriptive result alongside the pre-registered failures — never as a
+  gate pass. Evidence: `results/results_final_20260926/f17a_anchor_recovery/`.
+- New guardrail adopted: agreement tests must assert that every counted item
+  has a defined agreement target (nonzero embedded direction) at
+  registration time, not at analysis time.

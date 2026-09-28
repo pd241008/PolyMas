@@ -1,0 +1,70 @@
+{
+  "variant": "F-14a context-only masking (genotype tokens always visible)",
+  "per_seed": [
+    {
+      "arm": "pretrained",
+      "seed": 1,
+      "val": 0.5485,
+      "test": 0.5341
+    },
+    {
+      "arm": "pretrained",
+      "seed": 2,
+      "val": 0.5428,
+      "test": 0.5478
+    },
+    {
+      "arm": "scratch",
+      "seed": 1,
+      "val": 0.5323,
+      "test": 0.5279
+    },
+    {
+      "arm": "scratch",
+      "seed": 2,
+      "val": 0.5402,
+      "test": 0.5436
+    }
+  ],
+  "mean_val_delta_pre_minus_scratch": 0.0094,
+  "worst_seed_delta": 0.0026,
+  "gates": {
+    "G1_mean_delta_ge_0.01": false,
+    "G2_no_seed_regression_gt_0.01": true
+  },
+  "verdict": "FAIL",
+  "pretrain_history": [
+    {
+      "epoch": 1,
+      "mlm_loss": 5.3665
+    },
+    {
+      "epoch": 2,
+      "mlm_loss": 1.6371
+    },
+    {
+      "epoch": 3,
+      "mlm_loss": 0.4112
+    },
+    {
+      "epoch": 4,
+      "mlm_loss": 0.1673
+    },
+    {
+      "epoch": 5,
+      "mlm_loss": 0.0972
+    },
+    {
+      "epoch": 6,
+      "mlm_loss": 0.066
+    },
+    {
+      "epoch": 7,
+      "mlm_loss": 0.0486
+    },
+    {
+      "epoch": 8,
+      "mlm_loss": 0.0373
+    }
+  ]
+}
