@@ -66,6 +66,9 @@ evaluated the thing the gate measures.
 
 - Gate FAIL recorded honestly; no re-run inside F-13 (budget fixed at 30
   trials by pre-registration).
-- **F-13a deferred** (⏸ register): ASHA/successive-halving retune or a
-  2-stage protocol (2-epoch screen → top-5 retrained to 12 epochs),
-  ~45–60 min GPU, ~40% chance of flipping the verdict — *decide later*.
+- **F-13a deferred → MERGED into F-09a** (⏸ register, 2026-09-28): the
+  ASHA/successive-halving retune (or 2-stage protocol) runs ONCE, on the
+  54-locus substrate produced by F-09a panel integration Phase 1, instead of
+  on 8-locus data that F-09a would immediately supersede. Cost and flip
+  odds unchanged (~60–90 min within F-09a's campaign; ~40%); revisit
+  condition now rides on F-09a's.

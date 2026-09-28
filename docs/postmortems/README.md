@@ -13,8 +13,8 @@ no silent patches). The one-line version of each lives in the
 | [PM-003](PM-003-f04-fusion-parent-dominance.md) | F-04 gated fusion | 🚧 Parent dominance | Recorded negative; moot until System B competitive |
 | [PM-004](PM-004-f05-focal-loss-regime-absence.md) | F-05 focal/cost-sensitive loss | 📉 Regime absence | Recorded negative; no fix applicable here |
 | [PM-005](PM-005-f13-hpo-selection-budget-mismatch.md) | F-13 System B HPO | 🧪 Protocol artifact | Deferred as F-13a (decide later) |
-| [PM-006](PM-006-f14-ssl-objective-misallocation.md) | F-14 SSL pretraining | 🎯 Objective misallocation | Deferred as F-14a (decide later) |
-| [PM-007](PM-007-f17-mas-recovery-weak-signal.md) | F-17 MAS recovery | 📉 Regime absence (weak signal) | Recorded negative; F-17a candidate (decide later) |
+| [PM-006](PM-006-f14-ssl-objective-misallocation.md) | F-14 SSL pretraining | 🎯 Objective misallocation | F-14a executed 2026-09-28: **FAIL by 0.0006** (sign flipped; ADR-007 semantics caveat) |
+| [PM-007](PM-007-f17-mas-recovery-weak-signal.md) | F-17 MAS recovery | 📉 Regime absence (weak signal) | F-17a executed 2026-09-28: **FAIL**; aggregate shown structurally biased (planted stratum 9/12 = 75%, p=0.073) |
 | [PM-008](PM-008-f20-allele-sign-inversion.md) | F-20 external validation (first pass) | 🐛 Real bug — FIXED | ✅ ADR-006; re-run 4/4 = 100% |
 | [PM-009](PM-009-benign-nulls.md) | F-15 MC-dropout arm + F-06 haplotypes | ➖ Benign nulls | Recorded; no action |
 

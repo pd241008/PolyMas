@@ -1,0 +1,130 @@
+{
+  "claim": "F-17a: sign agreement on own-anchor pairs only (DISEASE_RISK_LOCI overlap, either direction)",
+  "protocol": "re-scoring of existing F-17 phi table; no model re-evaluation",
+  "anchor_pair_set": [
+    "AITD|T1D",
+    "AITD|VITILIGO",
+    "RA|T1D",
+    "RA|VITILIGO",
+    "SLE|AITD",
+    "SLE|SJOGRENS",
+    "T1D|VITILIGO"
+  ],
+  "n_anchor_pairs": 7,
+  "n_pairs_tested": 7,
+  "n_sign_agreement": 3,
+  "sign_agreement_rate": 0.4286,
+  "binomial_p_vs_chance": 0.7734375,
+  "bonferroni_xN_p": 1.0,
+  "pre_registered_pass": false,
+  "tolerance": "sign agreement > chance at binomial p < 0.05, Bonferroni x n_anchor_pairs",
+  "descriptive_stratification": {
+    "note": "post-hoc, reported alongside the pre-registered verdict",
+    "planted_affinity_pairs": [
+      {
+        "pair": "SLE|SJOGRENS",
+        "embedded_log_or": 0.75,
+        "phi_predictions": 0.1773,
+        "sign_agrees": true
+      },
+      {
+        "pair": "AITD|T1D",
+        "embedded_log_or": 0.65,
+        "phi_predictions": -0.0519,
+        "sign_agrees": false
+      },
+      {
+        "pair": "AITD|VITILIGO",
+        "embedded_log_or": 1.05,
+        "phi_predictions": 0.0908,
+        "sign_agrees": true
+      },
+      {
+        "pair": "T1D|VITILIGO",
+        "embedded_log_or": 0.6,
+        "phi_predictions": 0.0805,
+        "sign_agrees": true
+      }
+    ],
+    "zero_affinity_pairs": [
+      "RA|T1D",
+      "RA|VITILIGO",
+      "SLE|AITD"
+    ],
+    "planted_n": 4,
+    "planted_agree": 3,
+    "excluded_pairs_note": "MAS-excluded pairs (T1D|MS, RA|MS) are NOT in the anchor set (no shared anchor locus); their strong negative-phi agreement is separate F-17 evidence and must not be counted here."
+  },
+  "full_table_decomposition": {
+    "note": "post-hoc descriptive split of the F-17 aggregate: pairs with planted nonzero affinity vs zero-affinity pairs. For zero-affinity pairs sign(embedded)=0 can NEVER equal sign(phi) in {+1,-1}, so their sign_agrees=False is deterministic, not empirical \u2014 7 structurally-impossible items inside the 9/19 denominator",
+    "planted_pairs": {
+      "n": 12,
+      "n_sign_agree": 9,
+      "rate": 0.75
+    },
+    "zero_affinity_pairs": {
+      "n": 7,
+      "n_sign_agree": 0,
+      "rate": 0.0
+    },
+    "planted_binomial_p_vs_chance": 0.072998046875
+  },
+  "per_pair": [
+    {
+      "pair": "RA|T1D",
+      "embedded_log_or": 0.0,
+      "phi_predictions": -0.158,
+      "phi_labels": -0.0309,
+      "sign_agrees": false,
+      "mas_excluded": false
+    },
+    {
+      "pair": "RA|VITILIGO",
+      "embedded_log_or": 0.0,
+      "phi_predictions": 0.0948,
+      "phi_labels": 0.0016,
+      "sign_agrees": false,
+      "mas_excluded": false
+    },
+    {
+      "pair": "SLE|SJOGRENS",
+      "embedded_log_or": 0.75,
+      "phi_predictions": 0.1773,
+      "phi_labels": 0.0778,
+      "sign_agrees": true,
+      "mas_excluded": false
+    },
+    {
+      "pair": "SLE|AITD",
+      "embedded_log_or": 0.0,
+      "phi_predictions": 0.0598,
+      "phi_labels": 0.0011,
+      "sign_agrees": false,
+      "mas_excluded": false
+    },
+    {
+      "pair": "AITD|T1D",
+      "embedded_log_or": 0.65,
+      "phi_predictions": -0.0519,
+      "phi_labels": 0.146,
+      "sign_agrees": false,
+      "mas_excluded": false
+    },
+    {
+      "pair": "AITD|VITILIGO",
+      "embedded_log_or": 1.05,
+      "phi_predictions": 0.0908,
+      "phi_labels": 0.0504,
+      "sign_agrees": true,
+      "mas_excluded": false
+    },
+    {
+      "pair": "T1D|VITILIGO",
+      "embedded_log_or": 0.6,
+      "phi_predictions": 0.0805,
+      "phi_labels": 0.0612,
+      "sign_agrees": true,
+      "mas_excluded": false
+    }
+  ]
+}

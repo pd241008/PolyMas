@@ -30,7 +30,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from polymas_ml.sequence.dataset import VOCAB_SIZE
+from polymas_ml.sequence.dataset import TOKEN_HOM_REF, VOCAB_SIZE
 
 MASK_TOKEN_ID = VOCAB_SIZE          # 4099; embedding row added for pretraining only
 PRETRAIN_VOCAB = VOCAB_SIZE + 1     # 4100
@@ -50,7 +50,40 @@ def mask_tokens(input_ids: torch.Tensor, mask_fraction: float = MASK_FRACTION,
         torch.rand(input_ids.shape, generator=generator, device=input_ids.device)
         < mask_fraction
     )
-    targets = input_ids.masked_fill(mask, -100)
+    # -100 at KEPT positions, original ids at MASKED positions (ignore_index
+    # semantics): CE scores exactly the masked set. NB: the F-14 run executed
+    # with this fill inverted (-100 at masked), i.e. it scored the VISIBLE
+    # tokens — a degenerate identity-copy objective. Discovered while building
+    # F-14a (2026-09-28); F-14 evidence annotated, not re-run (PM-006 addendum).
+    targets = input_ids.masked_fill(~mask, -100)
+    masked[mask] = mask_token_id
+    return masked, targets
+
+
+def mask_context_tokens(input_ids: torch.Tensor, mask_fraction: float = MASK_FRACTION,
+                        mask_token_id: int = MASK_TOKEN_ID, generator: torch.Generator | None = None
+                        ) -> tuple[torch.Tensor, torch.Tensor]:
+    """F-14a variant: mask CONTEXT k-mers only; genotype tokens stay visible.
+
+    Context k-mers occupy ids 0..4095; genotype tokens are ids
+    TOKEN_HOM_REF..TOKEN_HOM_ALT (4096..4098). The F-14 root cause was that
+    masking all positions let the encoder profit from memorizing shared
+    flanking context while the 8 genotype tokens (the disease signal) were
+    usually visible anyway; restricting the masking task to context forces
+    the reconstruction signal to flow through genotype positions.
+    """
+    masked = input_ids.clone()
+    eligible = input_ids < TOKEN_HOM_REF
+    mask = eligible & (
+        torch.rand(input_ids.shape, generator=generator, device=input_ids.device)
+        < mask_fraction
+    )
+    # -100 at KEPT positions, original ids at MASKED positions (ignore_index
+    # semantics): CE scores exactly the masked set. NB: the F-14 run executed
+    # with this fill inverted (-100 at masked), i.e. it scored the VISIBLE
+    # tokens — a degenerate identity-copy objective. Discovered while building
+    # F-14a (2026-09-28); F-14 evidence annotated, not re-run (PM-006 addendum).
+    targets = input_ids.masked_fill(~mask, -100)
     masked[mask] = mask_token_id
     return masked, targets
 
@@ -75,17 +108,28 @@ class MambaMLM(nn.Module):
         h = self.classifier.embed(input_ids)                    # (B, L, d)
         return self.lm_head(h)                                  # (B, L, vocab)
 
-    def pretrain_loss(self, input_ids: torch.Tensor, generator: torch.Generator | None = None
-                      ) -> torch.Tensor:
+    def pretrain_loss(self, input_ids: torch.Tensor, generator: torch.Generator | None = None,
+                      mask_context_only: bool = False) -> torch.Tensor:
         """CE over masked positions only (scores just those rows' logits).
 
         Masking ~15% of 504 tokens leaves ~76 scored positions per batch
         element, so logits are gathered to (n_masked, vocab) before the
         softmax — the full (B, L, vocab) tensor is never materialized.
+
+        mask_context_only=True routes to mask_context_tokens (F-14a: the
+        genotype tokens 4096..4098 are never masked, so reconstruction of
+        masked context must use them — targets the recorded F-14 root cause
+        of context memorization).
         """
-        masked, targets = mask_tokens(input_ids, generator=generator)
+        masker = mask_context_tokens if mask_context_only else mask_tokens
+        masked, targets = masker(input_ids, generator=generator)
         h = self.classifier.embed(masked)                       # (B, L, d)
         sel = targets != -100
+        if not bool(sel.any()):
+            # No masked positions (possible under mask_context_only when a
+            # batch holds only genotype tokens): return a graph-connected
+            # zero so backward stays well-defined (plain CE would be NaN).
+            return h.sum() * 0.0
         h_sel = h[sel]                                          # (M, d)
         logits = self.lm_head(h_sel)                            # (M, vocab)
         return F.cross_entropy(logits, targets[sel], ignore_index=-100)

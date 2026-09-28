@@ -1,9 +1,9 @@
 # PM-006: F-14 SSL pretraining — objective misallocation
 
-- **Status:** Closed (gate FAIL recorded, follow-up deferred — 2026-09-27)
+- **Status:** Closed (gate FAIL recorded, follow-up deferred — 2026-09-27); **amended 2026-09-28** — F-14a executed (FAIL by 0.0006) and an objective-semantics bug discovered in the original F-14 code (ADR-007)
 - **Item:** F-14 — masked k-mer SSL pretraining (System B)
 - **Category:** 🎯 Objective misallocation
-- **Related:** F-03 (FT schedule/protocol), Phase-3 token attribution, ⏸ Deferred register (F-14a), 🧯 Failure Taxonomy in docs/ROADMAP.md
+- **Related:** F-03 (FT schedule/protocol), Phase-3 token attribution, ADR-007 (masking semantics), ⏸ Deferred register (F-14a — executed), 🧯 Failure Taxonomy in docs/ROADMAP.md
 
 ## Impact
 
@@ -34,6 +34,16 @@ signal (consistent with Phase-3 attribution) — are ~1.6% of the masking
 signal, so the encoder learns *context identity*, not *genotype structure*.
 Fine-tuning then starts from a misaligned representation that 6 epochs
 cannot recover; the pretrained init is a worse basin than a fresh one.
+
+### 2026-09-28 amendment (ADR-007): the objective was ALSO degenerate
+
+Unit tests written for F-14a exposed a semantics bug in `mask_tokens`:
+`masked_fill(mask, -100)` put −100 AT masked positions, so `pretrain_loss`
+selected the **visible** tokens — the F-14 MLM was a **copy-the-visible-
+token** task, not masked reconstruction. The mechanism above is therefore
+"objective misallocation **plus** an identity-copy objective". The F-14
+verdict stands as measured (never re-run silently); F-14a ran on corrected
+semantics and its result is NOT a clean A/B against F-14.
 
 ## Contributing factors
 
@@ -68,8 +78,29 @@ cannot recover; the pretrained init is a worse basin than a fresh one.
 ## Action items
 
 - Gate FAIL recorded honestly with the mechanism.
-- **F-14a deferred** (⏸ register): mask CONTEXT k-mers only, genotype tokens
-  always visible (~15 min GPU) — *decide later*. Locus-dropout (predict one
-  locus's genotype from the other 7) is the scientifically better-matched
-  task; external-corpus (1000G) pretraining is a different, transfer-learning
-  claim.
+- **F-14a EXECUTED 2026-09-28** (context-only masking, corrected semantics,
+  2 paired seeds per the register's costing): **FAIL by 0.0006** — mean Δ
+  **+0.0094** (gate ≥ +0.01), worst seed +0.0026 (G2 passes). The direction
+  FLIPPED vs F-14: pretraining now helps on both seeds (0.5485/0.5428 vs
+  0.5323/0.5402). The obvious fix moved SSL from harmful to (marginally)
+  helpful — a stronger, more complete negative, and the manuscript's SSL
+  section can say the root-cause-motivated fix was tried. Evidence:
+  `results/results_final_20260926/f14a_ssl/`.
+- Locus-dropout (predict one locus's genotype from the other 7) remains the
+  scientifically better-matched task; external-corpus (1000G) pretraining is
+  a different, transfer-learning claim. Both = new pre-registrations.
+- **F-14b EXECUTED 2026-09-28** (corrected semantics, standard mask-all, 3
+  seeds, pre-registered at commit `5ca1e38` before the run): **PASS — mean Δ
+  +0.0213**, worst seed +0.0087, scratch arms bit-identical to F-14a's
+  (paired design verified). The pre-registered expectation (F-14b ≈ F-14a,
+  built on I(genotype→context) = 0) was **falsified** — |Δ vs F-14a| =
+  0.0119 — which LOCALIZES the mechanism: the useful signal is
+  **genotype→genotype** (shared-liability + MAS cascade correlate dosages
+  across loci), i.e. mask-all involuntarily embeds a small locus-dropout
+  task. The objective-misallocation lesson stands, sharpened: what matters
+  is the fraction of scored tokens that are (a) signal-bearing AND (b)
+  inferable from the rest of the sequence. F-14c (explicit locus-dropout)
+  opened in the ⏸ register. Evidence:
+  `results/results_final_20260926/f14b_ssl/`.
+- New guardrail adopted: mask-semantics equivalence tests (masked-CE vs
+  manual, zero-mask NaN guard) are now part of the SSL suite (16 tests).
