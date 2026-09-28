@@ -103,8 +103,9 @@ Phase 1  ✅ F-09 panel expansion → F-10 real genotypes → F-07 PCs → F-06 
 Phase 2  ✅ F-16 PRS baseline → F-12 thresholds → F-20 external validation (→ ADR-006 re-run) → F-17 MAS recovery → F-18 noise → F-19 scaling
 Phase 3  ✅ F-02 MAS heads → F-05 focal loss → F-03 hierarchical Mamba (+ System B arms of F-18/F-19) → F-01 LD-GNN → F-04 fusion   [1 PASS / 4 honest fails]
 Phase 4  ✅ F-11 conformal → F-15 uncertainty → F-13 Optuna → F-14 SSL pretraining   [2 PASS / 1 split / 1 honest fail]
-Phase 5  ⬜ F-23 MLflow → F-24 make e2e/verify → F-22 gRPC → F-21 dashboard
-Deferred ⏸ **F-09a** panel Phase 1 (substrate + System B, merged F-13a) · **F-09b** panel Phase 2 (battery rerun) · F-14c locus-dropout SSL · F-11b conformal wiring · ~~F-14a~~ ~~F-17a~~ executed 2026-09-28
+Deferred ⏸ **F-09a** panel Phase 1 (substrate + System B, merged F-13a) → **F-09b** panel Phase 2 (battery rerun) → F-14c locus-dropout SSL (rides in F-09a's campaign) · F-11b conformal wiring (lands with Phase 5) · ~~F-14a~~ ~~F-17a~~ executed 2026-09-28
+
+FINAL SEQUENCE (agreed 2026-09-28): F-09a → F-09b (+F-14c) → manuscript rewrite on v2 numbers → submission admin (CRediT, funding, ethics, data DOI) → **Phase 5 LAST** (F-23 MLflow → F-24 make e2e/verify → F-22 gRPC → F-21 dashboard — website/frontend, minimum impact on the science) → release withheld figures/PDFs with the finalized paper → **data-repo DOI as the closing act**.
 ```
 
 ---
