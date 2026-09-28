@@ -73,3 +73,25 @@ visible-token copying, not masked reconstruction.
 | F-14a pretrain mlm_loss (epochs 1→8) | 0.73 → 0.037 (corrected semantics) |
 | F-14a verdict | **FAIL** (G1 missed by 0.0006; direction flipped vs F-14) |
 | Evidence | `results/results_final_20260926/f14a_ssl/` |
+
+## Addendum (2026-09-28, later): F-14b — the corrected-semantics mask-all cell
+
+The missing ablation cell was pre-registered (commit `5ca1e38`, timestamped
+before the run, with an explicit mechanistic expectation) and executed:
+
+| Quantity | Value |
+|---|---|
+| F-14b mean paired val Δ | **+0.0213 — PASS** (G1 ≥ +0.01 ✓, worst seed +0.0087 ✓) |
+| Scratch-arm vals | bit-identical to F-14a's (0.5323/0.5402/0.5379) — paired design verified |
+| Pre-registered expectation | F-14b ≈ F-14a; **FALSIFIED** (\|Δ\| = 0.0119 ≫ seed noise) |
+| Evidence | `results/results_final_20260926/f14b_ssl/` |
+
+Consequence: the SSL story is no longer "a null either way." The falsified
+expectation localizes the transferable signal: I(genotype→context) = 0 still
+holds, but **I(genotype→genotype) > 0** — the generator's shared-liability
+mixture and MAS cascade correlate dosages across loci, so uniform masking
+(involuntarily) trains a small locus-dropout task. This is why F-14b
+(+0.0213) beats F-14a (+0.0094): F-14a never masked genotypes. F-14's row
+stands as executed; F-14b is NOT a re-run of F-14 (different pretrain seed
+path, corrected objective, own pre-registration). Follow-up claim F-14c
+(explicit locus-dropout) is deferred in the ⏸ register.

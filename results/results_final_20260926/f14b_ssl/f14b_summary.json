@@ -1,0 +1,87 @@
+{
+  "variant": "F-14b standard 15% masking, corrected semantics (ADR-007)",
+  "per_seed": [
+    {
+      "arm": "pretrained",
+      "seed": 1,
+      "val": 0.5588,
+      "test": 0.5369
+    },
+    {
+      "arm": "pretrained",
+      "seed": 2,
+      "val": 0.5489,
+      "test": 0.5503
+    },
+    {
+      "arm": "pretrained",
+      "seed": 3,
+      "val": 0.5665,
+      "test": 0.5343
+    },
+    {
+      "arm": "scratch",
+      "seed": 1,
+      "val": 0.5323,
+      "test": 0.5279
+    },
+    {
+      "arm": "scratch",
+      "seed": 2,
+      "val": 0.5402,
+      "test": 0.5436
+    },
+    {
+      "arm": "scratch",
+      "seed": 3,
+      "val": 0.5379,
+      "test": 0.5301
+    }
+  ],
+  "mean_val_delta_pre_minus_scratch": 0.0213,
+  "worst_seed_delta": 0.0087,
+  "gates": {
+    "G1_mean_delta_ge_0.01": true,
+    "G2_no_seed_regression_gt_0.01": true
+  },
+  "verdict": "PASS",
+  "expectation_check": {
+    "pre_registered": "F-14b ~= F-14a (+0.009 +- seed noise); large divergence falsifies I(genotype->context)=0",
+    "f14a_mean_delta": 0.0094,
+    "abs_diff_vs_f14a": 0.0119
+  },
+  "pretrain_history": [
+    {
+      "epoch": 1,
+      "mlm_loss": 5.383
+    },
+    {
+      "epoch": 2,
+      "mlm_loss": 1.66
+    },
+    {
+      "epoch": 3,
+      "mlm_loss": 0.4275
+    },
+    {
+      "epoch": 4,
+      "mlm_loss": 0.1785
+    },
+    {
+      "epoch": 5,
+      "mlm_loss": 0.1069
+    },
+    {
+      "epoch": 6,
+      "mlm_loss": 0.0739
+    },
+    {
+      "epoch": 7,
+      "mlm_loss": 0.0569
+    },
+    {
+      "epoch": 8,
+      "mlm_loss": 0.0452
+    }
+  ]
+}

@@ -89,5 +89,18 @@ semantics and its result is NOT a clean A/B against F-14.
 - Locus-dropout (predict one locus's genotype from the other 7) remains the
   scientifically better-matched task; external-corpus (1000G) pretraining is
   a different, transfer-learning claim. Both = new pre-registrations.
+- **F-14b EXECUTED 2026-09-28** (corrected semantics, standard mask-all, 3
+  seeds, pre-registered at commit `5ca1e38` before the run): **PASS — mean Δ
+  +0.0213**, worst seed +0.0087, scratch arms bit-identical to F-14a's
+  (paired design verified). The pre-registered expectation (F-14b ≈ F-14a,
+  built on I(genotype→context) = 0) was **falsified** — |Δ vs F-14a| =
+  0.0119 — which LOCALIZES the mechanism: the useful signal is
+  **genotype→genotype** (shared-liability + MAS cascade correlate dosages
+  across loci), i.e. mask-all involuntarily embeds a small locus-dropout
+  task. The objective-misallocation lesson stands, sharpened: what matters
+  is the fraction of scored tokens that are (a) signal-bearing AND (b)
+  inferable from the rest of the sequence. F-14c (explicit locus-dropout)
+  opened in the ⏸ register. Evidence:
+  `results/results_final_20260926/f14b_ssl/`.
 - New guardrail adopted: mask-semantics equivalence tests (masked-CE vs
   manual, zero-mask NaN guard) are now part of the SSL suite (16 tests).
