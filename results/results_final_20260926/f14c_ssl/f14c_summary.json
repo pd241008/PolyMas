@@ -1,0 +1,94 @@
+{
+  "variant": "F-14c explicit locus-dropout (exactly one genotype token scored per sequence)",
+  "per_seed": [
+    {
+      "arm": "pretrained",
+      "seed": 1,
+      "val": 0.5639,
+      "test": 0.5324
+    },
+    {
+      "arm": "pretrained",
+      "seed": 2,
+      "val": 0.5424,
+      "test": 0.5337
+    },
+    {
+      "arm": "pretrained",
+      "seed": 3,
+      "val": 0.5433,
+      "test": 0.5297
+    },
+    {
+      "arm": "scratch",
+      "seed": 1,
+      "val": 0.5323,
+      "test": 0.5279
+    },
+    {
+      "arm": "scratch",
+      "seed": 2,
+      "val": 0.5402,
+      "test": 0.5436
+    },
+    {
+      "arm": "scratch",
+      "seed": 3,
+      "val": 0.5379,
+      "test": 0.5301
+    }
+  ],
+  "mean_val_delta_pre_minus_scratch": 0.0131,
+  "worst_seed_delta": 0.0022,
+  "gates": {
+    "G1_mean_delta_ge_0.01": true,
+    "G2_no_seed_regression_gt_0.01": true
+  },
+  "verdict": "PASS",
+  "expectation_check": {
+    "pre_registered": "F-14c > F-14a (purity); F-14b comparison = secondary mechanism read",
+    "f14a_mean_delta": 0.0094,
+    "f14b_mean_delta": 0.0213,
+    "beats_f14a_registered_prediction": true,
+    "ordering_vs_family": [
+      "F-14b",
+      "F-14c",
+      "F-14a",
+      "F-14"
+    ]
+  },
+  "pretrain_history": [
+    {
+      "epoch": 1,
+      "mlm_loss": 2.4839
+    },
+    {
+      "epoch": 2,
+      "mlm_loss": 0.4437
+    },
+    {
+      "epoch": 3,
+      "mlm_loss": 0.4642
+    },
+    {
+      "epoch": 4,
+      "mlm_loss": 0.4388
+    },
+    {
+      "epoch": 5,
+      "mlm_loss": 0.4385
+    },
+    {
+      "epoch": 6,
+      "mlm_loss": 0.4087
+    },
+    {
+      "epoch": 7,
+      "mlm_loss": 0.443
+    },
+    {
+      "epoch": 8,
+      "mlm_loss": 0.4273
+    }
+  ]
+}
