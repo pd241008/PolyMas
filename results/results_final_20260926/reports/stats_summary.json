@@ -522,6 +522,7 @@
     "ancestry_stratified_metrics.csv",
     "bootstrap_ci_ancestry_stratified.csv",
     "pairwise_phi_pvalues.csv",
-    "cooccurrence_structure.json"
+    "cooccurrence_structure.json",
+    "conformal_coverage.json"
   ]
 }

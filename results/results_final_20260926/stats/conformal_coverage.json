@@ -1,0 +1,199 @@
+{
+  "method": "split conformal (held-out block split in seeded halves; calibration/evaluation)",
+  "alpha": 0.1,
+  "n_cal": 500,
+  "n_eval": 500,
+  "seed": 123,
+  "per_disease": {
+    "RA": {
+      "n_test": 500,
+      "coverage": 0.936,
+      "mean_set_size": 1.78,
+      "frac_singletons": 0.22,
+      "frac_empty": 0.0,
+      "q_pos": 0.8506,
+      "q_neg": 0.2665
+    },
+    "SLE": {
+      "n_test": 500,
+      "coverage": 0.9,
+      "mean_set_size": 1.738,
+      "frac_singletons": 0.262,
+      "frac_empty": 0.0,
+      "q_pos": 0.8603,
+      "q_neg": 0.2232
+    },
+    "SJOGRENS": {
+      "n_test": 500,
+      "coverage": 0.896,
+      "mean_set_size": 1.712,
+      "frac_singletons": 0.288,
+      "frac_empty": 0.0,
+      "q_pos": 0.905,
+      "q_neg": 0.1592
+    },
+    "AITD": {
+      "n_test": 500,
+      "coverage": 0.906,
+      "mean_set_size": 1.708,
+      "frac_singletons": 0.292,
+      "frac_empty": 0.0,
+      "q_pos": 0.6706,
+      "q_neg": 0.7508
+    },
+    "T1D": {
+      "n_test": 500,
+      "coverage": 0.912,
+      "mean_set_size": 1.686,
+      "frac_singletons": 0.314,
+      "frac_empty": 0.0,
+      "q_pos": 0.9224,
+      "q_neg": 0.1925
+    },
+    "VITILIGO": {
+      "n_test": 500,
+      "coverage": 0.906,
+      "mean_set_size": 1.72,
+      "frac_singletons": 0.28,
+      "frac_empty": 0.0,
+      "q_pos": 0.6578,
+      "q_neg": 0.7465
+    },
+    "MS": {
+      "n_test": 500,
+      "coverage": 0.898,
+      "mean_set_size": 1.636,
+      "frac_singletons": 0.364,
+      "frac_empty": 0.0,
+      "q_pos": 0.655,
+      "q_neg": 0.7479
+    }
+  },
+  "ancestry_stratified_descriptive": {
+    "RA": {
+      "AFR": {
+        "n": 54,
+        "coverage": 0.9444,
+        "mean_set_size": 1.8148
+      },
+      "EAS": {
+        "n": 77,
+        "coverage": 0.9351,
+        "mean_set_size": 1.7922
+      },
+      "EUR": {
+        "n": 369,
+        "coverage": 0.935,
+        "mean_set_size": 1.7724
+      }
+    },
+    "SLE": {
+      "AFR": {
+        "n": 54,
+        "coverage": 0.9444,
+        "mean_set_size": 1.8519
+      },
+      "EAS": {
+        "n": 77,
+        "coverage": 0.8701,
+        "mean_set_size": 1.7532
+      },
+      "EUR": {
+        "n": 369,
+        "coverage": 0.8997,
+        "mean_set_size": 1.7182
+      }
+    },
+    "SJOGRENS": {
+      "AFR": {
+        "n": 54,
+        "coverage": 0.9259,
+        "mean_set_size": 1.7963
+      },
+      "EAS": {
+        "n": 77,
+        "coverage": 0.8701,
+        "mean_set_size": 1.7403
+      },
+      "EUR": {
+        "n": 369,
+        "coverage": 0.897,
+        "mean_set_size": 1.6938
+      }
+    },
+    "AITD": {
+      "AFR": {
+        "n": 54,
+        "coverage": 0.9815,
+        "mean_set_size": 1.6481
+      },
+      "EAS": {
+        "n": 77,
+        "coverage": 0.8701,
+        "mean_set_size": 1.7403
+      },
+      "EUR": {
+        "n": 369,
+        "coverage": 0.9024,
+        "mean_set_size": 1.71
+      }
+    },
+    "T1D": {
+      "AFR": {
+        "n": 54,
+        "coverage": 0.963,
+        "mean_set_size": 1.5
+      },
+      "EAS": {
+        "n": 77,
+        "coverage": 0.961,
+        "mean_set_size": 1.6753
+      },
+      "EUR": {
+        "n": 369,
+        "coverage": 0.8943,
+        "mean_set_size": 1.7154
+      }
+    },
+    "VITILIGO": {
+      "AFR": {
+        "n": 54,
+        "coverage": 0.9444,
+        "mean_set_size": 1.5185
+      },
+      "EAS": {
+        "n": 77,
+        "coverage": 0.961,
+        "mean_set_size": 1.7532
+      },
+      "EUR": {
+        "n": 369,
+        "coverage": 0.8889,
+        "mean_set_size": 1.7425
+      }
+    },
+    "MS": {
+      "AFR": {
+        "n": 54,
+        "coverage": 0.8148,
+        "mean_set_size": 1.6667
+      },
+      "EAS": {
+        "n": 77,
+        "coverage": 0.9091,
+        "mean_set_size": 1.7273
+      },
+      "EUR": {
+        "n": 369,
+        "coverage": 0.9079,
+        "mean_set_size": 1.6125
+      }
+    }
+  },
+  "gate_reference": {
+    "note": "F-11 verdict stands from the pre-registered OOF run; this automated section is not a re-adjudication",
+    "tolerance": "coverage >= alpha - 0.02 per disease",
+    "n_pass_at_tolerance": 7,
+    "n_diseases": 7
+  }
+}
