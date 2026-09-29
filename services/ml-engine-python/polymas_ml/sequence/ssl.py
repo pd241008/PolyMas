@@ -88,6 +88,42 @@ def mask_context_tokens(input_ids: torch.Tensor, mask_fraction: float = MASK_FRA
     return masked, targets
 
 
+def mask_locus_dropout(input_ids: torch.Tensor,
+                       mask_token_id: int = MASK_TOKEN_ID,
+                       generator: torch.Generator | None = None
+                       ) -> tuple[torch.Tensor, torch.Tensor]:
+    """F-14c variant: hold out ONE locus's genotype token per sequence.
+
+    Exactly one genotype token (id >= TOKEN_HOM_REF) per sequence is masked;
+    the scored set is exactly that position, so every training gradient is
+    cross-locus genotype inference (predict the held-out genotype from the
+    other 7 + full reference context). Genotype positions are located BY
+    TOKEN ID, not by layout, so this is independent of context-length
+    choices. Sequences with no genotype token yield no scored positions
+    (the loss's zero guard handles that batch).
+
+    Pre-registered as F-14c (ROADMAP ledger, commit a4b35d8): the F-14b
+    result localized the transferable SSL signal to genotype->genotype
+    inference; this task concentrates it (1 pure scored token vs ~1.2
+    incidental among ~74 context tokens).
+    """
+    masked = input_ids.clone()
+    batch, _ = input_ids.shape
+    is_genotype = input_ids >= TOKEN_HOM_REF
+    # Per-row uniform choice among genotype positions: random scores on
+    # genotype positions only (everything else +inf so it can't win argmin).
+    rand = torch.rand(input_ids.shape, generator=generator,
+                      device=input_ids.device).masked_fill(~is_genotype, float("inf"))
+    chosen = rand.argmin(dim=1)                                # (B,)
+    rows = torch.arange(batch, device=input_ids.device)
+    has_genotype = is_genotype[rows, chosen]                   # argmin returns 0 for all-inf rows
+    rows, chosen = rows[has_genotype], chosen[has_genotype]
+    masked[rows, chosen] = mask_token_id
+    targets = torch.full_like(input_ids, -100)
+    targets[rows, chosen] = input_ids[rows, chosen]            # original id AT the masked position
+    return masked, targets
+
+
 class MambaMLM(nn.Module):
     """Wraps a MambaSequenceClassifier's encoder with a token-prediction head.
 
@@ -109,19 +145,28 @@ class MambaMLM(nn.Module):
         return self.lm_head(h)                                  # (B, L, vocab)
 
     def pretrain_loss(self, input_ids: torch.Tensor, generator: torch.Generator | None = None,
-                      mask_context_only: bool = False) -> torch.Tensor:
+                      mask_context_only: bool = False,
+                      mask_mode: str | None = None) -> torch.Tensor:
         """CE over masked positions only (scores just those rows' logits).
 
         Masking ~15% of 504 tokens leaves ~76 scored positions per batch
         element, so logits are gathered to (n_masked, vocab) before the
         softmax — the full (B, L, vocab) tensor is never materialized.
 
-        mask_context_only=True routes to mask_context_tokens (F-14a: the
-        genotype tokens 4096..4098 are never masked, so reconstruction of
-        masked context must use them — targets the recorded F-14 root cause
-        of context memorization).
+        Task selection:
+          mask_mode="locus_dropout"  -> mask_locus_dropout (F-14c: exactly
+                                        one genotype token scored per seq)
+          mask_mode="context_only"   -> mask_context_tokens (F-14a task)
+          mask_mode=None (default)   -> mask_context_only flag for backward
+                                        compatibility (True = F-14a task),
+                                        else mask_tokens (F-14/F-14b task)
         """
-        masker = mask_context_tokens if mask_context_only else mask_tokens
+        if mask_mode == "locus_dropout":
+            masker = mask_locus_dropout
+        elif mask_mode == "context_only" or (mask_mode is None and mask_context_only):
+            masker = mask_context_tokens
+        else:
+            masker = mask_tokens
         masked, targets = masker(input_ids, generator=generator)
         h = self.classifier.embed(masked)                       # (B, L, d)
         sel = targets != -100

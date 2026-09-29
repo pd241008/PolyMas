@@ -102,5 +102,12 @@ semantics and its result is NOT a clean A/B against F-14.
   inferable from the rest of the sequence. F-14c (explicit locus-dropout)
   opened in the ⏸ register. Evidence:
   `results/results_final_20260926/f14b_ssl/`.
+- **F-14c EXECUTED 2026-09-28** (pre-registered `a4b35d8`): **PASS** — mean
+  Δ +0.0131, worst seed +0.0022; registered prediction (F-14c > F-14a)
+  CONFIRMED; F-14b stays on top. Final four-cell ordering
+  **F-14b > F-14c > F-14a > F-14** completes the mechanism answer: the
+  objective needs genotype→genotype signal present AND enough scored
+  tokens of it at the training budget — purity alone is insufficient.
+  Evidence: `results/results_final_20260926/f14c_ssl/`.
 - New guardrail adopted: mask-semantics equivalence tests (masked-CE vs
-  manual, zero-mask NaN guard) are now part of the SSL suite (16 tests).
+  manual, zero-mask NaN guard) are now part of the SSL suite (22 tests).

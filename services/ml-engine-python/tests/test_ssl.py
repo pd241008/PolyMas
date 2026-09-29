@@ -16,6 +16,7 @@ from polymas_ml.sequence.ssl import (
     MambaMLM,
     PRETRAIN_VOCAB,
     mask_context_tokens,
+    mask_locus_dropout,
     mask_tokens,
 )
 
@@ -146,6 +147,82 @@ class TestMaskContextTokens:
         loss_manual = F.cross_entropy(model.lm_head(h_sel), targets[sel],
                                       ignore_index=-100)
         assert torch.allclose(loss_flag_off, loss_manual, rtol=1e-4, atol=1e-5)
+
+
+class TestMaskLocusDropout:
+    """F-14c variant: exactly one genotype token scored per sequence."""
+
+    def test_exactly_one_scored_per_row(self) -> None:
+        # 8 genotype tokens per row (kmer_canonical layout: 8x65=504)
+        x = torch.randint(0, VOCAB_SIZE, (32, 504))
+        x[:, ::63] = TOKEN_HET
+        masked, targets = mask_locus_dropout(
+            x, generator=torch.Generator().manual_seed(1))
+        scored = targets != -100
+        assert (scored.sum(dim=1) == 1).all()          # exactly one per row
+        assert scored.shape == x.shape
+        # the scored position holds the ORIGINAL genotype id
+        assert torch.equal(targets[scored], x[scored])
+        # masked input at scored positions = MASK token
+        assert torch.equal(masked[scored],
+                           torch.full_like(masked[scored], MASK_TOKEN_ID))
+
+    def test_scored_positions_are_genotype_only(self) -> None:
+        x = torch.randint(0, VOCAB_SIZE, (16, 504))
+        x[:, ::63] = TOKEN_HOM_ALT
+        _, targets = mask_locus_dropout(
+            x, generator=torch.Generator().manual_seed(2))
+        scored = targets != -100
+        assert (x[scored] >= TOKEN_HOM_REF).all()      # never scores context
+
+    def test_varied_genotype_tokens_represented(self) -> None:
+        # across many draws, all three genotype ids get scored sometimes
+        x = torch.randint(0, VOCAB_SIZE, (256, 504))
+        x[:, ::63] = TOKEN_HOM_REF
+        x[:, 1::63] = TOKEN_HET
+        x[:, 2::63] = TOKEN_HOM_ALT
+        seen = set()
+        for seed in range(40):
+            _, targets = mask_locus_dropout(
+                x, generator=torch.Generator().manual_seed(100 + seed))
+            seen.update(targets[targets != -100].unique().tolist())
+        assert {TOKEN_HOM_REF, TOKEN_HET, TOKEN_HOM_ALT} <= seen
+
+    def test_no_genotype_tokens_no_score(self) -> None:
+        # ids < TOKEN_HOM_REF guaranteed: truly context-only
+        x = torch.randint(0, TOKEN_HOM_REF, (4, 504))
+        masked, targets = mask_locus_dropout(
+            x, generator=torch.Generator().manual_seed(3))
+        assert not (targets != -100).any()
+        assert torch.equal(masked, x)                  # inputs untouched
+
+    def test_loss_routes_and_zero_guard(self) -> None:
+        clf = _tiny_classifier()
+        model = MambaMLM(clf)
+        x = torch.randint(0, VOCAB_SIZE, (2, 504))
+        x[:, ::63] = TOKEN_HET
+        loss = model.pretrain_loss(
+            x, generator=torch.Generator().manual_seed(4),
+            mask_mode="locus_dropout")
+        assert torch.isfinite(loss)
+        # all-genotype-context-free batch -> zero guard
+        x0 = torch.randint(0, TOKEN_HOM_REF, (2, 504))  # context ids only
+        loss0 = model.pretrain_loss(
+            x0, generator=torch.Generator().manual_seed(5),
+            mask_mode="locus_dropout")
+        assert float(loss0) == 0.0 and torch.isfinite(loss0)
+        loss0.backward()
+        assert clf.embedding.weight.grad is not None
+
+    def test_legacy_mask_context_only_kwarg_still_works(self) -> None:
+        clf = _tiny_classifier()
+        model = MambaMLM(clf)
+        x = torch.full((2, 504), TOKEN_HOM_ALT)
+        loss_old = model.pretrain_loss(
+            x, generator=torch.Generator().manual_seed(6), mask_context_only=True)
+        loss_new = model.pretrain_loss(
+            x, generator=torch.Generator().manual_seed(6), mask_mode="context_only")
+        assert float(loss_old) == float(loss_new) == 0.0  # same task, both zero
 
 
 class TestMambaMLM:

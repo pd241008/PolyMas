@@ -11,6 +11,11 @@ Produces, from the saved outputs in results/system_a_run_current/:
    bootstrap CIs on the pooled test split.
 4. Label co-occurrence structure report (MAS diagnostics of the generated
    cohort: overdispersion, polyautoimmunity rates, pairwise phi).
+5. Split-conformal coverage tables (F-11b wiring, 2026-09-28): per-disease
+   empirical coverage at the nominal level + descriptive ancestry
+   stratification. Calibration uses a seeded half of the HELD-OUT block
+   (never the in-sample predictions.csv); the F-11 pre-registered verdict
+   itself stands from the OOF-calibration run (f11_conformal.py).
 
 Outputs land in results/system_a_run_current/stats/ and results/system_a_run_current/reports/.
 
@@ -27,6 +32,7 @@ import logging
 import os
 from pathlib import Path
 
+import numpy as np
 import pandas as pd
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
@@ -96,6 +102,8 @@ def main() -> None:
                              "at n=5000; split into its own call so it can finish)")
     parser.add_argument("--skip-perm", action="store_true",
                         help="reuse the existing silhouette_permutation_test.json")
+    parser.add_argument("--conformal-alpha", type=float, default=0.10,
+                        help="nominal miscoverage level for the conformal section (default 0.10)")
     args = parser.parse_args()
 
     from polymas_ml.data.patients import label_structure_report
@@ -177,6 +185,62 @@ def main() -> None:
     logger.info("Co-occurrence structure -> %s", STATS_DIR / "cooccurrence_structure.json")
     print(json.dumps(structure, indent=2)[:1200])
 
+    # ---- 5. Split-conformal coverage (F-11b wiring) ------------------------
+    # Honest calibration without an OOF matrix in the standard artifacts:
+    # split the HELD-OUT block into seeded halves, calibrate on one,
+    # evaluate on the other. The in-sample predictions.csv is never used
+    # (reconciliation note above). This is the split-halves variant of
+    # split conformal; the F-11 pre-registered verdict stands from the
+    # OOF-calibration run (f11_conformal.py) and is NOT re-adjudicated here.
+    from polymas_ml.evaluation.conformal import evaluate_coverage, stratified_coverage
+
+    alpha = args.conformal_alpha
+    rng_c = np.random.default_rng(args.seed)
+    perm_c = rng_c.permutation(len(test_ids))
+    half = len(perm_c) // 2
+    cal_ids = [test_ids[i] for i in perm_c[:half]]
+    eval_ids = [test_ids[i] for i in perm_c[half:]]
+    logger.info("Conformal: %d calibration / %d evaluation patients (alpha=%.2f)",
+                len(cal_ids), len(eval_ids), alpha)
+
+    coverage: dict[str, dict] = {}
+    strat_cov: dict[str, dict] = {}
+    ancestry_eval = clinical.loc[eval_ids, "ethnicity"].to_numpy()
+    for d in diseases:
+        coverage[d] = evaluate_coverage(
+            y_test.loc[eval_ids, d].to_numpy(),
+            preds_test.loc[eval_ids, d].to_numpy(),
+            y_test.loc[cal_ids, d].to_numpy(),
+            preds_test.loc[cal_ids, d].to_numpy(),
+            alpha=alpha,
+        )
+        strat_cov[d] = stratified_coverage(
+            y_test.loc[eval_ids, d].to_numpy(),
+            preds_test.loc[eval_ids, d].to_numpy(),
+            ancestry_eval,
+            y_test.loc[cal_ids, d].to_numpy(),
+            preds_test.loc[cal_ids, d].to_numpy(),
+            alpha=alpha,
+        )
+    conf = {
+        "method": "split conformal (held-out block split in seeded halves; calibration/evaluation)",
+        "alpha": alpha,
+        "n_cal": len(cal_ids),
+        "n_eval": len(eval_ids),
+        "seed": args.seed,
+        "per_disease": coverage,
+        "ancestry_stratified_descriptive": strat_cov,
+        "gate_reference": {
+            "note": "F-11 verdict stands from the pre-registered OOF run; this automated section is not a re-adjudication",
+            "tolerance": "coverage >= alpha - 0.02 per disease",
+            "n_pass_at_tolerance": int(sum(c["coverage"] >= alpha - 0.02 for c in coverage.values())),
+            "n_diseases": len(diseases),
+        },
+    }
+    (STATS_DIR / "conformal_coverage.json").write_text(json.dumps(conf, indent=2))
+    logger.info("Conformal coverage -> %s", STATS_DIR / "conformal_coverage.json")
+    print(pd.DataFrame(coverage).T[["coverage", "mean_set_size", "frac_empty"]].to_string())
+
     # ---- Summary manifest ---------------------------------------------------
     summary = {
         "n_boot": args.n_boot,
@@ -194,6 +258,7 @@ def main() -> None:
             "bootstrap_ci_ancestry_stratified.csv",
             "pairwise_phi_pvalues.csv",
             "cooccurrence_structure.json",
+            "conformal_coverage.json",
         ],
     }
     (REPORTS_DIR / "stats_summary.json").write_text(json.dumps(summary, indent=2))

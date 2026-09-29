@@ -1,0 +1,38 @@
+{
+  "arm": "scratch",
+  "seed": 2,
+  "val_macro": 0.5402,
+  "test_macro": 0.5436,
+  "history": [
+    {
+      "epoch": 1,
+      "val_macro_auroc": 0.484,
+      "train_loss": 0.4109
+    },
+    {
+      "epoch": 2,
+      "val_macro_auroc": 0.4962,
+      "train_loss": 0.3807
+    },
+    {
+      "epoch": 3,
+      "val_macro_auroc": 0.5241,
+      "train_loss": 0.381
+    },
+    {
+      "epoch": 4,
+      "val_macro_auroc": 0.5374,
+      "train_loss": 0.3809
+    },
+    {
+      "epoch": 5,
+      "val_macro_auroc": 0.5402,
+      "train_loss": 0.3807
+    },
+    {
+      "epoch": 6,
+      "val_macro_auroc": 0.5391,
+      "train_loss": 0.3801
+    }
+  ]
+}
